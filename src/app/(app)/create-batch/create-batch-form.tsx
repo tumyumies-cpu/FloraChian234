@@ -19,10 +19,12 @@ import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { mockBatchData } from "@/lib/data";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CameraCapture } from "@/components/camera-capture";
 
 export function CreateBatchForm() {
   const [loading, setLoading] = useState(false);
   const [newBatchId, setNewBatchId] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,10 +41,19 @@ export function CreateBatchForm() {
   });
 
   async function onSubmit(values: CreateBatchValues) {
+    if (!photo) {
+      toast({
+        variant: 'destructive',
+        title: 'Photo Required',
+        description: 'Please take or upload a photo of the harvest.',
+      });
+      return;
+    }
+
     setLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("New Batch Created:", values);
+    console.log("New Batch Created:", { ...values, photo });
     
     setNewBatchId(mockBatchData.batchId);
     setLoading(false);
@@ -58,6 +69,12 @@ export function CreateBatchForm() {
       router.push(`/provenance/${newBatchId}?role=${role}`);
     }
   };
+
+  const handleResetForm = () => {
+    form.reset();
+    setNewBatchId(null);
+    setPhoto(null);
+  }
 
   const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
 
@@ -88,7 +105,7 @@ export function CreateBatchForm() {
             <Button size="lg" onClick={handleViewProvenance}>
               View Product Journey
             </Button>
-            <Button variant="outline" size="lg" onClick={() => { form.reset(); setNewBatchId(null); }}>
+            <Button variant="outline" size="lg" onClick={handleResetForm}>
               Create Another Batch
             </Button>
           </div>
@@ -98,15 +115,23 @@ export function CreateBatchForm() {
   }
 
   return (
-    <Card className="max-w-4xl">
-      <CardHeader>
-        <CardTitle className="font-headline">Batch Details</CardTitle>
-        <CardDescription>Fill out the form to register a new harvest.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="space-y-4">
+        <h2 className="text-2xl font-headline font-bold">Harvest Photo</h2>
+        <p className="text-muted-foreground">
+          Take a real-time photo of the harvest or upload an existing one. This adds authenticity to the product's story.
+        </p>
+        <CameraCapture onCapture={setPhoto} />
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline">Batch Details</CardTitle>
+          <CardDescription>Fill out the form to register a new harvest.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="productName"
@@ -187,40 +212,40 @@ export function CreateBatchForm() {
                   </FormItem>
                 )}
               />
-            </div>
-            <FormField
-              control={form.control}
-              name="processingDetails"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Initial Notes & Details</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Describe the harvest conditions, batch quality, or any other relevant details."
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <div className="flex justify-end">
-              <Button type="submit" disabled={loading} size="lg">
-                {loading ? (
-                  <>
-                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Batch...
-                  </>
-                ) : (
-                  "Create Batch & Get QR Code"
+              <FormField
+                control={form.control}
+                name="processingDetails"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Initial Notes & Details</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe the harvest conditions, batch quality, or any other relevant details."
+                        rows={3}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+              />
+              
+              <div className="flex justify-end pt-4">
+                <Button type="submit" disabled={loading} size="lg" className="w-full">
+                  {loading ? (
+                    <>
+                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                      Generating Batch...
+                    </>
+                  ) : (
+                    "Create Batch & Get QR Code"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
