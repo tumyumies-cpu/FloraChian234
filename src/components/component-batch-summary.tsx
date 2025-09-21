@@ -8,9 +8,11 @@ import { Badge } from './ui/badge';
 
 interface ComponentBatchSummaryProps {
   batchIds: string[];
+  productId: string;
+  role: string;
 }
 
-export async function ComponentBatchSummary({ batchIds }: ComponentBatchSummaryProps) {
+export async function ComponentBatchSummary({ batchIds, productId, role }: ComponentBatchSummaryProps) {
   const batchDetails = await Promise.all(
     batchIds.map(id => getBatchById(id))
   );
@@ -56,7 +58,7 @@ export async function ComponentBatchSummary({ batchIds }: ComponentBatchSummaryP
                     <TableCell className="text-muted-foreground">{batch.harvestDate}</TableCell>
                     <TableCell className="text-right">
                        <Button asChild variant="outline" size="sm">
-                          <Link href={`/provenance/${batch.batchId}`}>View Full Log</Link>
+                          <Link href={`/provenance/${batch.batchId}?role=${role}&fromProduct=${productId}`}>View Full Log</Link>
                        </Button>
                     </TableCell>
                   </TableRow>

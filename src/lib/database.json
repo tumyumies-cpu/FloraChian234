@@ -149,6 +149,59 @@
   ],
   "products": [
     {
+      "productId": "PROD-1004",
+      "productName": "yhhr",
+      "assembledDate": "2025-09-21",
+      "componentBatches": [
+        "HB-481518",
+        "HB-481517"
+      ],
+      "timeline": [
+        {
+          "id": 99,
+          "title": "Formulation & Manufacturing",
+          "status": "complete",
+          "date": "2025-09-21",
+          "description": "Combined from 2 ingredient batches to create yhhr.",
+          "icon": "combine",
+          "allowedRole": "brand",
+          "cta": "View Final Product"
+        },
+        {
+          "id": 100,
+          "title": "Manufacturing & Packaging",
+          "status": "pending",
+          "icon": "package",
+          "allowedRole": "brand",
+          "cta": "Add Manufacturing Data"
+        },
+        {
+          "id": 101,
+          "title": "Distribution",
+          "status": "locked",
+          "icon": "truck",
+          "allowedRole": "retailer",
+          "cta": "Add Shipping Manifest"
+        },
+        {
+          "id": 102,
+          "title": "Retail",
+          "status": "locked",
+          "icon": "store",
+          "allowedRole": "retailer",
+          "cta": "Confirm Retail Arrival"
+        },
+        {
+          "id": 103,
+          "title": "Consumer Scan",
+          "status": "locked",
+          "icon": "scan",
+          "allowedRole": "consumer",
+          "cta": "View Product Story"
+        }
+      ]
+    },
+    {
       "productId": "PROD-1003",
       "productName": "all in one",
       "assembledDate": "2025-09-21",

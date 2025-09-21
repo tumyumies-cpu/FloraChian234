@@ -16,10 +16,11 @@ export default async function ProvenancePage({
   searchParams,
 }: { 
   params: { batchId: string };
-  searchParams: { role?: string };
+  searchParams: { role?: string; fromProduct?: string };
 }) {
   const { batchId } = params;
   const role = searchParams.role || 'consumer';
+  const fromProduct = searchParams.fromProduct;
 
   let data: BatchData | AssembledProduct | null = null;
   const isProduct = batchId.startsWith('PROD-');
@@ -45,6 +46,10 @@ export default async function ProvenancePage({
   const imageUrl = isProduct ? 'https://picsum.photos/seed/product/1200/800' : (data as BatchData).imageUrl;
   const imageHint = isProduct ? 'final product bottle' : (data as BatchData).imageHint;
 
+  const backLink = fromProduct 
+    ? `/provenance/${fromProduct}?role=${role}` 
+    : { pathname: '/dashboard', query: { role } };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -54,7 +59,7 @@ export default async function ProvenancePage({
             <span className="font-headline text-lg font-semibold">FloraChain</span>
           </Link>
           <Button variant="outline" asChild>
-            <Link href={{ pathname: '/dashboard', query: { role } }}><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
+            <Link href={backLink}><ArrowLeft className="mr-2 h-4 w-4" />Back</Link>
           </Button>
        </header>
 
@@ -102,7 +107,11 @@ export default async function ProvenancePage({
           {/* Ingredient Summary Section (for products only) */}
           {isProduct && (
              <section>
-                <ComponentBatchSummary batchIds={(data as AssembledProduct).componentBatches} />
+                <ComponentBatchSummary 
+                    batchIds={(data as AssembledProduct).componentBatches} 
+                    productId={batchId}
+                    role={role}
+                />
              </section>
           )}
 
