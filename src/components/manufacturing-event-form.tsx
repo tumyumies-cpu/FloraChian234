@@ -17,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ManufacturingEventSchema, type ManufacturingEventValues } from "@/lib/schemas";
 import { LoaderCircle, Upload } from "lucide-react";
+import { useEffect } from "react";
 
 interface ManufacturingEventFormProps {
   onSubmit: (data: ManufacturingEventValues) => Promise<void>;
@@ -36,11 +37,16 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading }: Manufact
         heavyMetals: "Passed - Pb, As, Hg, Cd below detectable limits",
         microbialSafety: "Passed - E. coli, Salmonella not detected",
       },
-      finalBatchId: `FP-${Math.floor(10000 + Math.random() * 90000)}`,
+      finalBatchId: "", // Set dynamically
       expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString().split('T')[0],
       gmpCompliance: "All processes compliant with Good Manufacturing Practices.",
     },
   });
+  
+  useEffect(() => {
+    form.setValue('finalBatchId', `FP-${Math.floor(10000 + Math.random() * 90000)}`);
+  }, [form]);
+
 
   return (
     <Form {...form}>

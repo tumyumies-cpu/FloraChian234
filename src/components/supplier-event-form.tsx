@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SupplierEventSchema, type SupplierEventValues } from "@/lib/schemas";
 import { LoaderCircle, Upload } from "lucide-react";
+import { useEffect } from "react";
 
 interface SupplierEventFormProps {
   onSubmit: (data: SupplierEventValues) => Promise<void>;
@@ -30,11 +31,15 @@ export function SupplierEventForm({ onSubmit, onCancel, loading }: SupplierEvent
       supplierId: "TR-SF-007",
       location: "Oakland, CA Distribution Center",
       quantity: "500 kg",
-      lotNumber: `LOT-${Math.floor(1000 + Math.random() * 9000)}`,
+      lotNumber: "", // Set dynamically
       inspectionReport: "Passed visual and sensory evaluation. COA pending.",
       certifications: "USDA Organic, Non-GMO Project Verified",
     },
   });
+
+  useEffect(() => {
+    form.setValue('lotNumber', `LOT-${Math.floor(1000 + Math.random() * 9000)}`);
+  }, [form]);
 
   return (
     <Form {...form}>
