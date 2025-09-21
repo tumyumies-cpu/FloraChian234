@@ -49,7 +49,7 @@ const statusConfig = {
 const visibilityRules: Record<string, string[]> = {
     farmer: ['farmer'],
     processor: ['farmer', 'processor'],
-    supplier: ['processor', 'supplier'],
+    supplier: ['farmer', 'processor', 'supplier'],
     brand: ['farmer', 'processor', 'supplier', 'brand'],
     distributor: ['farmer', 'processor', 'supplier', 'brand', 'distributor'],
     retailer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
