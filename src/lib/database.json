@@ -60,15 +60,20 @@
         {
           "id": 4,
           "title": "Supplier Acquisition",
-          "status": "pending",
+          "status": "complete",
           "icon": "handshake",
           "allowedRole": "supplier",
-          "cta": "Confirm Acquisition"
+          "cta": "Confirm Acquisition",
+          "description": "Supplier Acquisition confirmed by supplier.",
+          "date": "2025-09-21",
+          "formData": {
+            "description": "Supplier Acquisition confirmed by supplier."
+          }
         },
         {
           "id": 5,
           "title": "Ready for Formulation",
-          "status": "locked",
+          "status": "pending",
           "icon": "combine",
           "allowedRole": "brand",
           "cta": "Select for Product"

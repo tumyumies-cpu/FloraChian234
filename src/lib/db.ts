@@ -84,7 +84,7 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
         { id: 2, title: 'Batch Received by Processor', status: 'pending', icon: 'warehouse', allowedRole: 'processor', cta: 'Confirm Receipt' },
         { id: 3, title: 'Local Processing & Dispatch', status: 'locked', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
         { id: 4, title: 'Supplier Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'supplier', cta: 'Confirm Receipt' },
-        { id: 5, title: 'Supplier Processing & Dispatch', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Confirm Acquisition' },
+        { id: 5, title: 'Supplier Processing & Dispatch', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Add Dispatch Details' },
         { id: 6, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' }
       ]
   };
@@ -131,9 +131,11 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     const componentBatchData = await Promise.all(batchIds.map(id => getBatchById(id)));
     const validBatches = componentBatchData.filter(b => b !== null) as BatchData[];
     
-    const combinedTimeline: TimelineEvent[] = validBatches.flatMap(b => 
-      b.timeline.map(e => ({ ...e, batchId: b.batchId }))
-    );
+    const combinedTimeline: TimelineEvent[] = validBatches.flatMap(b => {
+        // Only include the completed steps from the ingredient's timeline
+        const completedSteps = b.timeline.filter(e => e.status === 'complete');
+        return completedSteps.map(e => ({ ...e, id: e.id, batchId: b.batchId }));
+    });
     
     const assemblyEvent: TimelineEvent = {
         id: 99,
@@ -147,7 +149,6 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     };
     
     const finalTimeline: TimelineEvent[] = [
-        ...combinedTimeline,
         assemblyEvent,
         { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data' },
         { id: 101, title: 'Distribution', status: 'pending', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest' },
@@ -174,6 +175,15 @@ export async function addAssembledProduct(productName: string, batchIds: string[
 export async function getAssembledProductById(productId: string): Promise<AssembledProduct | null> {
     const db = await readDb();
     const product = db.products.find(p => p.productId.toUpperCase() === productId.toUpperCase());
+    
+    if (product) {
+        // De-duplicate the timeline for assembled products before returning
+        const ingredientSteps = product.timeline.filter(e => e.id < 99);
+        const productSteps = product.timeline.filter(e => e.id >= 99);
+        const uniqueIngredientSteps = Array.from(new Map(ingredientSteps.map(e => [e.id, e])).values());
+        product.timeline = [...uniqueIngredientSteps, ...productSteps];
+    }
+    
     return product || null;
 }
 

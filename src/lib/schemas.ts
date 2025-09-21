@@ -68,6 +68,13 @@ export const DistributionEventSchema = z.object({
 });
 export type DistributionEventValues = z.infer<typeof DistributionEventSchema>;
 
+export const RetailEventSchema = z.object({
+    storeId: z.string().min(1, "Store ID is required."),
+    saleDate: z.string().min(1, "Sale date is required."),
+    stockStatus: z.enum(["in_stock", "sold_out", "display_only"]),
+});
+export type RetailEventValues = z.infer<typeof RetailEventSchema>;
+
 
 export const AssembleProductSchema = z.object({
     productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),

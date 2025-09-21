@@ -11,10 +11,12 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
 import { ProcessingEventForm } from './processing-event-form';
-import type { ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues } from '@/lib/schemas';
+import type { ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues, RetailEventValues } from '@/lib/schemas';
 import { SupplierEventForm } from './supplier-event-form';
 import { ManufacturingEventForm } from './manufacturing-event-form';
 import { DistributionEventForm } from './distribution-event-form';
+import { RetailEventForm } from './retail-event-form';
+
 
 interface InteractiveTimelineProps {
   initialEvents: TimelineEvent[];
@@ -49,10 +51,10 @@ const visibilityRules: Record<string, string[]> = {
     processor: ['farmer', 'processor'],
     supplier: ['processor', 'supplier'],
     distributor: ['brand', 'distributor'],
-    retailer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
+    retailer: ['distributor', 'retailer'],
     consumer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
     brand: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
-    admin: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
+    admin: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer'],
 };
 
 
@@ -106,7 +108,12 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const timelineEvents = useMemo(() => {
     if (isProduct) {
         // For products, only show the product-specific timeline steps
-        return events.filter(e => e.id >= 99).map(e => ({ ...e, uniqueId: e.id.toString() }));
+        const productSteps = events.filter(e => e.id >= 99);
+        // De-duplicate ingredient steps, showing only the first occurrence for context
+        const ingredientSteps = events.filter(e => e.id < 99);
+        const uniqueIngredientSteps = Array.from(new Map(ingredientSteps.map(e => [e.id, e])).values());
+        
+        return [...uniqueIngredientSteps, ...productSteps].map(e => ({ ...e, uniqueId: e.id.toString() }));
     }
     // For single batches, just use ID
     return events.map((e, index) => ({...e, uniqueId: `${e.id}-${index}`}));
@@ -126,7 +133,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     initialData={event.formData}
                 />
             );
-        case 5: // Supplier Processing & Dispatch (previously Supplier Acquisition)
+        case 5: // Supplier Processing & Dispatch
             return (
                 <SupplierEventForm
                     loading={loading}
@@ -153,6 +160,15 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     initialData={event.formData}
                 />
             );
+        case 103: // In-Store Provenance
+            return (
+                <RetailEventForm
+                    loading={loading}
+                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onCancel={() => setEditingEventId(null)}
+                    initialData={event.formData}
+                />
+            );
         default:
             return null;
     }
@@ -167,7 +183,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
   const isSimpleConfirmation = (event: TimelineEvent) => {
       // Add event IDs that should be simple confirmations without a form
-      const simpleConfirmationIds = [2, 4]; // Batch Received by Processor, Supplier Receiving
+      const simpleConfirmationIds = [2, 4, 102];
       return simpleConfirmationIds.includes(event.id);
   }
 
