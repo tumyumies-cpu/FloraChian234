@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react';
 import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine, Handshake, Warehouse } from 'lucide-react';
 
 export type EventStatus = 'complete' | 'pending' | 'locked';
-export type UserRole = 'farmer' | 'processor' | 'supplier' | 'brand' | 'retailer' | 'consumer' | 'admin';
+export type UserRole = 'farmer' | 'processor' | 'supplier' | 'brand' | 'distributor' | 'retailer' | 'consumer' | 'admin';
 
 export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine' | 'handshake' | 'warehouse';
 

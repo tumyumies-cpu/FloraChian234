@@ -27,7 +27,7 @@ export function VerifyForm({ role }: VerifyFormProps) {
     setHasMounted(true);
   }, []);
 
-  const isProductRole = role === 'consumer' || role === 'retailer';
+  const isProductRole = role === 'consumer' || role === 'retailer' || role === 'distributor';
   const idType = isProductRole ? "Product" : "Batch";
   const placeholder = isProductRole ? "e.g., PROD-1001" : "e.g., HB-481516";
   const description = `You can typically find the ${idType} ID printed near the QR code on the product packaging.`;

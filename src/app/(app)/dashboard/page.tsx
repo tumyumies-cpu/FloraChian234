@@ -5,6 +5,7 @@ import { ConsumerDashboard } from '@/components/dashboards/consumer-dashboard';
 import { AdminDashboard } from '@/components/dashboards/admin-dashboard';
 import { BrandDashboard } from '@/components/dashboards/brand-dashboard';
 import { SupplierDashboard } from '@/components/dashboards/supplier-dashboard';
+import { DistributorDashboard } from '@/components/dashboards/distributor-dashboard';
 
 export default function DashboardPage({
   searchParams,
@@ -23,6 +24,8 @@ export default function DashboardPage({
         return <SupplierDashboard />;
       case 'brand':
         return <BrandDashboard />;
+      case 'distributor':
+        return <DistributorDashboard />;
       case 'retailer':
         return <RetailerDashboard />;
       case 'admin':
@@ -43,6 +46,8 @@ export default function DashboardPage({
         return 'Supplier/Trader Dashboard';
       case 'brand':
         return 'Manufacturer Dashboard';
+      case 'distributor':
+        return 'Distributor Dashboard';
       case 'retailer':
         return 'Retailer Dashboard';
       case 'admin':
