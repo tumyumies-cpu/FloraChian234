@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { getBatchData } from "@/lib/data";
+import { getBatchById } from "@/lib/db";
 import { ArrowRight, LoaderCircle, ScanLine } from "lucide-react";
 
 export function VerifyForm() {
@@ -28,10 +28,10 @@ export function VerifyForm() {
     }
     setLoading(true);
 
-    // Simulate API check
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // In a real app, this would be an API call. Here we call our DB helper.
+    const batchExists = await getBatchById(batchId);
     
-    if (getBatchData(batchId)) {
+    if (batchExists) {
       const role = searchParams.get('role') || 'consumer';
       router.push(`/provenance/${batchId.toUpperCase()}?role=${role}`);
     } else {

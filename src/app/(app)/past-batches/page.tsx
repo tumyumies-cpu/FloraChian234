@@ -1,16 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { mockBatchData } from "@/lib/data";
-import { List } from "lucide-react";
+import { getBatches } from "@/lib/db";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function PastBatchesPage({
+export default async function PastBatchesPage({
   searchParams,
 }: {
   searchParams: { role?: string };
 }) {
   const role = searchParams.role || 'farmer';
-  const batch = mockBatchData; // In a real app, this would be a list fetched from a DB
+  const batches = await getBatches();
 
   return (
     <div className="space-y-8">
@@ -24,18 +23,22 @@ export default function PastBatchesPage({
           <CardTitle>Batch History</CardTitle>
           <CardDescription>Click on a batch to view its full provenance details.</CardDescription>
         </CardHeader>
-        <CardContent>
-            {/* In a real app, you would map over a list of batches here */}
-             <div className="border rounded-lg p-4 flex items-center justify-between">
-                <div>
-                    <h3 className="font-semibold">{batch.productName} - <span className="font-mono text-muted-foreground">{batch.batchId}</span></h3>
-                    <p className="text-sm text-muted-foreground">Harvested on {batch.harvestDate}</p>
-                </div>
-                <Button asChild variant="outline">
-                    <Link href={`/provenance/${batch.batchId}?role=${role}`}>View Details</Link>
-                </Button>
-            </div>
-             <p className="text-sm text-muted-foreground text-center mt-4">Showing 1 of 1 batches. More would appear here as you create them.</p>
+        <CardContent className="space-y-4">
+            {batches.length > 0 ? (
+                batches.map(batch => (
+                    <div key={batch.batchId} className="border rounded-lg p-4 flex items-center justify-between">
+                        <div>
+                            <h3 className="font-semibold">{batch.productName} - <span className="font-mono text-muted-foreground">{batch.batchId}</span></h3>
+                            <p className="text-sm text-muted-foreground">Harvested on {new Date(batch.harvestDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                        </div>
+                        <Button asChild variant="outline">
+                            <Link href={`/provenance/${batch.batchId}?role=${role}`}>View Details</Link>
+                        </Button>
+                    </div>
+                ))
+            ) : (
+                <p className="text-sm text-muted-foreground text-center mt-4">You haven't created any batches yet.</p>
+            )}
         </CardContent>
       </Card>
     </div>

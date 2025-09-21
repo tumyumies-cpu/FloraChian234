@@ -39,7 +39,7 @@ export interface BatchData {
   timeline: TimelineEvent[];
 }
 
-export const mockBatchData: BatchData = {
+export const initialMockBatchData: BatchData = {
   batchId: 'HB-481516',
   productName: 'Organic Basil',
   farmName: 'Verdant Valley Farms',
@@ -110,9 +110,10 @@ export const mockBatchData: BatchData = {
   ],
 };
 
+// This function is being deprecated in favor of the DB calls.
 export function getBatchData(batchId: string): BatchData | null {
-  if (batchId.toUpperCase() === mockBatchData.batchId.toUpperCase()) {
-    return mockBatchData;
+  if (batchId.toUpperCase() === initialMockBatchData.batchId.toUpperCase()) {
+    return initialMockBatchData;
   }
   return null;
 }

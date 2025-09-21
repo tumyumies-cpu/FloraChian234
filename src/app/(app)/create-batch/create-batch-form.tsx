@@ -13,15 +13,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CreateBatchSchema, type CreateBatchValues } from "@/lib/schemas";
-import { CalendarIcon, Download, LoaderCircle, QrCode, MapPin, Sparkles, AlertTriangle } from "lucide-react";
+import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles } from "lucide-react";
 import { format, subDays } from "date-fns";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { mockBatchData } from "@/lib/data";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraCapture } from "@/components/camera-capture";
 import { diagnosePlantHealth } from "@/ai/flows/diagnose-plant-health";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { createBatch } from "@/app/actions";
 
 type DiagnosisState = {
   isHealthy: boolean;
@@ -42,11 +41,11 @@ export function CreateBatchForm() {
   const form = useForm<CreateBatchValues>({
     resolver: zodResolver(CreateBatchSchema),
     defaultValues: {
-      productName: "",
-      farmName: "",
+      productName: "Organic Basil",
+      farmName: "Verdant Valley Farms",
       location: "",
       harvestDate: new Date(),
-      processingDetails: "",
+      processingDetails: "Hand-picked at dawn, immediately cooled.",
     },
   });
 
@@ -64,6 +63,8 @@ export function CreateBatchForm() {
         title: 'AI Diagnosis Failed',
         description: 'Could not analyze the plant health. Please proceed manually.',
       });
+      // Allow proceeding without diagnosis
+      setDiagnosis({ isHealthy: true, diagnosis: 'Diagnosis could not be completed.' });
     } finally {
       setDiagnosisLoading(false);
     }
@@ -74,13 +75,10 @@ export function CreateBatchForm() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // In a real app, you'd use a reverse geocoding service.
-          // For this demo, we'll simulate it.
           const { latitude, longitude } = position.coords;
           console.log(`Lat: ${latitude}, Lon: ${longitude}`);
           
           setTimeout(() => {
-            // Simulate reverse geocoding API call
              form.setValue("location", "Sonoma County, California", { shouldValidate: true });
              toast({
                 title: "Location Captured",
@@ -118,18 +116,32 @@ export function CreateBatchForm() {
       });
       return;
     }
+    if (!diagnosis) {
+        toast({
+            variant: 'destructive',
+            title: 'AI Diagnosis Required',
+            description: 'Please wait for the AI diagnosis to complete.',
+        });
+        return;
+    }
 
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("New Batch Created:", { ...values, photo, diagnosis });
-    
-    setNewBatchId(mockBatchData.batchId);
+    const result = await createBatch({ ...values, photo, diagnosis });
     setLoading(false);
-    toast({
-      title: "Batch Created Successfully!",
-      description: `Batch ID ${mockBatchData.batchId} is now being tracked.`,
-    });
+
+    if (result.success && result.batchId) {
+        setNewBatchId(result.batchId);
+        toast({
+            title: "Batch Created Successfully!",
+            description: `Batch ID ${result.batchId} is now being tracked.`,
+        });
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Failed to Create Batch",
+            description: result.message || "An unknown error occurred.",
+        });
+    }
   }
 
   const handleViewProvenance = () => {
@@ -140,14 +152,19 @@ export function CreateBatchForm() {
   };
 
   const handleResetForm = () => {
-    form.reset();
+    form.reset({
+        productName: "Organic Basil",
+        farmName: "Verdant Valley Farms",
+        location: "",
+        harvestDate: new Date(),
+        processingDetails: "Hand-picked at dawn, immediately cooled.",
+    });
     setNewBatchId(null);
     setPhoto(null);
     setDiagnosis(null);
   }
 
   const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
-
   const threeDaysAgo = subDays(new Date(), 2);
 
   if (newBatchId && qrCodeImage) {
@@ -203,33 +220,27 @@ export function CreateBatchForm() {
             A quick analysis of the plant's health based on the photo.
           </p>
         </div>
-        {diagnosisLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground p-4 border rounded-lg">
-            <LoaderCircle className="h-4 w-4 animate-spin" />
-            <span>AI is analyzing the photo...</span>
-          </div>
-        )}
-        {diagnosis && (
-          <div className={cn(
-            "p-4 border rounded-lg",
-            diagnosis.isHealthy ? "bg-green-50 border-green-200" : "bg-destructive/10 border-destructive/20"
-          )}>
-            <div className="flex items-start gap-3">
-              <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-white mt-1",  diagnosis.isHealthy ? "bg-green-500" : "bg-destructive")}>
-                 <Sparkles className="h-4 w-4" />
-              </div>
-              <div>
-                <p className="font-semibold">{diagnosis.isHealthy ? "Plant Looks Healthy" : "Potential Issue Detected"}</p>
-                <p className="text-sm text-muted-foreground">{diagnosis.diagnosis}</p>
-              </div>
+        
+        <Card className={cn(
+          "transition-all",
+          !photo && "opacity-50"
+        )}>
+          <CardHeader className="flex-row items-start gap-3 space-y-0">
+             <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-white shrink-0 mt-1",
+                !diagnosis ? "bg-muted-foreground" : diagnosis.isHealthy ? "bg-green-500" : "bg-destructive"
+              )}>
+               <Sparkles className="h-4 w-4" />
             </div>
-          </div>
-        )}
-         {!diagnosis && !diagnosisLoading && (
-            <div className="p-4 border rounded-lg bg-muted/50 text-center">
-                <p className="text-sm text-muted-foreground">The AI diagnosis will appear here after a photo is taken.</p>
+            <div>
+              <CardTitle className="text-lg">
+                {diagnosisLoading ? "Analyzing..." : diagnosis ? (diagnosis.isHealthy ? "Plant Looks Healthy" : "Potential Issue Detected") : "Awaiting Photo"}
+              </CardTitle>
+              <CardDescription>
+                {diagnosisLoading ? "AI is analyzing the photo..." : diagnosis ? diagnosis.diagnosis : "The AI diagnosis will appear here after a photo is taken."}
+              </CardDescription>
             </div>
-         )}
+          </CardHeader>
+        </Card>
       </div>
 
       <Card>
@@ -344,7 +355,7 @@ export function CreateBatchForm() {
               />
               
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading || !photo || !diagnosis} size="lg" className="w-full">
+                <Button type="submit" disabled={loading || !photo || !diagnosis || diagnosisLoading} size="lg" className="w-full">
                   {loading ? (
                     <>
                       <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -362,5 +373,3 @@ export function CreateBatchForm() {
     </div>
   );
 }
-
-    
