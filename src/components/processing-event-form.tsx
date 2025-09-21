@@ -40,6 +40,9 @@ export function ProcessingEventForm({ onSubmit, onCancel, loading, initialData }
       visualInspection: "Good color, strong aroma, consistent texture.",
       storageCondition: "Cool, dry, dark warehouse",
       storageDuration: "14 days",
+      dispatchDate: new Date().toISOString().split('T')[0],
+      destination: "Oakland Supplier Hub",
+      transportMode: "Refrigerated Truck"
     },
   });
 
@@ -48,7 +51,6 @@ export function ProcessingEventForm({ onSubmit, onCancel, loading, initialData }
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4 bg-background border-t">
         <Accordion type="multiple" defaultValue={['procurement', 'processing']} className="w-full">
           
-          {/* Procurement Data */}
           <AccordionItem value="procurement">
             <AccordionTrigger>1. Procurement Data</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-2">
@@ -182,6 +184,28 @@ export function ProcessingEventForm({ onSubmit, onCancel, loading, initialData }
                     render={({ field }) => (
                     <FormItem>
                         <FormLabel>Storage Duration</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="destination"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Dispatch Destination</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="transportMode"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Transport Mode</FormLabel>
                         <FormControl><Input {...field} /></FormControl>
                             <FormMessage />
                     </FormItem>

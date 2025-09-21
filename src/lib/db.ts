@@ -81,9 +81,10 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
           allowedRole: 'farmer',
           cta: 'Update Harvest Info'
         },
-        { id: 2, title: 'Local Processing', status: 'pending', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
-        { id: 3, title: 'Supplier Acquisition', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Confirm Acquisition' },
-        { id: 4, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' }
+        { id: 2, title: 'Batch Received by Processor', status: 'pending', icon: 'warehouse', allowedRole: 'processor', cta: 'Confirm Receipt' },
+        { id: 3, title: 'Local Processing & Dispatch', status: 'locked', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
+        { id: 4, title: 'Supplier Acquisition', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Confirm Acquisition' },
+        { id: 5, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' }
       ]
   };
 

@@ -25,6 +25,8 @@ export const ProcessingEventSchema = z.object({
     visualInspection: z.string().min(10, "Visual inspection notes are required."),
     storageCondition: z.string().min(3, "Storage condition is required."),
     storageDuration: z.string().min(1, "Storage duration is required."),
+    destination: z.string().min(3, "Destination is required."),
+    transportMode: z.string().min(3, "Transport mode is required."),
 });
 
 export type ProcessingEventValues = z.infer<typeof ProcessingEventSchema>;

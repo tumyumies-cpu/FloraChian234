@@ -62,7 +62,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues | ManufacturingEventValues | DistributionEventValues) => {
+  const handleUpdate = async (eventId: number, data: any) => {
     setLoading(true);
     const result = await updateTimelineEvent(batchId, eventId, data);
 
@@ -83,6 +83,26 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     setLoading(false);
   };
   
+  const handleSimpleConfirmation = async (eventId: number, title: string) => {
+    setLoading(true);
+    const result = await updateTimelineEvent(batchId, eventId, { description: `${title} confirmed by ${role}.` });
+     if (result.success && result.batch) {
+      setEvents(result.batch.timeline);
+      setEditingEventId(null);
+      toast({
+        title: "Update Successful!",
+        description: `The '${title}' step has been completed.`,
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: result.message || "An unknown error occurred.",
+      });
+    }
+    setLoading(false);
+  };
+
   const timelineEvents = useMemo(() => {
     if (isProduct) {
       // For products, only show events from manufacturing onwards (IDs >= 99)
@@ -97,7 +117,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     if (editingEventId !== event.id) return null;
 
     switch (event.id) {
-        case 2: // Local Processing
+        case 3: // Local Processing & Dispatch
             return (
                 <ProcessingEventForm
                     loading={loading}
@@ -106,7 +126,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     initialData={event.formData}
                 />
             );
-        case 3: // Supplier Acquisition
+        case 4: // Supplier Acquisition
             return (
                 <SupplierEventForm
                     loading={loading}
@@ -144,6 +164,12 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     return allowedRoles.includes(event.allowedRole);
   }
 
+  const isSimpleConfirmation = (event: TimelineEvent) => {
+      // Add event IDs that should be simple confirmations without a form
+      const simpleConfirmationIds = [2];
+      return simpleConfirmationIds.includes(event.id);
+  }
+
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
       {timelineEvents.map((event, index) => {
@@ -172,9 +198,16 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                   {canTakeAction && (
                     <Button
                       size="sm"
-                      onClick={() => setEditingEventId(event.id)}
+                      onClick={() => {
+                        if (isSimpleConfirmation(event)) {
+                            handleSimpleConfirmation(event.id, event.title);
+                        } else {
+                            setEditingEventId(event.id);
+                        }
+                      }}
+                      disabled={loading}
                     >
-                      <config.icon className="mr-2 h-4 w-4" />
+                      {loading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
                       {event.cta}
                     </Button>
                   )}
