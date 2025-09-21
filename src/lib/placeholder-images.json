@@ -1,3 +1,16 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "farm-product-1",
+      "description": "A close-up of fresh green leaves",
+      "imageUrl": "https://picsum.photos/seed/101/800/600",
+      "imageHint": "fresh leaves"
+    },
+    {
+      "id": "qr-code-placeholder",
+      "description": "A placeholder QR code",
+      "imageUrl": "https://picsum.photos/seed/102/300/300",
+      "imageHint": "qr code"
+    }
+  ]
 }
