@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 export function FarmerDashboard() {
   return (
-    <>
-      <CardHeader>
+    <div className="p-6">
+      <CardHeader className="p-0">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <PlusCircle className="h-6 w-6" />
@@ -17,7 +17,7 @@ export function FarmerDashboard() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0 pt-4">
         <p className="mb-4 text-sm text-muted-foreground">
           As a farmer, you can begin tracking a new batch by entering its initial details like farm, location, and harvest date. A unique QR code will be generated to follow its journey.
         </p>
@@ -27,6 +27,6 @@ export function FarmerDashboard() {
           </Link>
         </Button>
       </CardContent>
-    </>
+    </div>
   );
 }

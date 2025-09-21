@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 export function RetailerDashboard() {
   return (
-    <>
-      <CardHeader>
+    <div className="p-6">
+      <CardHeader className="p-0">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <ScanLine className="h-6 w-6" />
@@ -17,7 +17,7 @@ export function RetailerDashboard() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0 pt-4">
         <p className="mb-4 text-sm text-muted-foreground">
           As a retailer, you can update a product's journey by confirming its shipment and arrival at your store. Start by looking up a batch.
         </p>
@@ -27,6 +27,6 @@ export function RetailerDashboard() {
           </Link>
         </Button>
       </CardContent>
-    </>
+    </div>
   );
 }

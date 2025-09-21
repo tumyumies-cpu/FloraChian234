@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 export function ConsumerDashboard() {
   return (
-    <>
-      <CardHeader>
+    <div className="p-6">
+      <CardHeader className="p-0">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <ScanLine className="h-6 w-6" />
@@ -17,7 +17,7 @@ export function ConsumerDashboard() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0 pt-4">
         <p className="mb-4 text-sm text-muted-foreground">
           Check the authenticity and trace the full journey of a product by scanning its QR code or manually entering its unique batch ID.
         </p>
@@ -27,6 +27,6 @@ export function ConsumerDashboard() {
           </Link>
         </Button>
       </CardContent>
-    </>
+    </div>
   );
 }

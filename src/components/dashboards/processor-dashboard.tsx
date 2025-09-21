@@ -5,8 +5,8 @@ import Link from 'next/link';
 
 export function ProcessorDashboard() {
   return (
-    <>
-      <CardHeader>
+    <div className="p-6">
+      <CardHeader className="p-0">
         <div className="flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <ScanLine className="h-6 w-6" />
@@ -17,7 +17,7 @@ export function ProcessorDashboard() {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0 pt-4">
         <p className="mb-4 text-sm text-muted-foreground">
           As a processor, your role is to update the product journey with details about processing, lab testing, and packaging. Start by looking up a batch.
         </p>
@@ -27,6 +27,6 @@ export function ProcessorDashboard() {
           </Link>
         </Button>
       </CardContent>
-    </>
+    </div>
   );
 }
