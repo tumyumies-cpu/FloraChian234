@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { getBatches } from '@/lib/db';
 import Link from 'next/link';
-import { ShieldCheck, Search, FileText, BarChart, ListOrdered } from 'lucide-react';
+import { ShieldCheck, Search, ListOrdered, BarChart } from 'lucide-react';
 import type { BatchData } from '@/lib/data';
 
 function getStatus(batch: BatchData) {
@@ -23,7 +23,10 @@ function getStatus(batch: BatchData) {
 export async function AdminDashboard() {
   const batches = await getBatches();
   const totalBatches = batches.length;
-  const inProgress = batches.filter(b => b.timeline.filter(e => e.status === 'complete').length > 1 && b.timeline.filter(e => e.status === 'complete').length < b.timeline.length).length;
+  const inProgress = batches.filter(b => 
+    b.timeline.filter(e => e.status === 'complete').length > 1 && 
+    b.timeline.filter(e => e.status === 'complete').length < b.timeline.length
+  ).length;
 
 
   return (
