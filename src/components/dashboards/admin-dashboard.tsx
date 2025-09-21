@@ -3,18 +3,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { getBatches } from '@/lib/db';
+import { getBatches, getAssembledProducts } from '@/lib/db';
 import Link from 'next/link';
-import { ShieldCheck, Search, ListOrdered, BarChart } from 'lucide-react';
-import type { BatchData } from '@/lib/data';
+import { ShieldCheck, Search, ListOrdered, BarChart, Package, PackageCheck } from 'lucide-react';
+import type { BatchData, AssembledProduct, TimelineEvent } from '@/lib/data';
 
-function getStatus(batch: BatchData) {
-    const completedSteps = batch.timeline.filter(e => e.status === 'complete').length;
-    if (completedSteps === batch.timeline.length) {
+function getStatus(timeline: TimelineEvent[]) {
+    const completedSteps = timeline.filter(e => e.status === 'complete').length;
+    if (completedSteps === timeline.length) {
         return <Badge variant="secondary">Complete</Badge>;
     }
     if (completedSteps > 1) {
-        const currentStep = batch.timeline.find(e => e.status === 'pending');
+        const currentStep = timeline.find(e => e.status === 'pending');
         return <Badge variant="default">{currentStep?.title || 'In Progress'}</Badge>;
     }
     return <Badge variant="outline">Created</Badge>;
@@ -22,10 +22,18 @@ function getStatus(batch: BatchData) {
 
 export async function AdminDashboard() {
   const batches = await getBatches();
+  const products = await getAssembledProducts();
+
   const totalBatches = batches.length;
-  const inProgress = batches.filter(b => 
+  const inProgressBatches = batches.filter(b => 
     b.timeline.filter(e => e.status === 'complete').length > 1 && 
     b.timeline.filter(e => e.status === 'complete').length < b.timeline.length
+  ).length;
+
+  const totalProducts = products.length;
+  const inProgressProducts = products.filter(p =>
+    p.timeline.filter(e => e.status === 'complete').length > 1 &&
+    p.timeline.filter(e => e.status === 'complete').length < p.timeline.length
   ).length;
 
 
@@ -60,57 +68,120 @@ export async function AdminDashboard() {
             <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{inProgress}</div>
-             <p className="text-xs text-muted-foreground">actively moving through the supply chain</p>
+            <div className="text-2xl font-bold">{inProgressBatches}</div>
+             <p className="text-xs text-muted-foreground">moving through the supply chain</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{totalProducts}</div>
+            <p className="text-xs text-muted-foreground">assembled products registered</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Products In-Progress</CardTitle>
+            <PackageCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{inProgressProducts}</div>
+             <p className="text-xs text-muted-foreground">products in distribution or retail</p>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-          <CardHeader>
-              <CardTitle>All Batches</CardTitle>
-              <CardDescription>A complete log of every batch registered on the platform.</CardDescription>
-              <div className="relative pt-2">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search by Batch ID, Product, or Farm..." className="pl-9" />
-              </div>
-          </CardHeader>
-          <CardContent>
-               <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Batch ID</TableHead>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Farm</TableHead>
-                      <TableHead>Harvest Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {batches.map(batch => (
-                        <TableRow key={batch.batchId}>
-                            <TableCell className="font-mono">{batch.batchId}</TableCell>
-                            <TableCell className="font-medium">{batch.productName}</TableCell>
-                            <TableCell>{batch.farmName}</TableCell>
-                            <TableCell>{batch.harvestDate}</TableCell>
-                            <TableCell>{getStatus(batch)}</TableCell>
-                            <TableCell className="text-right">
-                                <Button asChild variant="outline" size="sm">
-                                    <Link href={`/provenance/${batch.batchId}?role=admin`}>View Details</Link>
-                                </Button>
-                            </TableCell>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card>
+            <CardHeader>
+                <CardTitle>All Batches</CardTitle>
+                <CardDescription>Log of every ingredient batch registered.</CardDescription>
+                <div className="relative pt-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search by Batch ID, Product, or Farm..." className="pl-9" />
+                </div>
+            </CardHeader>
+            <CardContent>
+                <div className="border rounded-md max-h-[30rem] overflow-y-auto">
+                  <Table>
+                      <TableHeader className="sticky top-0 bg-card">
+                        <TableRow>
+                          <TableHead>Batch ID</TableHead>
+                          <TableHead>Product</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                {batches.length === 0 && (
+                      </TableHeader>
+                      <TableBody>
+                        {batches.map(batch => (
+                            <TableRow key={batch.batchId}>
+                                <TableCell className="font-mono">{batch.batchId}</TableCell>
+                                <TableCell className="font-medium">{batch.productName}</TableCell>
+                                <TableCell>{getStatus(batch.timeline)}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={`/provenance/${batch.batchId}?role=admin`}>View</Link>
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                </div>
+                  {batches.length === 0 && (
+                      <div className="text-center text-muted-foreground p-8">
+                          No batches have been created yet.
+                      </div>
+                  )}
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>All Assembled Products</CardTitle>
+                <CardDescription>Log of every final product registered.</CardDescription>
+                <div className="relative pt-2">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search by Product ID or Name..." className="pl-9" />
+                </div>
+            </CardHeader>
+            <CardContent>
+                <div className="border rounded-md max-h-[30rem] overflow-y-auto">
+                    <Table>
+                      <TableHeader className="sticky top-0 bg-card">
+                        <TableRow>
+                          <TableHead>Product ID</TableHead>
+                          <TableHead>Product Name</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {products.map(product => (
+                            <TableRow key={product.productId}>
+                                <TableCell className="font-mono">{product.productId}</TableCell>
+                                <TableCell className="font-medium">{product.productName}</TableCell>
+                                <TableCell>{getStatus(product.timeline)}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button asChild variant="outline" size="sm">
+                                        <Link href={`/provenance/${product.productId}?role=admin`}>View</Link>
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                </div>
+                {products.length === 0 && (
                     <div className="text-center text-muted-foreground p-8">
-                        No batches have been created yet.
+                        No products have been assembled yet.
                     </div>
                 )}
-          </CardContent>
-      </Card>
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
