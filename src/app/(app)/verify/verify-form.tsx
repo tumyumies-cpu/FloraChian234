@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { verifyBatchId } from "@/app/actions";
 import { ArrowRight, LoaderCircle, ScanLine } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function VerifyForm() {
   const [batchId, setBatchId] = useState("");
@@ -16,6 +17,11 @@ export function VerifyForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +49,24 @@ export function VerifyForm() {
       setLoading(false);
     }
   };
+
+  if (!hasMounted) {
+    return (
+        <Card className="max-w-2xl">
+            <CardHeader>
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-4 w-full" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="flex gap-2">
+                    <Skeleton className="h-12 flex-grow" />
+                    <Skeleton className="h-12 w-12" />
+                </div>
+                <Skeleton className="h-11 w-full" />
+            </CardContent>
+        </Card>
+    );
+  }
 
   return (
     <Card className="max-w-2xl">
