@@ -80,7 +80,7 @@ export function VerifyForm({ role }: VerifyFormProps) {
   return (
     <Card className="max-w-2xl">
       <CardHeader>
-        <CardTitle className="font-headline">Enter {idType} ID</CardTitle>
+        <CardTitle className="font-headline">Enter ${idType} ID</CardTitle>
         <CardDescription>
           {description}
         </CardDescription>
