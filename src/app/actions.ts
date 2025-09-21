@@ -1,6 +1,6 @@
 "use server";
 
-import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct } from '@/lib/db';
+import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent } from '@/lib/db';
 import { CreateBatchValues, AssembleProductValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
@@ -19,13 +19,23 @@ export async function createBatch(data: CreateBatchValues & { photo: string; dia
 
 export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent>) {
     try {
-        const updatedBatch = await dbUpdateTimelineEvent(batchId, eventId, data);
-        if (!updatedBatch) {
-            return { success: false, message: "Batch or event not found." };
+        // Determine if we are updating a batch or a product
+        if (batchId.startsWith('PROD-')) {
+            const updatedProduct = await updateProductTimelineEvent(batchId, eventId, data);
+            if (!updatedProduct) {
+                return { success: false, message: "Product or event not found." };
+            }
+            revalidatePath(`/provenance/${batchId}`);
+            return { success: true, batch: updatedProduct };
+        } else {
+            const updatedBatch = await dbUpdateTimelineEvent(batchId, eventId, data);
+            if (!updatedBatch) {
+                return { success: false, message: "Batch or event not found." };
+            }
+            revalidatePath(`/provenance/${batchId}`);
+            revalidatePath('/past-batches');
+            return { success: true, batch: updatedBatch };
         }
-        revalidatePath(`/provenance/${batchId}`);
-        revalidatePath('/past-batches');
-        return { success: true, batch: updatedBatch };
     } catch (error) {
         console.error("Failed to update timeline event:", error);
         return { success: false, message: "An unexpected error occurred." };
@@ -36,7 +46,8 @@ export async function assembleProduct(data: AssembleProductValues) {
     try {
         const newProduct = await addAssembledProduct(data.productName, data.batchIds);
         revalidatePath('/assemble-product');
-        // Potentially revalidate an admin/products page here in the future
+        // This will be the page where admins can see final products.
+        revalidatePath('/admin'); 
         return { success: true, productId: newProduct.productId };
     } catch (error) {
         console.error("Failed to assemble product:", error);

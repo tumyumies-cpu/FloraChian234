@@ -75,36 +75,12 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
         },
         {
           id: 4,
-          title: 'Packaging',
+          title: 'Ready for Assembly',
           status: 'locked',
-          icon: 'package',
-          allowedRole: 'processor',
-          cta: 'Confirm Packaging'
-        },
-        {
-          id: 5,
-          title: 'Shipping',
-          status: 'locked',
-          icon: 'truck',
-          allowedRole: 'retailer',
-          cta: 'Add Shipping Manifest'
-        },
-        {
-          id: 6,
-          title: 'In Store',
-          status: 'locked',
-          icon: 'store',
-          allowedRole: 'retailer',
-          cta: 'Confirm Retail Arrival'
-        },
-         {
-          id: 7,
-          title: 'Consumer Scan',
-          status: 'locked',
-          icon: 'scan',
-          allowedRole: 'consumer',
-          cta: 'View Product Story'
-        },
+          icon: 'combine',
+          allowedRole: 'brand',
+          cta: 'Select for Product'
+        }
       ]
   };
 
@@ -146,16 +122,104 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
 
 export async function addAssembledProduct(productName: string, batchIds: string[]): Promise<AssembledProduct> {
     lastProductId++;
+    const newProductId = `PROD-${lastProductId}`;
+    
+    // For each batchId, we get its timeline
+    const componentBatchTimelines = await Promise.all(
+        batchIds.map(async (id) => {
+            const batch = await getBatchById(id);
+            return batch?.timeline || [];
+        })
+    );
+
+    // We'll create a new master timeline for the assembled product
+    // For simplicity, we'll just merge them and add an assembly event.
+    // A real implementation would require more sophisticated merging logic.
+    let mergedTimeline: TimelineEvent[] = [];
+    componentBatchTimelines.forEach(timeline => {
+        mergedTimeline = mergedTimeline.concat(timeline.filter(e => e.status === 'complete'));
+    });
+    
+    // Remove duplicate events if any, based on a unique property like title and date.
+    mergedTimeline = mergedTimeline.filter((event, index, self) =>
+        index === self.findIndex((e) => e.title === event.title && e.date === event.date && e.description === event.description)
+    );
+
+    // Sort by date
+    mergedTimeline.sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime());
+
+    // Add the assembly event
+    const assemblyEvent: TimelineEvent = {
+        id: 99, // Arbitrary high ID
+        title: 'Assembled into Final Product',
+        status: 'complete',
+        date: new Date().toLocaleDateString('en-CA'),
+        description: `Combined from ${batchIds.length} ingredient batches to create ${productName}.`,
+        icon: 'combine',
+        allowedRole: 'brand',
+        cta: 'View Final Product'
+    };
+    mergedTimeline.push(assemblyEvent);
+    
+    const finalTimeline = mergedTimeline.concat([
+        { id: 100, title: 'Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Confirm Packaging' },
+        { id: 101, title: 'Shipping', status: 'locked', icon: 'truck', allowedRole: 'retailer', cta: 'Add Shipping Manifest' },
+        { id: 102, title: 'In Store', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
+        { id: 103, title: 'Consumer Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
+    ]);
+
+
     const newProduct: AssembledProduct = {
-        productId: `PROD-${lastProductId}`,
+        productId: newProductId,
         productName: productName,
         assembledDate: new Date().toISOString().split('T')[0],
         componentBatches: batchIds,
+        timeline: finalTimeline
     };
+
     products.unshift(newProduct);
     return newProduct;
 }
 
+
+export async function getAssembledProductById(productId: string): Promise<AssembledProduct | null> {
+    const product = products.find(p => p.productId.toUpperCase() === productId.toUpperCase());
+    if (product) {
+        // Return a deep copy
+        return JSON.parse(JSON.stringify(product));
+    }
+    return null;
+}
+
 export async function getAssembledProducts(): Promise<AssembledProduct[]> {
     return JSON.parse(JSON.stringify(products));
+}
+
+// Function to update a timeline event for a specific assembled product.
+export async function updateProductTimelineEvent(productId: string, eventId: number, data: Partial<TimelineEvent>): Promise<AssembledProduct | null> {
+    const product = await getAssembledProductById(productId);
+    if (!product) {
+        return null;
+    }
+
+    const eventIndex = product.timeline.findIndex(e => e.id === eventId);
+    if (eventIndex === -1) {
+        return null;
+    }
+    
+    // Update the event
+    product.timeline[eventIndex] = { ...product.timeline[eventIndex], ...data, status: 'complete' };
+
+    // Unlock the next event
+    if (eventIndex + 1 < product.timeline.length) {
+        product.timeline[eventIndex + 1].status = 'pending';
+    }
+
+    // Find the original product in the `products` array and update it
+    const originalProductIndex = products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
+    if (originalProductIndex !== -1) {
+        products[originalProductIndex] = product;
+    }
+    
+    return product;
 }

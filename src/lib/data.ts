@@ -45,6 +45,7 @@ export interface AssembledProduct {
   productName: string;
   assembledDate: string;
   componentBatches: string[]; // Array of batchIds
+  timeline: TimelineEvent[];
 }
 
 export const initialMockBatchData: BatchData = {
@@ -83,45 +84,13 @@ export const initialMockBatchData: BatchData = {
       allowedRole: 'processor',
       cta: 'Upload Lab Results'
     },
-    {
-      id: 4,
-      title: 'Packaging',
-      status: 'locked',
-      icon: 'package',
-      allowedRole: 'processor',
-      cta: 'Confirm Packaging'
-    },
-    {
-      id: 5,
-      title: 'Shipping',
-      status: 'locked',
-      icon: 'truck',
-      allowedRole: 'retailer',
-      cta: 'Add Shipping Manifest'
-    },
-    {
-      id: 6,
-      title: 'In Store',
-      status: 'locked',
-      icon: 'store',
-      allowedRole: 'retailer',
-      cta: 'Confirm Retail Arrival'
-    },
      {
-      id: 7,
-      title: 'Consumer Scan',
+      id: 4,
+      title: 'Ready for Assembly',
       status: 'locked',
-      icon: 'scan',
-      allowedRole: 'consumer',
-      cta: 'View Product Story'
-    },
+      icon: 'combine',
+      allowedRole: 'brand',
+      cta: 'Select for Product'
+    }
   ],
 };
-
-// This function is being deprecated in favor of the DB calls.
-export function getBatchData(batchId: string): BatchData | null {
-  if (batchId.toUpperCase() === initialMockBatchData.batchId.toUpperCase()) {
-    return initialMockBatchData;
-  }
-  return null;
-}
