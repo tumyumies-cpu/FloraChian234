@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -41,7 +42,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   });
 
   const availableBatches = useMemo(() => batches.filter(batch => {
-    const isReady = batch.timeline.find(e => e.title === 'Supplier Acquisition' && e.status === 'complete');
+    const isReady = batch.timeline.find(e => e.title === 'Supplier Processing & Dispatch' && e.status === 'complete');
     return isReady;
   }), [batches]);
 
