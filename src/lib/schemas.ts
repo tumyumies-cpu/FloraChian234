@@ -7,7 +7,7 @@ export const CreateBatchSchema = z.object({
   harvestDate: z.date({
     required_error: "A harvest date is required.",
   }),
-  processingDetails: z.string().min(10, { message: "Processing details must be at least 10 characters." }),
+  processingDetails: z.string().min(10, { message: "Please provide some initial notes or details." }),
 });
 
 export type CreateBatchValues = z.infer<typeof CreateBatchSchema>;

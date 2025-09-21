@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -13,18 +13,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CreateBatchSchema, type CreateBatchValues } from "@/lib/schemas";
-import { CalendarIcon, Download, LoaderCircle, QrCode } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarIcon, Download, LoaderCircle, QrCode, MapPin, Sparkles, AlertTriangle } from "lucide-react";
+import { format, subDays } from "date-fns";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { mockBatchData } from "@/lib/data";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraCapture } from "@/components/camera-capture";
+import { diagnosePlantHealth } from "@/ai/flows/diagnose-plant-health";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
+type DiagnosisState = {
+  isHealthy: boolean;
+  diagnosis: string;
+} | null;
 
 export function CreateBatchForm() {
   const [loading, setLoading] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
   const [newBatchId, setNewBatchId] = useState<string | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
+  const [diagnosis, setDiagnosis] = useState<DiagnosisState>(null);
+  const [diagnosisLoading, setDiagnosisLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,10 +45,69 @@ export function CreateBatchForm() {
       productName: "",
       farmName: "",
       location: "",
-      harvestDate: undefined,
+      harvestDate: new Date(),
       processingDetails: "",
     },
   });
+
+  const handlePhotoCapture = useCallback(async (dataUrl: string) => {
+    setPhoto(dataUrl);
+    setDiagnosis(null);
+    setDiagnosisLoading(true);
+    try {
+      const result = await diagnosePlantHealth({ photoDataUri: dataUrl });
+      setDiagnosis(result);
+    } catch (error) {
+      console.error("Diagnosis failed:", error);
+      toast({
+        variant: 'destructive',
+        title: 'AI Diagnosis Failed',
+        description: 'Could not analyze the plant health. Please proceed manually.',
+      });
+    } finally {
+      setDiagnosisLoading(false);
+    }
+  }, [toast]);
+
+  const handleGetLocation = () => {
+    setLoadingLocation(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // In a real app, you'd use a reverse geocoding service.
+          // For this demo, we'll simulate it.
+          const { latitude, longitude } = position.coords;
+          console.log(`Lat: ${latitude}, Lon: ${longitude}`);
+          
+          setTimeout(() => {
+            // Simulate reverse geocoding API call
+             form.setValue("location", "Sonoma County, California", { shouldValidate: true });
+             toast({
+                title: "Location Captured",
+                description: "Farm location has been set based on your current position.",
+             });
+             setLoadingLocation(false);
+          }, 1000);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          toast({
+            variant: "destructive",
+            title: "Location Error",
+            description: "Could not retrieve location. Please enable location services or enter it manually.",
+          });
+          setLoadingLocation(false);
+        }
+      );
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Location Not Supported",
+        description: "Geolocation is not supported by your browser.",
+      });
+      setLoadingLocation(false);
+    }
+  };
 
   async function onSubmit(values: CreateBatchValues) {
     if (!photo) {
@@ -53,7 +122,7 @@ export function CreateBatchForm() {
     setLoading(true);
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log("New Batch Created:", { ...values, photo });
+    console.log("New Batch Created:", { ...values, photo, diagnosis });
     
     setNewBatchId(mockBatchData.batchId);
     setLoading(false);
@@ -74,6 +143,7 @@ export function CreateBatchForm() {
     form.reset();
     setNewBatchId(null);
     setPhoto(null);
+    setDiagnosis(null);
   }
 
   const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
@@ -119,9 +189,24 @@ export function CreateBatchForm() {
       <div className="space-y-4">
         <h2 className="text-2xl font-headline font-bold">Harvest Photo</h2>
         <p className="text-muted-foreground">
-          Take a real-time photo of the harvest or upload an existing one. This adds authenticity to the product's story.
+          Take a real-time photo of the harvest. Our AI will perform a quick health check.
         </p>
-        <CameraCapture onCapture={setPhoto} />
+        <CameraCapture onCapture={handlePhotoCapture} />
+        {diagnosisLoading && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+            <span>AI is analyzing the photo...</span>
+          </div>
+        )}
+        {diagnosis && (
+          <Alert variant={diagnosis.isHealthy ? "default" : "destructive"} className={diagnosis.isHealthy ? "bg-green-50 border-green-200" : ""}>
+             <Sparkles className="h-4 w-4" />
+            <AlertTitle className="font-semibold">{diagnosis.isHealthy ? "AI Diagnosis: Plant Looks Healthy" : "AI Diagnosis: Potential Issue Detected"}</AlertTitle>
+            <AlertDescription>
+              {diagnosis.diagnosis}
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       <Card>
@@ -164,9 +249,14 @@ export function CreateBatchForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Farm Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., Sonoma County, California" {...field} />
-                    </FormControl>
+                    <div className="flex items-center gap-2">
+                      <FormControl>
+                        <Input placeholder="e.g., Sonoma County, California" {...field} />
+                      </FormControl>
+                      <Button type="button" variant="outline" size="icon" onClick={handleGetLocation} disabled={loadingLocation}>
+                         {loadingLocation ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
+                      </Button>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -202,7 +292,7 @@ export function CreateBatchForm() {
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
+                            date > new Date() || date < subDays(new Date(), 2)
                           }
                           initialFocus
                         />
@@ -231,7 +321,7 @@ export function CreateBatchForm() {
               />
               
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading} size="lg" className="w-full">
+                <Button type="submit" disabled={loading || !photo} size="lg" className="w-full">
                   {loading ? (
                     <>
                       <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />

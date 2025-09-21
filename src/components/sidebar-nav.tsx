@@ -8,13 +8,14 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, PlusCircle, ScanLine } from 'lucide-react';
+import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/create-batch', label: 'Create Batch', icon: PlusCircle },
+  { href: '/past-batches', label: 'Past Batches', icon: History },
   { href: '/verify', label: 'Verify Batch', icon: ScanLine },
 ];
 
@@ -29,10 +30,10 @@ export function SidebarNav() {
   // Filter menu items based on role
   const filteredMenuItems = menuItems.filter(item => {
     if (role === 'consumer') {
-      return item.href !== '/create-batch';
+      return item.href === '/dashboard' || item.href === '/verify';
     }
     if (role === 'farmer') {
-      return item.href !== '/verify';
+      return item.href === '/dashboard' || item.href === '/create-batch' || item.href === '/past-batches';
     }
     if(role === 'admin') {
         return item.href === '/dashboard';
@@ -59,7 +60,7 @@ export function SidebarNav() {
         <SidebarMenu>
           {filteredMenuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={getHref(item.href)} passHref>
+              <Link href={getHref(item.href)}>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname === item.href}
