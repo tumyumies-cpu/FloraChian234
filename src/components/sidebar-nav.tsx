@@ -7,24 +7,43 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Leaf, LayoutDashboard, PlusCircle, ScanLine } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/context/auth-context';
 
 const menuItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/create-batch', label: 'Create Batch', icon: PlusCircle },
   { href: '/verify', label: 'Verify Batch', icon: ScanLine },
 ];
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const role = searchParams.get('role');
+  const { role } = useAuth();
 
   const getHref = (path: string) => {
     return role ? `${path}?role=${role}` : path;
   }
+
+  // Filter menu items based on role
+  const filteredMenuItems = menuItems.filter(item => {
+    if (role === 'consumer') {
+      return item.href !== '/create-batch';
+    }
+    if (role === 'farmer') {
+      return item.href !== '/verify';
+    }
+    if(role === 'admin') {
+        return item.href === '/dashboard';
+    }
+    // For processor and retailer, they can see verify and dashboard
+    if (role === 'processor' || role === 'retailer') {
+        return item.href === '/dashboard' || item.href === '/verify';
+    }
+
+    return true;
+  });
 
   return (
     <>
@@ -38,7 +57,7 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {menuItems.map((item) => (
+          {filteredMenuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
