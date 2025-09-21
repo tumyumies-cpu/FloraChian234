@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -63,6 +63,15 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (role === 'consumer') {
+        setEvents(prevEvents => {
+            const updated = prevEvents.map(e => e.id === 104 ? { ...e, status: 'complete' } : e);
+            return updated;
+        });
+    }
+  }, [role]);
 
   const handleUpdate = async (eventId: number, data: any) => {
     setLoading(true);

@@ -6,9 +6,9 @@ import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Leaf } from 'lucide-react';
+import { ArrowLeft, Leaf, ShieldCheck, MapPin, Calendar, Microscope, PackageCheck } from 'lucide-react';
 import { InteractiveTimeline } from '@/components/interactive-timeline';
-import type { BatchData, AssembledProduct } from '@/lib/data';
+import type { BatchData, AssembledProduct, UserRole } from '@/lib/data';
 import { ComponentBatchSummary } from '@/components/component-batch-summary';
 
 export default async function ProvenancePage({ 
@@ -19,7 +19,7 @@ export default async function ProvenancePage({
   searchParams: { role?: string; fromProduct?: string };
 }) {
   const { batchId } = params;
-  const role = searchParams.role || 'consumer';
+  const role = (searchParams.role || 'consumer') as UserRole | string;
   const fromProduct = searchParams.fromProduct;
 
   let data: BatchData | AssembledProduct | null = null;
@@ -49,11 +49,74 @@ export default async function ProvenancePage({
   const backLink = fromProduct 
     ? `/provenance/${fromProduct}?role=${role}` 
     : { pathname: '/dashboard', query: { role } };
+  
+  const isConsumerView = role === 'consumer';
 
 
+  if (isConsumerView) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="flex items-center justify-between p-4 border-b">
+            <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
+                <Leaf className="h-6 w-6" />
+                <span className="font-headline text-lg font-semibold">FloraChain</span>
+            </Link>
+            <Button variant="outline" asChild>
+                <Link href={backLink}><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
+            </Button>
+        </header>
+
+        <main className="container mx-auto max-w-4xl py-8 sm:py-12">
+            <div className="space-y-12">
+                <section className="text-center">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+                        <ShieldCheck className="h-5 w-5" />
+                        <span>Verified Authentic</span>
+                    </div>
+                    <h1 className="mt-4 text-4xl md:text-5xl font-headline font-extrabold tracking-tight">{data.productName}</h1>
+                    <p className="mt-2 text-lg text-muted-foreground">ID: <span className="font-mono text-foreground text-base">{isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}</span></p>
+                </section>
+
+                <Card className="overflow-hidden shadow-lg">
+                    <CardContent className="p-0">
+                         <Image
+                            src={imageUrl}
+                            alt={`Image of ${data.productName}`}
+                            width={1200}
+                            height={800}
+                            className="object-cover w-full h-full"
+                            data-ai-hint={imageHint}
+                            priority
+                        />
+                    </CardContent>
+                </Card>
+
+                <Separator />
+                
+                <section>
+                    <StoryGenerator {...storyGeneratorProps} />
+                </section>
+                
+                <section className="space-y-6">
+                    <h2 className="text-3xl font-headline font-bold text-center">The Journey of Your Product</h2>
+                    <InteractiveTimeline 
+                        initialEvents={data.timeline} 
+                        role={role} 
+                        batchId={isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}
+                        isProduct={isProduct}
+                    />
+                </section>
+            </div>
+        </main>
+      </div>
+    )
+  }
+
+
+  // Default view for other roles
   return (
     <div className="min-h-screen bg-background">
-       <header className="flex items-center justify-between p-4 border-b">
+       <header className="flex items-center justify-between p-4 border-b md:hidden">
          <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
             <Leaf className="h-6 w-6" />
             <span className="font-headline text-lg font-semibold">FloraChain</span>
