@@ -2,7 +2,7 @@
 "use server";
 
 import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById } from '@/lib/db';
-import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues, ManufacturingEventValues } from '@/lib/schemas';
+import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
@@ -69,8 +69,23 @@ Final Batch Details:
     `.trim();
 }
 
+function formatDistributionData(data: DistributionEventValues): string {
+    return `
+Warehouse & Stock:
+- Warehouse ID: ${data.warehouseId}
+- Stock Entry Date: ${data.stockEntryDate}
 
-export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues | SupplierEventValues | ManufacturingEventValues) {
+Transportation:
+- Mode: ${data.transportMode}
+- Cold Chain: ${data.coldChain || 'N/A'}
+
+Distributor:
+- ID: ${data.distributorId}
+    `.trim();
+}
+
+
+export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues | SupplierEventValues | ManufacturingEventValues | DistributionEventValues) {
     try {
         let description: string | undefined;
 
@@ -80,6 +95,8 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
             description = formatSupplierData(data as SupplierEventValues);
         } else if ('recipeId' in data) {
             description = formatManufacturingData(data as ManufacturingEventValues);
+        } else if ('warehouseId' in data) {
+            description = formatDistributionData(data as DistributionEventValues);
         } else {
             description = (data as Partial<TimelineEvent>).description;
         }

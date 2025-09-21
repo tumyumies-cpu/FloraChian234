@@ -57,6 +57,16 @@ export const ManufacturingEventSchema = z.object({
 export type ManufacturingEventValues = z.infer<typeof ManufacturingEventSchema>;
 
 
+export const DistributionEventSchema = z.object({
+    warehouseId: z.string().min(1, "Warehouse ID is required."),
+    stockEntryDate: z.string().min(1, "Stock entry date is required."),
+    coldChain: z.string().optional(),
+    transportMode: z.string().min(3, "Transport mode is required."),
+    distributorId: z.string().min(1, "Distributor ID is required."),
+});
+export type DistributionEventValues = z.infer<typeof DistributionEventSchema>;
+
+
 export const AssembleProductSchema = z.object({
     productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),
     batchIds: z.array(z.string()).min(1, { message: "You must select at least one batch." }),

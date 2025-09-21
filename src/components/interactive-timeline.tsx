@@ -11,9 +11,10 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
 import { ProcessingEventForm } from './processing-event-form';
-import type { ProcessingEventValues, SupplierEventValues, ManufacturingEventValues } from '@/lib/schemas';
+import type { ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues } from '@/lib/schemas';
 import { SupplierEventForm } from './supplier-event-form';
 import { ManufacturingEventForm } from './manufacturing-event-form';
+import { DistributionEventForm } from './distribution-event-form';
 
 interface InteractiveTimelineProps {
   initialEvents: TimelineEvent[];
@@ -49,7 +50,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues | ManufacturingEventValues) => {
+  const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues | ManufacturingEventValues | DistributionEventValues) => {
     setLoading(true);
     // The date is now set on the server, so we don't pass it from the client.
     const result = await updateTimelineEvent(batchId, eventId, data);
@@ -122,6 +123,14 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
         case 100: // Manufacturing & Packaging
             return (
                 <ManufacturingEventForm
+                    loading={loading}
+                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onCancel={() => setEditingEventId(null)}
+                />
+            );
+        case 101: // Distribution
+            return (
+                <DistributionEventForm
                     loading={loading}
                     onSubmit={(data) => handleUpdate(event.id, data)}
                     onCancel={() => setEditingEventId(null)}
