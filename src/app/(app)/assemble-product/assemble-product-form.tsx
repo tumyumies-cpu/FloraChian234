@@ -179,8 +179,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                             <TableHeader className="sticky top-0 bg-card">
                                                 <TableRow>
                                                     <TableHead className="w-[50px]"></TableHead>
-                                                    <TableHead>Ingredient</TableHead>
-                                                    <TableHead>Farm</TableHead>
+                                                    <TableHead>Ingredient / Farm</TableHead>
                                                     <TableHead>Harvest Date</TableHead>
                                                     <TableHead className="text-right">Batch ID</TableHead>
                                                 </TableRow>
@@ -211,8 +210,10 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                                                             />
                                                                         </FormControl>
                                                                     </TableCell>
-                                                                    <TableCell className="font-medium">{batch.productName}</TableCell>
-                                                                    <TableCell className="text-muted-foreground">{batch.farmName}</TableCell>
+                                                                    <TableCell className="font-medium">
+                                                                        <div>{batch.productName}</div>
+                                                                        <div className="text-xs text-muted-foreground">{batch.farmName}</div>
+                                                                    </TableCell>
                                                                     <TableCell className="text-muted-foreground">{batch.harvestDate}</TableCell>
                                                                     <TableCell className="text-right font-mono text-xs">{batch.batchId}</TableCell>
                                                                 </TableRow>
