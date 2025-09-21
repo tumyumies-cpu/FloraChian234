@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -34,9 +35,15 @@ export function CreateBatchForm() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [diagnosis, setDiagnosis] = useState<DiagnosisState>(null);
   const [diagnosisLoading, setDiagnosisLoading] = useState(false);
+  const [threeDaysAgo, setThreeDaysAgo] = useState<Date | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // This will only run on the client, after initial hydration
+    setThreeDaysAgo(subDays(new Date(), 2));
+  }, []);
 
   const form = useForm<CreateBatchValues>({
     resolver: zodResolver(CreateBatchSchema),
@@ -165,8 +172,7 @@ export function CreateBatchForm() {
   }
 
   const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
-  const threeDaysAgo = subDays(new Date(), 2);
-
+  
   if (newBatchId && qrCodeImage) {
     return (
       <Card className="max-w-2xl mx-auto">
@@ -326,7 +332,7 @@ export function CreateBatchForm() {
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) =>
-                            date > new Date() || date < threeDaysAgo
+                            !threeDaysAgo || date > new Date() || date < threeDaysAgo
                           }
                           initialFocus
                         />
@@ -373,3 +379,5 @@ export function CreateBatchForm() {
     </div>
   );
 }
+
+    
