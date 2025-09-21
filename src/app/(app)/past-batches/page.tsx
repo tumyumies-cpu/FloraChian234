@@ -23,7 +23,8 @@ export default async function PastBatchesPage({
           <CardTitle>Batch History</CardTitle>
           <CardDescription>Click on a batch to view its full provenance details.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent>
+          <div className="space-y-4">
             {batches.length > 0 ? (
                 batches.map(batch => (
                     <div key={batch.batchId} className="border rounded-lg p-4 flex items-center justify-between">
@@ -39,6 +40,7 @@ export default async function PastBatchesPage({
             ) : (
                 <p className="text-sm text-muted-foreground text-center mt-4">You haven't created any batches yet.</p>
             )}
+          </div>
         </CardContent>
       </Card>
     </div>
