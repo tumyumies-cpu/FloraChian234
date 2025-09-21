@@ -40,7 +40,6 @@ export function ProcessingEventForm({ onSubmit, onCancel, loading, initialData }
       visualInspection: "Good color, strong aroma, consistent texture.",
       storageCondition: "Cool, dry, dark warehouse",
       storageDuration: "14 days",
-      dispatchDate: new Date().toISOString().split('T')[0],
       destination: "Oakland Supplier Hub",
       transportMode: "Refrigerated Truck"
     },
