@@ -107,7 +107,15 @@ export default async function ProvenancePage({
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto max-w-5xl py-8 sm:py-12">
-        <div className="space-y-12">
+        <div className="space-y-8">
+            <div className="mb-8">
+                <Button asChild variant="ghost">
+                    <Link href={backLink}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back
+                    </Link>
+                </Button>
+            </div>
           {/* Header Section */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="space-y-4">
