@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Tractor, Warehouse, ShoppingCart, ShieldCheck, Leaf } from 'lucide-react';
+import type { UserRole } from '@/lib/data';
+import Link from 'next/link';
 
 const roles = [
   { value: 'consumer', label: 'Consumer', icon: User },
@@ -18,25 +20,20 @@ const roles = [
 ];
 
 export default function LoginPage() {
-  const { role, setRole } = useAuth();
+  const { setRole } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(roles[0].value as UserRole);
   const router = useRouter();
-
-  useEffect(() => {
-    if (role) {
-      router.push(`/dashboard?role=${role}`);
-    }
-  }, [role, router]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (role) {
-      router.push(`/dashboard?role=${role}`);
+    if (selectedRole) {
+      setRole(selectedRole);
+      router.push(`/dashboard?role=${selectedRole}`);
     }
   };
   
-  // Set a default role if none is selected
-  const handleRoleChange = (selectedRole: string) => {
-    setRole(selectedRole as any);
+  const handleRoleChange = (roleValue: string) => {
+    setSelectedRole(roleValue as UserRole);
   }
 
   return (
@@ -50,14 +47,14 @@ export default function LoginPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+            <CardTitle className="font-headline text-2xl">Welcome</CardTitle>
             <CardDescription>Select your role to access your dashboard.</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="role-select">Role</Label>
-                <Select onValueChange={handleRoleChange} defaultValue={role || roles[0].value}>
+                <Select onValueChange={handleRoleChange} defaultValue={selectedRole || roles[0].value}>
                   <SelectTrigger id="role-select" className="h-11">
                     <SelectValue placeholder="Select a role..." />
                   </SelectTrigger>
@@ -73,7 +70,7 @@ export default function LoginPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button type="submit" className="w-full" size="lg" disabled={!role}>
+              <Button type="submit" className="w-full" size="lg" disabled={!selectedRole}>
                 Sign In
               </Button>
             </form>
