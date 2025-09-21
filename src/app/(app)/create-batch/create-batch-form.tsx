@@ -148,6 +148,8 @@ export function CreateBatchForm() {
 
   const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
 
+  const threeDaysAgo = subDays(new Date(), 2);
+
   if (newBatchId && qrCodeImage) {
     return (
       <Card className="max-w-2xl mx-auto">
@@ -292,7 +294,7 @@ export function CreateBatchForm() {
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) =>
-                            date > new Date() || date < subDays(new Date(), 2)
+                            date > new Date() || date < threeDaysAgo
                           }
                           initialFocus
                         />
