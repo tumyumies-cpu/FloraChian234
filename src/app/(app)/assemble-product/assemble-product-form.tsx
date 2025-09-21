@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -10,15 +10,15 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { AssembleProductSchema, type AssembleProductValues } from "@/lib/schemas";
-import { LoaderCircle, Check, PackagePlus, Recycle, QrCode, Search } from "lucide-react";
+import { LoaderCircle, PackagePlus, Recycle, QrCode } from "lucide-react";
 import type { BatchData } from "@/lib/data";
 import { Checkbox } from "@/components/ui/checkbox";
 import { assembleProduct } from "@/app/actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AdvancedFilterControls, type FilterState, type SortState } from "./advanced-filter-controls";
 
 interface AssembleProductFormProps {
     batches: BatchData[];
@@ -27,7 +27,8 @@ interface AssembleProductFormProps {
 export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [newProductId, setNewProductId] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState<FilterState>({ productName: "", farmName: "", batchId: "" });
+  const [sort, setSort] = useState<SortState>({ key: 'harvestDate', order: 'desc' });
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,16 +41,29 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     },
   });
 
-  const availableBatches = batches.filter(batch => {
+  const availableBatches = useMemo(() => batches.filter(batch => {
     const isProcessed = batch.timeline.find(e => e.title === 'Processing' && e.status === 'complete');
     return isProcessed;
-  });
+  }), [batches]);
 
-  const filteredBatches = availableBatches.filter(batch => 
-    batch.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    batch.farmName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    batch.batchId.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredAndSortedBatches = useMemo(() => {
+    let filtered = availableBatches.filter(batch =>
+      batch.productName.toLowerCase().includes(filters.productName.toLowerCase()) &&
+      batch.farmName.toLowerCase().includes(filters.farmName.toLowerCase()) &&
+      batch.batchId.toLowerCase().includes(filters.batchId.toLowerCase())
+    );
+
+    filtered.sort((a, b) => {
+      const aValue = a[sort.key];
+      const bValue = b[sort.key];
+
+      if (aValue < bValue) return sort.order === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sort.order === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return filtered;
+  }, [availableBatches, filters, sort]);
 
   async function onSubmit(values: AssembleProductValues) {
     setLoading(true);
@@ -154,18 +168,15 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                     <p className="text-sm text-muted-foreground">Choose one or more processed batches to combine into this product.</p>
                                 </div>
                                 <div className="space-y-4">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input 
-                                            placeholder="Search by product, farm, or ID..." 
-                                            className="pl-9"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
-                                    </div>
-                                    <div className="rounded-md border max-h-96 overflow-y-auto">
+                                    <AdvancedFilterControls
+                                      onFilterChange={setFilters}
+                                      onSortChange={setSort}
+                                      initialFilters={filters}
+                                      initialSort={sort}
+                                    />
+                                    <div className="rounded-md border max-h-[30rem] overflow-y-auto">
                                         <Table>
-                                            <TableHeader>
+                                            <TableHeader className="sticky top-0 bg-card">
                                                 <TableRow>
                                                     <TableHead className="w-[50px]"></TableHead>
                                                     <TableHead>Product</TableHead>
@@ -175,7 +186,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                {filteredBatches.map((batch) => (
+                                                {filteredAndSortedBatches.map((batch) => (
                                                     <FormField
                                                         key={batch.batchId}
                                                         control={form.control}
@@ -209,10 +220,10 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                                         }}
                                                     />
                                                 ))}
-                                                {filteredBatches.length === 0 && (
+                                                {filteredAndSortedBatches.length === 0 && (
                                                     <TableRow>
                                                         <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                                            No batches found.
+                                                            No batches found matching your criteria.
                                                         </TableCell>
                                                     </TableRow>
                                                 )}
@@ -247,3 +258,4 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   );
 }
 
+    
