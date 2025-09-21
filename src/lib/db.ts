@@ -77,15 +77,47 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
             status: 'complete', 
             date: new Date().toLocaleDateString('en-CA'), 
             description: `Hand-picked from ${data.farmName}. Initial notes: ${data.processingDetails}. AI diagnosis: ${data.diagnosis?.diagnosis || 'N/A'}`,
-            consumerDescription: `Origin: ${data.location}\nCultivation: Organic Certified\nHarvest Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+            consumerDescription: `Sourced from ${data.farmName} in ${data.location}, this ingredient was harvested on ${new Date(data.harvestDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} using certified organic methods.`,
             icon: 'sprout', 
             allowedRole: 'farmer', 
             cta: 'Update Harvest Info' 
         },
-        { id: 2, title: 'Local Processing', status: 'pending', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details', consumerDescription: `The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.` },
-        { id: 3, title: 'Supplier Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'supplier', cta: 'Confirm Receipt', consumerDescription: 'Batch acquired by a verified supplier, ensuring quality and traceability.' },
-        { id: 5, title: 'Supplier Processing & Dispatch', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Add Dispatch Details', consumerDescription: 'The ingredient is inspected, certified, and prepared for shipment to the manufacturer.' },
-        { id: 6, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product', consumerDescription: 'The ingredient is now ready to be used in a final product formulation.' },
+        { 
+            id: 2, 
+            title: 'Local Processing', 
+            status: 'pending', 
+            icon: 'factory', 
+            allowedRole: 'processor', 
+            cta: 'Add Processing Details', 
+            consumerDescription: `The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.` 
+        },
+        { 
+            id: 3, 
+            title: 'Supplier Receiving', 
+            status: 'locked', 
+            icon: 'warehouse', 
+            allowedRole: 'supplier', 
+            cta: 'Confirm Receipt', 
+            consumerDescription: 'Batch acquired by a verified supplier, ensuring quality and traceability.' 
+        },
+        { 
+            id: 5, 
+            title: 'Supplier Processing & Dispatch', 
+            status: 'locked', 
+            icon: 'handshake', 
+            allowedRole: 'supplier', 
+            cta: 'Add Dispatch Details', 
+            consumerDescription: 'The ingredient is inspected, certified, and prepared for shipment to the manufacturer.' 
+        },
+        { 
+            id: 6, 
+            title: 'Ready for Formulation', 
+            status: 'locked', 
+            icon: 'combine', 
+            allowedRole: 'brand', 
+            cta: 'Select for Product', 
+            consumerDescription: 'The ingredient is now ready to be used in a final product formulation.' 
+        },
     ]
   };
 
@@ -140,9 +172,9 @@ export async function addAssembledProduct(productName: string, batchIds: string[
         timeline: [
             { id: 99, title: 'Formulation & Manufacturing', status: 'complete', date: new Date().toLocaleDateString('en-CA'), description: `Combined from ${batchIds.length} ingredient batches to create ${productName}.`, consumerDescription: `Based on classical formulations, this product combines high-quality ingredients into a final blend.`, icon: 'combine', allowedRole: 'brand', cta: 'View Final Product' },
             { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data', consumerDescription: 'The product is manufactured and packaged in a GMP-certified facility, ensuring safety and quality.' },
-            { id: 101, title: 'Distribution & Logistics', status: 'locked', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest', consumerDescription: `Dispatched to verified distributors, ensuring the product is handled carefully in transit.` },
+            { id: 101, title: 'Distribution', status: 'locked', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest', consumerDescription: `Dispatched to verified distributors, ensuring the product is handled carefully in transit.` },
             { id: 102, title: 'Retailer Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'retailer', cta: 'Confirm Receipt', consumerDescription: 'Product received by a verified retail partner.'},
-            { id: 103, title: 'In-Store Provenance', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival', consumerDescription: 'Product is available for purchase at your trusted local or online store.' },
+            { id: 103, title: 'In-Store Inventory', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival', consumerDescription: 'Product is available for purchase at your trusted local or online store.' },
             { id: 104, title: 'Consumer Authenticity Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story', consumerDescription: `You have scanned a verified, authentic product. Thank you for choosing FloraChain.` }
         ]
     };
