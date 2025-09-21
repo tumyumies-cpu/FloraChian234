@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const CreateBatchSchema = z.object({
@@ -11,6 +12,24 @@ export const CreateBatchSchema = z.object({
 });
 
 export type CreateBatchValues = z.infer<typeof CreateBatchSchema>;
+
+
+export const ProcessingEventSchema = z.object({
+    collectionCenterId: z.string().min(1, "Collection Center ID is required."),
+    cleaningMethod: z.string().min(3, "Cleaning method is required."),
+    dryingMethod: z.string().min(3, "Drying method is required."),
+    dryingTemp: z.coerce.number().min(0, "Temperature must be a positive number."),
+    dryingDuration: z.string().min(1, "Drying duration is required."),
+    finalMoisture: z.coerce.number().min(0, "Moisture % must be a positive number."),
+    particleSize: z.string().optional(),
+    visualInspection: z.string().min(10, "Visual inspection notes are required."),
+    storageCondition: z.string().min(3, "Storage condition is required."),
+    storageDuration: z.string().min(1, "Storage duration is required."),
+    dispatchDate: z.string().refine((val) => !isNaN(Date.parse(val)), {message: "Invalid date"}),
+});
+
+export type ProcessingEventValues = z.infer<typeof ProcessingEventSchema>;
+
 
 export const AssembleProductSchema = z.object({
     productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),

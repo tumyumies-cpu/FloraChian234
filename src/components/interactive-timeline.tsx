@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -5,11 +6,12 @@ import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
-import { Check, Lock, Edit, Upload, LoaderCircle } from 'lucide-react';
+import { Check, Lock, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
+import { ProcessingEventForm } from './processing-event-form';
+import type { ProcessingEventValues } from '@/lib/schemas';
 
 interface InteractiveTimelineProps {
   initialEvents: TimelineEvent[];
@@ -38,46 +40,17 @@ const statusConfig = {
   },
 };
 
-const EventUpdateForm = ({ event, onUpdate, onCancel }: { event: TimelineEvent, onUpdate: (data: any) => void, onCancel: () => void }) => {
-  const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    await onUpdate({ description, date: new Date().toLocaleDateString('en-CA') });
-    setLoading(false);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-background border-t">
-      <h4 className="font-semibold">Update: {event.title}</h4>
-      <Textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Enter details for this step..."
-        rows={3}
-      />
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="ghost" onClick={onCancel} disabled={loading}>Cancel</Button>
-        <Button type="submit" disabled={loading || !description}>
-          {loading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-          Submit Update
-        </Button>
-      </div>
-    </form>
-  );
-};
-
 export function InteractiveTimeline({ initialEvents, role, batchId }: InteractiveTimelineProps) {
   const [events, setEvents] = useState(initialEvents);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleUpdate = async (eventId: number, data: { description: string; date: string }) => {
+  const handleUpdate = async (eventId: number, data: ProcessingEventValues) => {
+    setLoading(true);
     const result = await updateTimelineEvent(batchId, eventId, { 
-      description: data.description, 
-      date: data.date 
+      ...data,
+      date: new Date().toLocaleDateString('en-CA') 
     });
 
     if (result.success && result.batch) {
@@ -94,6 +67,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
         description: result.message || "An unknown error occurred.",
       });
     }
+    setLoading(false);
   };
 
   const handleCtaClick = (event: TimelineEvent) => {
@@ -152,13 +126,13 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
                 </CardHeader>
                 {event.description && (
                   <CardContent>
-                    <CardDescription>{event.description}</CardDescription>
+                    <CardDescription className="whitespace-pre-wrap">{event.description}</CardDescription>
                   </CardContent>
                 )}
-                {isEditing && (
-                  <EventUpdateForm
-                    event={event}
-                    onUpdate={(data) => handleUpdate(event.id, data)}
+                {isEditing && event.id === 2 && (
+                  <ProcessingEventForm
+                    loading={loading}
+                    onSubmit={(data) => handleUpdate(event.id, data)}
                     onCancel={() => setEditingEventId(null)}
                   />
                 )}

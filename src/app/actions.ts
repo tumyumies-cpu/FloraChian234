@@ -2,7 +2,7 @@
 "use server";
 
 import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById } from '@/lib/db';
-import { CreateBatchValues, AssembleProductValues } from '@/lib/schemas';
+import { CreateBatchValues, AssembleProductValues, ProcessingEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
@@ -18,18 +18,50 @@ export async function createBatch(data: CreateBatchValues & { photo: string; dia
     }
 }
 
-export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent>) {
+function formatProcessingData(data: ProcessingEventValues): string {
+    return `
+Procurement:
+- Collection Center: ${data.collectionCenterId}
+
+Processing:
+- Cleaning: ${data.cleaningMethod}
+- Drying: ${data.dryingMethod} at ${data.dryingTemp}°C for ${data.dryingDuration} (Final Moisture: ${data.finalMoisture}%)
+- Grinding: ${data.particleSize || 'N/A'}
+
+Quality & Safety:
+- Inspection: ${data.visualInspection}
+
+Storage & Dispatch:
+- Stored for ${data.storageDuration} in ${data.storageCondition}
+- Dispatched on: ${data.dispatchDate}
+    `.trim();
+}
+
+
+export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues) {
     try {
-        // Determine if we are updating a batch or a product
+        let description: string | undefined;
+
+        if ('collectionCenterId' in data) { // Check if it's ProcessingEventValues
+            description = formatProcessingData(data as ProcessingEventValues);
+        } else {
+            description = data.description;
+        }
+
+        const updateData: Partial<TimelineEvent> = {
+            description,
+            date: data.date,
+        };
+
         if (batchId.startsWith('PROD-')) {
-            const updatedProduct = await updateProductTimelineEvent(batchId, eventId, data);
+            const updatedProduct = await updateProductTimelineEvent(batchId, eventId, updateData);
             if (!updatedProduct) {
                 return { success: false, message: "Product or event not found." };
             }
             revalidatePath(`/provenance/${batchId}`);
             return { success: true, batch: updatedProduct };
         } else {
-            const updatedBatch = await dbUpdateTimelineEvent(batchId, eventId, data);
+            const updatedBatch = await dbUpdateTimelineEvent(batchId, eventId, updateData);
             if (!updatedBatch) {
                 return { success: false, message: "Batch or event not found." };
             }
