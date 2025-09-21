@@ -23,6 +23,14 @@ export default function ProvenancePage({
     notFound();
   }
 
+  const storyGeneratorProps = {
+    batchId: batchData.batchId,
+    farmName: batchData.farmName,
+    location: batchData.location,
+    harvestDate: batchData.harvestDate,
+    processingDetails: batchData.processingDetails,
+  };
+
   return (
     <div className="min-h-screen bg-background">
        <header className="flex items-center justify-between p-4 border-b">
@@ -65,7 +73,7 @@ export default function ProvenancePage({
           
           {/* AI Story Section */}
           <section>
-            <StoryGenerator batch={batchData} />
+            <StoryGenerator {...storyGeneratorProps} />
           </section>
 
           {/* Timeline Section */}

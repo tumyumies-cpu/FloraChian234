@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from 'react';
-import type { TimelineEvent, EventStatus, UserRole } from '@/lib/data';
+import type { TimelineEvent, UserRole } from '@/lib/data';
+import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
 import { Check, Lock, Edit, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from './ui/textarea';
-import { Input } from './ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 interface InteractiveTimelineProps {
@@ -113,13 +113,14 @@ export function InteractiveTimeline({ initialEvents, role }: InteractiveTimeline
       {events.map((event) => {
         const config = statusConfig[event.status];
         const isEditing = editingEventId === event.id;
+        const EventIcon = iconMap[event.icon];
 
         return (
           <div key={event.id} className="relative grid grid-cols-[auto_1fr] items-start gap-x-3 pb-8">
             {/* Icon */}
             <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-background">
               <div className={cn("z-10 flex h-10 w-10 items-center justify-center rounded-full", config.bgColor, config.color)}>
-                <event.icon className="h-5 w-5" />
+                <EventIcon className="h-5 w-5" />
               </div>
             </div>
 

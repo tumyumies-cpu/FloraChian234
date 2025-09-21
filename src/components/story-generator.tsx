@@ -3,15 +3,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { generateProvenanceStory } from '@/ai/flows/generate-provenance-story';
-import type { BatchData } from '@/lib/data';
+import { generateProvenanceStory, GenerateProvenanceStoryInput } from '@/ai/flows/generate-provenance-story';
 import { LoaderCircle, Sparkles } from 'lucide-react';
 
-interface StoryGeneratorProps {
-  batch: BatchData;
-}
+interface StoryGeneratorProps extends GenerateProvenanceStoryInput {}
 
-export function StoryGenerator({ batch }: StoryGeneratorProps) {
+export function StoryGenerator(props: StoryGeneratorProps) {
   const [story, setStory] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,13 +18,7 @@ export function StoryGenerator({ batch }: StoryGeneratorProps) {
     setError(null);
     setStory(null);
     try {
-      const result = await generateProvenanceStory({
-        batchId: batch.batchId,
-        farmName: batch.farmName,
-        location: batch.location,
-        harvestDate: batch.harvestDate,
-        processingDetails: batch.processingDetails,
-      });
+      const result = await generateProvenanceStory(props);
       setStory(result.story);
     } catch (e) {
       console.error(e);

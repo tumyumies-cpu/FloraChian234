@@ -1,7 +1,20 @@
-import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan } from 'lucide-react';
 
 export type EventStatus = 'complete' | 'pending' | 'locked';
-export type UserRole = 'farmer' | 'processor' | 'retailer' | 'consumer';
+export type UserRole = 'farmer' | 'processor' | 'retailer' | 'consumer' | 'admin';
+
+export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan';
+
+export const iconMap: Record<IconName, LucideIcon> = {
+  sprout: Sprout,
+  factory: Factory,
+  flask: FlaskConical,
+  package: Package,
+  truck: Truck,
+  store: Store,
+  scan: Scan,
+};
 
 export interface TimelineEvent {
   id: number;
@@ -9,7 +22,7 @@ export interface TimelineEvent {
   status: EventStatus;
   date?: string;
   description?: string;
-  icon: LucideIcon;
+  icon: IconName;
   allowedRole: UserRole;
   cta: string;
 }
@@ -42,7 +55,7 @@ export const mockBatchData: BatchData = {
       status: 'complete',
       date: '2023-10-26',
       description: 'Hand-picked from Plot 3B at Verdant Valley Farms.',
-      icon: Sprout,
+      icon: 'sprout',
       allowedRole: 'farmer',
       cta: 'Update Harvest Info'
     },
@@ -50,7 +63,7 @@ export const mockBatchData: BatchData = {
       id: 2,
       title: 'Processing',
       status: 'pending',
-      icon: Factory,
+      icon: 'factory',
       allowedRole: 'processor',
       cta: 'Add Processing Details'
     },
@@ -58,7 +71,7 @@ export const mockBatchData: BatchData = {
       id: 3,
       title: 'Lab Testing',
       status: 'locked',
-      icon: FlaskConical,
+      icon: 'flask',
       allowedRole: 'processor',
       cta: 'Upload Lab Results'
     },
@@ -66,7 +79,7 @@ export const mockBatchData: BatchData = {
       id: 4,
       title: 'Packaging',
       status: 'locked',
-      icon: Package,
+      icon: 'package',
       allowedRole: 'processor',
       cta: 'Confirm Packaging'
     },
@@ -74,7 +87,7 @@ export const mockBatchData: BatchData = {
       id: 5,
       title: 'Shipping',
       status: 'locked',
-      icon: Truck,
+      icon: 'truck',
       allowedRole: 'retailer',
       cta: 'Add Shipping Manifest'
     },
@@ -82,7 +95,7 @@ export const mockBatchData: BatchData = {
       id: 6,
       title: 'In Store',
       status: 'locked',
-      icon: Store,
+      icon: 'store',
       allowedRole: 'retailer',
       cta: 'Confirm Retail Arrival'
     },
@@ -90,7 +103,7 @@ export const mockBatchData: BatchData = {
       id: 7,
       title: 'Consumer Scan',
       status: 'locked',
-      icon: Scan,
+      icon: 'scan',
       allowedRole: 'consumer',
       cta: 'View Product Story'
     },
