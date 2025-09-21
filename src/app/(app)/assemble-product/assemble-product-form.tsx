@@ -16,6 +16,7 @@ import { assembleProduct } from "@/app/actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { cn } from "@/lib/utils";
 
 interface AssembleProductFormProps {
     batches: BatchData[];
