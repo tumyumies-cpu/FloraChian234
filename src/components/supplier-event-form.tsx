@@ -39,7 +39,8 @@ export function SupplierEventForm({ onSubmit, onCancel, loading, initialData }: 
   });
 
   useEffect(() => {
-    if (!initialData) {
+    // Generate client-side only to prevent hydration errors
+    if (!initialData && !form.getValues('lotNumber')) {
       form.setValue('lotNumber', `LOT-${Math.floor(1000 + Math.random() * 9000)}`);
     }
   }, [form, initialData]);

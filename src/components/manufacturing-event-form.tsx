@@ -45,7 +45,8 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
   });
   
   useEffect(() => {
-    if (!initialData) {
+    // Generate client-side only to prevent hydration errors
+    if (!initialData && !form.getValues('finalBatchId')) {
         form.setValue('finalBatchId', `FP-${Math.floor(10000 + Math.random() * 90000)}`);
     }
   }, [form, initialData]);
