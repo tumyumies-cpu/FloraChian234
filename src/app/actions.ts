@@ -1,6 +1,7 @@
+
 "use server";
 
-import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent } from '@/lib/db';
+import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById } from '@/lib/db';
 import { CreateBatchValues, AssembleProductValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
@@ -52,5 +53,15 @@ export async function assembleProduct(data: AssembleProductValues) {
     } catch (error) {
         console.error("Failed to assemble product:", error);
         return { success: false, message: "An unexpected error occurred." };
+    }
+}
+
+export async function verifyBatchId(batchId: string): Promise<{ success: boolean }> {
+    try {
+        const batchExists = await dbGetBatchById(batchId);
+        return { success: !!batchExists };
+    } catch (error) {
+        console.error("Failed to verify batch ID:", error);
+        return { success: false };
     }
 }
