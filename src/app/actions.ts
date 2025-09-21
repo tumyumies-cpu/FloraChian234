@@ -1,7 +1,7 @@
 "use server";
 
-import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent } from '@/lib/db';
-import { CreateBatchValues } from '@/lib/schemas';
+import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct } from '@/lib/db';
+import { CreateBatchValues, AssembleProductValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
@@ -9,6 +9,7 @@ export async function createBatch(data: CreateBatchValues & { photo: string; dia
     try {
         const newBatch = await addBatch(data);
         revalidatePath('/past-batches');
+        revalidatePath('/assemble-product');
         return { success: true, batchId: newBatch.batchId };
     } catch (error) {
         console.error("Failed to create batch:", error);
@@ -27,6 +28,18 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
         return { success: true, batch: updatedBatch };
     } catch (error) {
         console.error("Failed to update timeline event:", error);
+        return { success: false, message: "An unexpected error occurred." };
+    }
+}
+
+export async function assembleProduct(data: AssembleProductValues) {
+    try {
+        const newProduct = await addAssembledProduct(data.productName, data.batchIds);
+        revalidatePath('/assemble-product');
+        // Potentially revalidate an admin/products page here in the future
+        return { success: true, productId: newProduct.productId };
+    } catch (error) {
+        console.error("Failed to assemble product:", error);
         return { success: false, message: "An unexpected error occurred." };
     }
 }

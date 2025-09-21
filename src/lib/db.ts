@@ -3,13 +3,18 @@
  * In a real-world scenario, this would be replaced with a proper database like Firestore or PostgreSQL.
  */
 
-import type { BatchData, TimelineEvent, EventStatus } from './data';
+import type { BatchData, TimelineEvent, AssembledProduct } from './data';
 import { initialMockBatchData } from './data';
 import { CreateBatchValues } from './schemas';
 
 // Initialize the database with one mock batch.
 const batches: BatchData[] = [initialMockBatchData];
-let lastId = 481516;
+const products: AssembledProduct[] = [];
+let lastBatchId = 481516;
+let lastProductId = 1000;
+
+
+// === BATCH FUNCTIONS ===
 
 // Function to get all batches. In a real app, this would query the database.
 export async function getBatches(): Promise<BatchData[]> {
@@ -29,8 +34,8 @@ export async function getBatchById(batchId: string): Promise<BatchData | null> {
 
 // Function to add a new batch.
 export async function addBatch(data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }): Promise<BatchData> {
-  lastId++;
-  const newBatchId = `HB-${lastId}`;
+  lastBatchId++;
+  const newBatchId = `HB-${lastBatchId}`;
   
   const newBatch: BatchData = {
     batchId: newBatchId,
@@ -134,4 +139,23 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
     }
     
     return batch;
+}
+
+
+// === PRODUCT FUNCTIONS ===
+
+export async function addAssembledProduct(productName: string, batchIds: string[]): Promise<AssembledProduct> {
+    lastProductId++;
+    const newProduct: AssembledProduct = {
+        productId: `PROD-${lastProductId}`,
+        productName: productName,
+        assembledDate: new Date().toISOString().split('T')[0],
+        componentBatches: batchIds,
+    };
+    products.unshift(newProduct);
+    return newProduct;
+}
+
+export async function getAssembledProducts(): Promise<AssembledProduct[]> {
+    return JSON.parse(JSON.stringify(products));
 }

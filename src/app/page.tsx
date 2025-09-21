@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Tractor, Warehouse, ShoppingCart, ShieldCheck, Leaf } from 'lucide-react';
+import { User, Tractor, Warehouse, ShoppingCart, ShieldCheck, Leaf, Combine } from 'lucide-react';
 import type { UserRole } from '@/lib/data';
 import Link from 'next/link';
 
@@ -16,6 +16,7 @@ const roles = [
   { value: 'farmer', label: 'Farmer', icon: Tractor },
   { value: 'processor', label: 'Processor', icon: Warehouse },
   { value: 'retailer', label: 'Retailer', icon: ShoppingCart },
+  { value: 'brand', label: 'Brand', icon: Combine },
   { value: 'admin', label: 'Admin', icon: ShieldCheck },
 ];
 

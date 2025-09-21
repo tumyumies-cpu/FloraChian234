@@ -11,3 +11,10 @@ export const CreateBatchSchema = z.object({
 });
 
 export type CreateBatchValues = z.infer<typeof CreateBatchSchema>;
+
+export const AssembleProductSchema = z.object({
+    productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),
+    batchIds: z.array(z.string()).min(1, { message: "You must select at least one batch." }),
+});
+
+export type AssembleProductValues = z.infer<typeof AssembleProductSchema>;

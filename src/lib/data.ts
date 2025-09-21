@@ -1,10 +1,10 @@
 import type { LucideIcon } from 'lucide-react';
-import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan } from 'lucide-react';
+import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine } from 'lucide-react';
 
 export type EventStatus = 'complete' | 'pending' | 'locked';
-export type UserRole = 'farmer' | 'processor' | 'retailer' | 'consumer' | 'admin';
+export type UserRole = 'farmer' | 'processor' | 'retailer' | 'consumer' | 'admin' | 'brand';
 
-export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan';
+export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine';
 
 export const iconMap: Record<IconName, LucideIcon> = {
   sprout: Sprout,
@@ -14,6 +14,7 @@ export const iconMap: Record<IconName, LucideIcon> = {
   truck: Truck,
   store: Store,
   scan: Scan,
+  combine: Combine,
 };
 
 export interface TimelineEvent {
@@ -37,6 +38,13 @@ export interface BatchData {
   imageUrl: string;
   imageHint: string;
   timeline: TimelineEvent[];
+}
+
+export interface AssembledProduct {
+  productId: string;
+  productName: string;
+  assembledDate: string;
+  componentBatches: string[]; // Array of batchIds
 }
 
 export const initialMockBatchData: BatchData = {

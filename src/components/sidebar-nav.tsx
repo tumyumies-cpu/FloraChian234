@@ -8,15 +8,16 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History } from 'lucide-react';
+import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/create-batch', label: 'Create Batch', icon: PlusCircle },
-  { href: '/past-batches', label: 'Past Batches', icon: History },
-  { href: '/verify', label: 'Verify Batch', icon: ScanLine },
+  { href: '/create-batch', label: 'Create Batch', icon: PlusCircle, roles: ['farmer'] },
+  { href: '/past-batches', label: 'Past Batches', icon: History, roles: ['farmer'] },
+  { href: '/verify', label: 'Verify Batch', icon: ScanLine, roles: ['consumer', 'processor', 'retailer'] },
+  { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand'] },
 ];
 
 export function SidebarNav() {
@@ -27,23 +28,11 @@ export function SidebarNav() {
     return role ? `${path}?role=${role}` : path;
   }
 
-  // Filter menu items based on role
   const filteredMenuItems = menuItems.filter(item => {
-    if (role === 'consumer') {
-      return item.href === '/dashboard' || item.href === '/verify';
-    }
-    if (role === 'farmer') {
-      return item.href === '/dashboard' || item.href === '/create-batch' || item.href === '/past-batches';
-    }
-    if(role === 'admin') {
-        return item.href === '/dashboard';
-    }
-    // For processor and retailer, they can see verify and dashboard
-    if (role === 'processor' || role === 'retailer') {
-        return item.href === '/dashboard' || item.href === '/verify';
-    }
-
-    return true;
+    if (!role) return false;
+    if (item.href === '/dashboard') return true; // Everyone sees dashboard
+    if (role === 'admin') return item.href === '/dashboard'; // Admin only sees dashboard for now
+    return item.roles?.includes(role);
   });
 
   return (
