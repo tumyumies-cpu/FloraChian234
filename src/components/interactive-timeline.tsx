@@ -49,10 +49,8 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
 
   const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues) => {
     setLoading(true);
-    const result = await updateTimelineEvent(batchId, eventId, { 
-      ...data,
-      date: new Date().toLocaleDateString('en-CA') 
-    });
+    // The date is now set on the server, so we don't pass it from the client.
+    const result = await updateTimelineEvent(batchId, eventId, data);
 
     if (result.success && result.batch) {
       setEvents(result.batch.timeline);

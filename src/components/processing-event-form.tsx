@@ -39,7 +39,6 @@ export function ProcessingEventForm({ onSubmit, onCancel, loading }: ProcessingE
       visualInspection: "Good color, strong aroma, consistent texture.",
       storageCondition: "Cool, dry, dark warehouse",
       storageDuration: "14 days",
-      dispatchDate: new Date().toISOString().split("T")[0],
     },
   });
 
@@ -176,30 +175,17 @@ export function ProcessingEventForm({ onSubmit, onCancel, loading }: ProcessingE
                     </FormItem>
                     )}
                 />
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <FormField
-                        control={form.control}
-                        name="storageDuration"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Storage Duration</FormLabel>
-                            <FormControl><Input {...field} /></FormControl>
-                             <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                     <FormField
-                        control={form.control}
-                        name="dispatchDate"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Dispatch Date</FormLabel>
-                            <FormControl><Input type="date" {...field} /></FormControl>
-                             <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                </div>
+                <FormField
+                    control={form.control}
+                    name="storageDuration"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Storage Duration</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                            <FormMessage />
+                    </FormItem>
+                    )}
+                />
             </AccordionContent>
           </AccordionItem>
 

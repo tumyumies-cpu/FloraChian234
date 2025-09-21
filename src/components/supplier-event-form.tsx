@@ -29,7 +29,6 @@ export function SupplierEventForm({ onSubmit, onCancel, loading }: SupplierEvent
     defaultValues: {
       supplierId: "TR-SF-007",
       location: "Oakland, CA Distribution Center",
-      receivedDate: new Date().toISOString().split("T")[0],
       quantity: "500 kg",
       lotNumber: `LOT-${Math.floor(1000 + Math.random() * 9000)}`,
       inspectionReport: "Passed visual and sensory evaluation. COA pending.",
@@ -64,18 +63,7 @@ export function SupplierEventForm({ onSubmit, onCancel, loading }: SupplierEvent
                 )}
             />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField
-                control={form.control}
-                name="receivedDate"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Material Received Date</FormLabel>
-                    <FormControl><Input type="date" {...field} /></FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <FormField
                 control={form.control}
                 name="quantity"

@@ -33,7 +33,6 @@ Quality & Safety:
 
 Storage & Dispatch:
 - Stored for ${data.storageDuration} in ${data.storageCondition}
-- Dispatched on: ${data.dispatchDate}
     `.trim();
 }
 
@@ -42,7 +41,6 @@ function formatSupplierData(data: SupplierEventValues): string {
 Acquisition:
 - Supplier ID: ${data.supplierId}
 - Location: ${data.location}
-- Received Date: ${data.receivedDate}
 - Quantity: ${data.quantity}
 - Internal Lot #: ${data.lotNumber}
 
@@ -65,9 +63,10 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
             description = (data as Partial<TimelineEvent>).description;
         }
 
+        // Always set the date on the server to prevent user modification
         const updateData: Partial<TimelineEvent> = {
             description,
-            date: data.date,
+            date: new Date().toLocaleDateString('en-CA'),
         };
 
         if (batchId.startsWith('PROD-')) {

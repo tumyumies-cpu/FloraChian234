@@ -25,7 +25,6 @@ export const ProcessingEventSchema = z.object({
     visualInspection: z.string().min(10, "Visual inspection notes are required."),
     storageCondition: z.string().min(3, "Storage condition is required."),
     storageDuration: z.string().min(1, "Storage duration is required."),
-    dispatchDate: z.string().refine((val) => !isNaN(Date.parse(val)), {message: "Invalid date"}),
 });
 
 export type ProcessingEventValues = z.infer<typeof ProcessingEventSchema>;
@@ -34,7 +33,6 @@ export type ProcessingEventValues = z.infer<typeof ProcessingEventSchema>;
 export const SupplierEventSchema = z.object({
     supplierId: z.string().min(1, "Supplier ID is required."),
     location: z.string().min(3, "Location is required."),
-    receivedDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date" }),
     quantity: z.string().min(1, "Quantity received is required."),
     lotNumber: z.string().min(1, "Batch/Lot number is required."),
     inspectionReport: z.string().optional(),
