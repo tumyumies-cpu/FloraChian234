@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -9,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { AssembleProductSchema, type AssembleProductValues } from "@/lib/schemas";
-import { LoaderCircle, Check, PackagePlus, Recycle, QrCode } from "lucide-react";
+import { LoaderCircle, Check, PackagePlus, Recycle, QrCode, Search } from "lucide-react";
 import type { BatchData } from "@/lib/data";
 import { Checkbox } from "@/components/ui/checkbox";
 import { assembleProduct } from "@/app/actions";
@@ -17,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { cn } from "@/lib/utils";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface AssembleProductFormProps {
     batches: BatchData[];
@@ -25,6 +27,7 @@ interface AssembleProductFormProps {
 export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [newProductId, setNewProductId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,6 +39,17 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
       batchIds: [],
     },
   });
+
+  const availableBatches = batches.filter(batch => {
+    const isProcessed = batch.timeline.find(e => e.title === 'Processing' && e.status === 'complete');
+    return isProcessed;
+  });
+
+  const filteredBatches = availableBatches.filter(batch => 
+    batch.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    batch.farmName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    batch.batchId.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   async function onSubmit(values: AssembleProductValues) {
     setLoading(true);
@@ -139,55 +153,72 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                     <FormLabel>Select Ingredient Batches</FormLabel>
                                     <p className="text-sm text-muted-foreground">Choose one or more processed batches to combine into this product.</p>
                                 </div>
-                                <div className="space-y-3 rounded-md border p-4 max-h-96 overflow-y-auto">
-                                {batches.map((batch) => (
-                                    <FormField
-                                        key={batch.batchId}
-                                        control={form.control}
-                                        name="batchIds"
-                                        render={({ field }) => {
-                                            const isChecked = field.value?.includes(batch.batchId);
-                                            // A batch is selectable if it's been processed
-                                            const isProcessed = batch.timeline.find(e => e.title === 'Processing' && e.status === 'complete');
-                                            const isSelectable = isProcessed || isChecked;
-                                            
-                                            return (
-                                                <FormItem
-                                                    key={batch.batchId}
-                                                    className={cn("flex flex-row items-start space-x-3 space-y-0", !isSelectable && "opacity-50 cursor-not-allowed")}
-                                                >
-                                                    <FormControl>
-                                                        <Checkbox
-                                                            checked={isChecked}
-                                                            disabled={!isSelectable}
-                                                            onCheckedChange={(checked) => {
-                                                                return checked
-                                                                ? field.onChange([...(field.value || []), batch.batchId])
-                                                                : field.onChange(
-                                                                    field.value?.filter(
-                                                                        (value) => value !== batch.batchId
-                                                                    )
-                                                                )
-                                                            }}
-                                                        />
-                                                    </FormControl>
-                                                    <FormLabel className="font-normal w-full">
-                                                        <div className="flex justify-between">
-                                                            <span>{batch.productName} from {batch.farmName}</span>
-                                                            <span className="text-muted-foreground font-mono text-xs">{batch.batchId}</span>
-                                                        </div>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            Harvested: {batch.harvestDate} - 
-                                                            <span className={cn("font-semibold", isProcessed ? "text-green-600" : "text-amber-600")}>
-                                                                {isProcessed ? " Processed" : " Awaiting Processing"}
-                                                            </span>
-                                                        </p>
-                                                    </FormLabel>
-                                                </FormItem>
-                                            )
-                                        }}
-                                    />
-                                ))}
+                                <div className="space-y-4">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input 
+                                            placeholder="Search by product, farm, or ID..." 
+                                            className="pl-9"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="rounded-md border max-h-96 overflow-y-auto">
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-[50px]"></TableHead>
+                                                    <TableHead>Product</TableHead>
+                                                    <TableHead>Farm</TableHead>
+                                                    <TableHead>Harvest Date</TableHead>
+                                                    <TableHead className="text-right">Batch ID</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {filteredBatches.map((batch) => (
+                                                    <FormField
+                                                        key={batch.batchId}
+                                                        control={form.control}
+                                                        name="batchIds"
+                                                        render={({ field }) => {
+                                                            const isChecked = field.value?.includes(batch.batchId);
+                                                            return (
+                                                                <TableRow key={batch.batchId} data-state={isChecked && "selected"}>
+                                                                    <TableCell className="p-2">
+                                                                         <FormControl>
+                                                                            <Checkbox
+                                                                                checked={isChecked}
+                                                                                onCheckedChange={(checked) => {
+                                                                                    return checked
+                                                                                    ? field.onChange([...(field.value || []), batch.batchId])
+                                                                                    : field.onChange(
+                                                                                        field.value?.filter(
+                                                                                            (value) => value !== batch.batchId
+                                                                                        )
+                                                                                    )
+                                                                                }}
+                                                                            />
+                                                                        </FormControl>
+                                                                    </TableCell>
+                                                                    <TableCell className="font-medium">{batch.productName}</TableCell>
+                                                                    <TableCell className="text-muted-foreground">{batch.farmName}</TableCell>
+                                                                    <TableCell className="text-muted-foreground">{batch.harvestDate}</TableCell>
+                                                                    <TableCell className="text-right font-mono text-xs">{batch.batchId}</TableCell>
+                                                                </TableRow>
+                                                            )
+                                                        }}
+                                                    />
+                                                ))}
+                                                {filteredBatches.length === 0 && (
+                                                    <TableRow>
+                                                        <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                                            No batches found.
+                                                        </TableCell>
+                                                    </TableRow>
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                    </div>
                                 </div>
                                 <FormMessage />
                             </FormItem>
@@ -215,3 +246,4 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     </Card>
   );
 }
+
