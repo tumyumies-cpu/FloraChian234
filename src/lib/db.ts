@@ -71,10 +71,21 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
     imageUrl: data.photo,
     imageHint: 'freshly harvested product',
     timeline: [
-      { id: 1, title: 'Cultivation & Harvest', status: 'complete', date: new Date().toLocaleDateString('en-CA'), description: `Hand-picked from ${data.farmName}. Initial notes: ${data.processingDetails}. AI diagnosis: ${data.diagnosis?.diagnosis || 'N/A'}`, icon: 'sprout', allowedRole: 'farmer', cta: 'Update Harvest Info' },
-      { id: 2, title: 'Local Processing', status: 'pending', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
-      { id: 3, title: 'Supplier Acquisition', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Add Dispatch Details' },
-      { id: 4, title: 'Manufacturing & Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' },
+        { 
+            id: 1, 
+            title: 'Cultivation & Harvest', 
+            status: 'complete', 
+            date: new Date().toLocaleDateString('en-CA'), 
+            description: `Hand-picked from ${data.farmName}. Initial notes: ${data.processingDetails}. AI diagnosis: ${data.diagnosis?.diagnosis || 'N/A'}`,
+            consumerDescription: `Origin: ${data.location}\nCultivation: Organic Certified\nHarvest Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`,
+            icon: 'sprout', 
+            allowedRole: 'farmer', 
+            cta: 'Update Harvest Info' 
+        },
+        { id: 2, title: 'Local Processing', status: 'pending', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details', consumerDescription: `The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.` },
+        { id: 3, title: 'Supplier Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'supplier', cta: 'Confirm Receipt', consumerDescription: 'Batch acquired by a verified supplier, ensuring quality and traceability.' },
+        { id: 5, title: 'Supplier Processing & Dispatch', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Add Dispatch Details', consumerDescription: 'The ingredient is inspected, certified, and prepared for shipment to the manufacturer.' },
+        { id: 6, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product', consumerDescription: 'The ingredient is now ready to be used in a final product formulation.' },
     ]
   };
 
@@ -96,9 +107,13 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
     // Update the event
     db.batches[batchIndex].timeline[eventIndex] = { ...db.batches[batchIndex].timeline[eventIndex], ...data, status: 'complete' };
 
-    // Unlock the next event
-    if (eventIndex + 1 < db.batches[batchIndex].timeline.length) {
-        db.batches[batchIndex].timeline[eventIndex + 1].status = 'pending';
+    // Unlock the next event if it exists
+    const nextEvent = db.batches[batchIndex].timeline.find(e => e.id > eventId);
+    if (nextEvent) {
+      const nextEventIndex = db.batches[batchIndex].timeline.findIndex(e => e.id === nextEvent.id);
+      if (db.batches[batchIndex].timeline[nextEventIndex].status === 'locked') {
+        db.batches[batchIndex].timeline[nextEventIndex].status = 'pending';
+      }
     }
     
     await writeDb(db);
@@ -116,43 +131,20 @@ export async function addAssembledProduct(productName: string, batchIds: string[
         return num > max ? num : max;
     }, 1000);
     const newProductId = `PROD-${lastIdNum + 1}`;
-
-    const componentBatchData = await Promise.all(batchIds.map(id => getBatchById(id)));
-    const validBatches = componentBatchData.filter(b => b !== null) as BatchData[];
     
-    const combinedTimeline: TimelineEvent[] = validBatches.flatMap(b => {
-        // Only include the completed steps from the ingredient's timeline
-        const completedSteps = b.timeline.filter(e => e.status === 'complete');
-        return completedSteps.map(e => ({ ...e, id: e.id, batchId: b.batchId }));
-    });
-    
-    const assemblyEvent: TimelineEvent = {
-        id: 99,
-        title: 'Initial Formulation',
-        status: 'complete',
-        date: new Date().toLocaleDateString('en-CA'),
-        description: `Combined from ${batchIds.length} ingredient batches to create ${productName}.`,
-        icon: 'combine',
-        allowedRole: 'brand',
-        cta: 'View Final Product'
-    };
-    
-    const finalTimeline: TimelineEvent[] = [
-        assemblyEvent,
-        { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data' },
-        { id: 101, title: 'Distribution & Logistics', status: 'pending', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest' },
-        { id: 102, title: 'Retailer Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'retailer', cta: 'Confirm Receipt'},
-        { id: 103, title: 'In-Store Inventory', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
-        { id: 104, title: 'Consumer Authenticity Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
-    ];
-
-
     const newProduct: AssembledProduct = {
         productId: newProductId,
         productName: productName,
         assembledDate: new Date().toISOString().split('T')[0],
         componentBatches: batchIds,
-        timeline: finalTimeline
+        timeline: [
+            { id: 99, title: 'Formulation & Manufacturing', status: 'complete', date: new Date().toLocaleDateString('en-CA'), description: `Combined from ${batchIds.length} ingredient batches to create ${productName}.`, consumerDescription: `Based on classical formulations, this product combines high-quality ingredients into a final blend.`, icon: 'combine', allowedRole: 'brand', cta: 'View Final Product' },
+            { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data', consumerDescription: 'The product is manufactured and packaged in a GMP-certified facility, ensuring safety and quality.' },
+            { id: 101, title: 'Distribution & Logistics', status: 'locked', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest', consumerDescription: `Dispatched to verified distributors, ensuring the product is handled carefully in transit.` },
+            { id: 102, title: 'Retailer Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'retailer', cta: 'Confirm Receipt', consumerDescription: 'Product received by a verified retail partner.'},
+            { id: 103, title: 'In-Store Provenance', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival', consumerDescription: 'Product is available for purchase at your trusted local or online store.' },
+            { id: 104, title: 'Consumer Authenticity Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story', consumerDescription: `You have scanned a verified, authentic product. Thank you for choosing FloraChain.` }
+        ]
     };
 
     db.products.unshift(newProduct);
@@ -166,11 +158,17 @@ export async function getAssembledProductById(productId: string): Promise<Assemb
     const product = db.products.find(p => p.productId.toUpperCase() === productId.toUpperCase());
     
     if (product) {
-        // De-duplicate the timeline for assembled products before returning
-        const ingredientSteps = product.timeline.filter(e => e.id < 99);
-        const productSteps = product.timeline.filter(e => e.id >= 99);
-        const uniqueIngredientSteps = Array.from(new Map(ingredientSteps.map(e => [e.id, e])).values());
-        product.timeline = [...uniqueIngredientSteps, ...productSteps];
+      const componentBatchData = await Promise.all(product.componentBatches.map(id => getBatchById(id)));
+      const validBatches = componentBatchData.filter(b => b !== null) as BatchData[];
+      
+      const ingredientTimeline: TimelineEvent[] = validBatches.flatMap(b => {
+          return b.timeline.map(e => ({ ...e, batchId: b.batchId }));
+      });
+
+      // De-duplicate ingredient steps, showing only the first occurrence for context
+      const uniqueIngredientSteps = Array.from(new Map(ingredientTimeline.map(e => [e.id, e])).values());
+
+      product.timeline = [...uniqueIngredientSteps, ...product.timeline.filter(e => e.id >= 99)];
     }
     
     return product || null;

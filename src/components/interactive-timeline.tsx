@@ -53,7 +53,7 @@ const visibilityRules: Record<string, string[]> = {
     brand: ['farmer', 'processor', 'supplier', 'brand'],
     distributor: ['distributor'],
     retailer: ['distributor', 'retailer', 'consumer'],
-    consumer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer'],
+    consumer: ['consumer'], // Only allow consumer role to see consumerDescription
     admin: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer'],
 };
 
@@ -69,7 +69,9 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     const result = await updateTimelineEvent(batchId, eventId, data);
 
     if (result.success && (result.batch || result.product)) {
-      setEvents(result.batch?.timeline || result.product?.timeline || []);
+      const updatedEvents = result.batch?.timeline || result.product?.timeline || [];
+      const finalEvents = isProduct ? updatedEvents : await getRefreshedEvents(batchId);
+      setEvents(finalEvents);
       setEditingEventId(null);
       toast({
         title: "Update Successful!",
@@ -89,7 +91,9 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     setLoading(true);
     const result = await updateTimelineEvent(batchId, eventId, { description: `${title} confirmed by ${role}.` });
      if (result.success && (result.batch || result.product)) {
-      setEvents(result.batch?.timeline || result.product?.timeline || []);
+      const updatedEvents = result.batch?.timeline || result.product?.timeline || [];
+      const finalEvents = isProduct ? updatedEvents : await getRefreshedEvents(batchId);
+      setEvents(finalEvents);
       setEditingEventId(null);
       toast({
         title: "Update Successful!",
@@ -104,6 +108,18 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     }
     setLoading(false);
   };
+  
+  // Helper function to re-fetch events for a single batch to ensure latest state
+  const getRefreshedEvents = async (id: string) => {
+      // In a real app, you'd fetch this from the server, e.g., `await getBatchById(id)`
+      // For this simulation, we'll just return the current state as there's no server fetch
+      const res = await fetch(`/api/get-batch?id=${id}`);
+      if (res.ok) {
+          const data = await res.json();
+          return data.timeline;
+      }
+      return initialEvents;
+  }
 
   const timelineEvents = useMemo(() => {
     if (isProduct) {
@@ -133,7 +149,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     initialData={event.formData}
                 />
             );
-        case 3: // Supplier Acquisition
+        case 5: // Supplier Processing & Dispatch
             return (
                 <SupplierEventForm
                     loading={loading}
@@ -173,17 +189,30 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
             return null;
     }
   }
+
+  const getDescriptionForRole = (event: TimelineEvent) => {
+      if (role === 'consumer') {
+          return event.consumerDescription;
+      }
+      return event.description;
+  }
   
   const canViewDescription = (event: TimelineEvent) => {
-    if (event.status !== 'complete' || !event.description) return false;
+    if (event.status !== 'complete') return false;
+    const description = getDescriptionForRole(event);
+    if (!description) return false;
+    
+    // For consumers, we show the consumerDescription.
+    if (role === 'consumer') return true;
+
+    // For other roles, we check against the visibility rules.
     const allowedRoles = visibilityRules[role] || [];
-    // Ensure allowedRole exists before checking inclusion
     return event.allowedRole && allowedRoles.includes(event.allowedRole);
   }
 
   const isSimpleConfirmation = (event: TimelineEvent) => {
-      // Add event IDs that should be simple confirmations without a form
-      const simpleConfirmationIds = [102];
+      // IDs that are simple "confirm receipt" steps
+      const simpleConfirmationIds = [3, 102];
       return simpleConfirmationIds.includes(event.id);
   }
 
@@ -194,6 +223,8 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
         const EventIcon = iconMap[event.icon];
         const canTakeAction = event.allowedRole === role && event.status === 'pending';
         const showDescription = canViewDescription(event);
+        const description = getDescriptionForRole(event);
+
 
         return (
           <div key={event.uniqueId} className="relative grid grid-cols-[auto_1fr] items-start gap-x-3 pb-8">
@@ -224,16 +255,16 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                       }}
                       disabled={loading}
                     >
-                      {loading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
+                      {loading && editingEventId === event.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
                       {event.cta}
                     </Button>
                   )}
                 </CardHeader>
 
-                {event.status === 'complete' && event.description && (
+                {event.status === 'complete' && description && (
                      <CardContent>
                         {showDescription ? (
-                            <CardDescription className="whitespace-pre-wrap">{event.description}</CardDescription>
+                            <CardDescription className="whitespace-pre-wrap">{description}</CardDescription>
                         ) : (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
                                 <EyeOff className="h-4 w-4" />

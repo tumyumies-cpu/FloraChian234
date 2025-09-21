@@ -25,6 +25,7 @@ export interface TimelineEvent {
   status: EventStatus;
   date?: string;
   description?: string;
+  consumerDescription?: string;
   formData?: any;
   icon: IconName;
   allowedRole: UserRole;
@@ -50,50 +51,3 @@ export interface AssembledProduct {
   componentBatches: string[]; // Array of batchIds
   timeline: TimelineEvent[];
 }
-
-export const initialMockBatchData: BatchData = {
-  batchId: 'HB-481516',
-  productName: 'Organic Ashwagandha Root',
-  farmName: 'Himalayan Herbal Farms',
-  location: 'Uttarakhand, India',
-  harvestDate: '2023-10-26',
-  processingDetails: 'The roots were harvested during the autumn season, carefully washed, and sun-dried for optimal potency.',
-  imageUrl: 'https://picsum.photos/seed/ashwagandha/1200/800',
-  imageHint: 'dried roots',
-  timeline: [
-    {
-      id: 1,
-      title: 'Harvested',
-      status: 'complete',
-      date: '2023-10-26',
-      description: 'Hand-harvested from certified organic fields.',
-      icon: 'sprout',
-      allowedRole: 'farmer',
-      cta: 'Update Harvest Info'
-    },
-    {
-      id: 2,
-      title: 'Local Processing',
-      status: 'pending',
-      icon: 'factory',
-      allowedRole: 'processor',
-      cta: 'Add Processing Details'
-    },
-    {
-      id: 3,
-      title: 'Supplier Acquisition',
-      status: 'locked',
-      icon: 'handshake',
-      allowedRole: 'supplier',
-      cta: 'Confirm Acquisition'
-    },
-    {
-      id: 4,
-      title: 'Ready for Formulation',
-      status: 'locked',
-      icon: 'combine',
-      allowedRole: 'brand',
-      cta: 'Select for Product'
-    }
-  ],
-};
