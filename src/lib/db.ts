@@ -83,8 +83,9 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
         },
         { id: 2, title: 'Batch Received by Processor', status: 'pending', icon: 'warehouse', allowedRole: 'processor', cta: 'Confirm Receipt' },
         { id: 3, title: 'Local Processing & Dispatch', status: 'locked', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
-        { id: 4, title: 'Supplier Acquisition', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Confirm Acquisition' },
-        { id: 5, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' }
+        { id: 4, title: 'Supplier Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'supplier', cta: 'Confirm Receipt' },
+        { id: 5, title: 'Supplier Processing & Dispatch', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Confirm Acquisition' },
+        { id: 6, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' }
       ]
   };
 
@@ -126,6 +127,13 @@ export async function addAssembledProduct(productName: string, batchIds: string[
         return num > max ? num : max;
     }, 1000);
     const newProductId = `PROD-${lastIdNum + 1}`;
+
+    const componentBatchData = await Promise.all(batchIds.map(id => getBatchById(id)));
+    const validBatches = componentBatchData.filter(b => b !== null) as BatchData[];
+    
+    const combinedTimeline: TimelineEvent[] = validBatches.flatMap(b => 
+      b.timeline.map(e => ({ ...e, batchId: b.batchId }))
+    );
     
     const assemblyEvent: TimelineEvent = {
         id: 99,
@@ -138,12 +146,14 @@ export async function addAssembledProduct(productName: string, batchIds: string[
         cta: 'View Final Product'
     };
     
-    const finalTimeline = [
+    const finalTimeline: TimelineEvent[] = [
+        ...combinedTimeline,
         assemblyEvent,
         { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data' },
         { id: 101, title: 'Distribution', status: 'pending', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest' },
-        { id: 102, title: 'Retail', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
-        { id: 103, title: 'Consumer Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
+        { id: 102, title: 'Retailer Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'retailer', cta: 'Confirm Receipt'},
+        { id: 103, title: 'In-Store Provenance', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
+        { id: 104, title: 'Consumer Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
     ];
 
 

@@ -36,15 +36,31 @@
         {
           "id": 3,
           "title": "Local Processing & Dispatch",
-          "status": "pending",
+          "status": "complete",
           "icon": "factory",
           "allowedRole": "processor",
-          "cta": "Add Processing Details"
+          "cta": "Add Processing Details",
+          "description": "Procurement:\n- Collection Center: CC-SF-101\n\nProcessing:\n- Cleaning: Manual dry cleaning\n- Drying: Sun-dried at 25°C for 72 hours (Final Moisture: 8.5%)\n- Grinding: Coarse\n\nQuality & Safety:\n- Inspection: Good color, strong aroma, consistent texture.\n\nStorage & Dispatch:\n- Stored for 14 days in Cool, dry, dark warehouse",
+          "date": "2025-09-21",
+          "formData": {
+            "collectionCenterId": "CC-SF-101",
+            "cleaningMethod": "Manual dry cleaning",
+            "dryingMethod": "Sun-dried",
+            "dryingTemp": 25,
+            "dryingDuration": "72 hours",
+            "finalMoisture": 8.5,
+            "particleSize": "Coarse",
+            "visualInspection": "Good color, strong aroma, consistent texture.",
+            "storageCondition": "Cool, dry, dark warehouse",
+            "storageDuration": "14 days",
+            "destination": "Oakland Supplier Hub",
+            "transportMode": "Refrigerated Truck"
+          }
         },
         {
           "id": 4,
           "title": "Supplier Acquisition",
-          "status": "locked",
+          "status": "pending",
           "icon": "handshake",
           "allowedRole": "supplier",
           "cta": "Confirm Acquisition"

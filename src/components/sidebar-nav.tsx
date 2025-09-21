@@ -8,15 +8,16 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Handshake } from 'lucide-react';
+import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Handshake, Package, Truck, Store } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/create-batch', label: 'Create Batch', icon: PlusCircle, roles: ['farmer'] },
-  { href: '/past-batches', label: 'Past Batches', icon: History, roles: ['farmer', 'processor'] },
-  { href: '/verify', label: 'Verify/Update Batch', icon: ScanLine, roles: ['consumer', 'processor', 'retailer', 'supplier', 'distributor'] },
+  { href: '/past-batches', label: 'Past Batches', icon: History, roles: ['farmer', 'processor', 'supplier'] },
+  { href: '/past-products', label: 'Past Products', icon: Package, roles: ['retailer'] },
+  { href: '/verify', label: 'Verify/Update', icon: ScanLine, roles: ['consumer', 'processor', 'retailer', 'supplier', 'distributor'] },
   { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand'] },
 ];
 

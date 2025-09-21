@@ -105,14 +105,11 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
   const timelineEvents = useMemo(() => {
     if (isProduct) {
-      const componentBatchEvents = events
-          .filter(e => e.id < 99) // All events from component batches
-          .map((e, index) => ({...e, uniqueId: `${e.batchId}-${e.id}-${index}`}));
-      const productEvents = events.filter(e => e.id >= 99).map((e) => ({...e, uniqueId: e.id.toString()}));
-      return [...componentBatchEvents, ...productEvents];
+        // For products, only show the product-specific timeline steps
+        return events.filter(e => e.id >= 99).map(e => ({ ...e, uniqueId: e.id.toString() }));
     }
     // For single batches, just use ID
-    return events.map((e) => ({...e, uniqueId: e.id.toString()}));
+    return events.map((e, index) => ({...e, uniqueId: `${e.id}-${index}`}));
   }, [events, isProduct]);
 
 
@@ -129,7 +126,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     initialData={event.formData}
                 />
             );
-        case 4: // Supplier Acquisition
+        case 5: // Supplier Processing & Dispatch (previously Supplier Acquisition)
             return (
                 <SupplierEventForm
                     loading={loading}
@@ -170,20 +167,20 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
   const isSimpleConfirmation = (event: TimelineEvent) => {
       // Add event IDs that should be simple confirmations without a form
-      const simpleConfirmationIds = [2];
+      const simpleConfirmationIds = [2, 4]; // Batch Received by Processor, Supplier Receiving
       return simpleConfirmationIds.includes(event.id);
   }
 
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
-      {timelineEvents.map((event, index) => {
+      {timelineEvents.map((event) => {
         const config = statusConfig[event.status];
         const EventIcon = iconMap[event.icon];
         const canTakeAction = event.allowedRole === role && event.status === 'pending';
         const showDescription = canViewDescription(event);
 
         return (
-          <div key={`${event.id}-${index}`} className="relative grid grid-cols-[auto_1fr] items-start gap-x-3 pb-8">
+          <div key={event.uniqueId} className="relative grid grid-cols-[auto_1fr] items-start gap-x-3 pb-8">
             {/* Icon */}
             <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-background">
               <div className={cn("z-10 flex h-10 w-10 items-center justify-center rounded-full", config.bgColor, config.color)}>
