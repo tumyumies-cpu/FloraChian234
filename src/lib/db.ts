@@ -1,41 +1,65 @@
+
 /**
- * @fileoverview This file simulates a simple in-memory database for the application.
- * In a real-world scenario, this would be replaced with a proper database like Firestore or PostgreSQL.
+ * @fileoverview This file simulates a simple JSON file-based database for the application.
  */
+import fs from 'fs/promises';
+import path from 'path';
 
 import type { BatchData, TimelineEvent, AssembledProduct } from './data';
-import { initialMockBatchData } from './data';
 import { CreateBatchValues } from './schemas';
 
-// Initialize the database with one mock batch.
-const batches: BatchData[] = [initialMockBatchData];
-const products: AssembledProduct[] = [];
-let lastBatchId = 481516;
-let lastProductId = 1000;
+// Path to the JSON file that acts as our database
+const dbPath = path.join(process.cwd(), 'src', 'lib', 'database.json');
+
+// Type for the entire database structure
+type Database = {
+  batches: BatchData[];
+  products: AssembledProduct[];
+};
+
+// Function to read the entire database from the JSON file.
+async function readDb(): Promise<Database> {
+  try {
+    const data = await fs.readFile(dbPath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    // If the file doesn't exist or is invalid, return a default structure
+    console.error("Could not read database file:", error);
+    return { batches: [], products: [] };
+  }
+}
+
+// Function to write the entire database to the JSON file.
+async function writeDb(db: Database): Promise<void> {
+  await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf-8');
+}
 
 
 // === BATCH FUNCTIONS ===
 
-// Function to get all batches. In a real app, this would query the database.
+// Function to get all batches.
 export async function getBatches(): Promise<BatchData[]> {
-  // Return a direct reference to the in-memory array to ensure updates are reflected
-  return batches;
+  const db = await readDb();
+  return db.batches;
 }
 
 // Function to get a single batch by its ID.
 export async function getBatchById(batchId: string): Promise<BatchData | null> {
-  const batch = batches.find(b => b.batchId.toUpperCase() === batchId.toUpperCase());
-  if (batch) {
-    // Return a deep copy
-    return JSON.parse(JSON.stringify(batch));
-  }
-  return null;
+  const db = await readDb();
+  const batch = db.batches.find(b => b.batchId.toUpperCase() === batchId.toUpperCase());
+  return batch || null;
 }
 
 // Function to add a new batch.
 export async function addBatch(data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }): Promise<BatchData> {
-  lastBatchId++;
-  const newBatchId = `HB-${lastBatchId}`;
+  const db = await readDb();
+  
+  // Generate a new unique ID
+  const lastIdNum = db.batches.reduce((max, b) => {
+    const num = parseInt(b.batchId.split('-')[1]);
+    return num > max ? num : max;
+  }, 481516);
+  const newBatchId = `HB-${lastIdNum + 1}`;
   
   const newBatch: BatchData = {
     batchId: newBatchId,
@@ -57,72 +81,54 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
           allowedRole: 'farmer',
           cta: 'Update Harvest Info'
         },
-        {
-          id: 2,
-          title: 'Local Processing',
-          status: 'pending',
-          icon: 'factory',
-          allowedRole: 'processor',
-          cta: 'Add Processing Details'
-        },
-        {
-          id: 3,
-          title: 'Supplier Acquisition',
-          status: 'locked',
-          icon: 'handshake',
-          allowedRole: 'supplier',
-          cta: 'Confirm Acquisition'
-        },
-        {
-            id: 4,
-            title: 'Ready for Formulation',
-            status: 'locked',
-            icon: 'combine',
-            allowedRole: 'brand',
-            cta: 'Select for Product'
-        }
+        { id: 2, title: 'Local Processing', status: 'pending', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
+        { id: 3, title: 'Supplier Acquisition', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Confirm Acquisition' },
+        { id: 4, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' }
       ]
   };
 
-  batches.unshift(newBatch); // Add to the beginning of the array
+  db.batches.unshift(newBatch);
+  await writeDb(db);
   return newBatch;
 }
 
 // Function to update a timeline event for a specific batch.
 export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent>): Promise<BatchData | null> {
-    const batchIndex = batches.findIndex(b => b.batchId.toUpperCase() === batchId.toUpperCase());
-    if (batchIndex === -1) {
-        return null;
-    }
-    const batch = batches[batchIndex];
+    const db = await readDb();
+    const batchIndex = db.batches.findIndex(b => b.batchId.toUpperCase() === batchId.toUpperCase());
+    
+    if (batchIndex === -1) return null;
 
-    const eventIndex = batch.timeline.findIndex(e => e.id === eventId);
-    if (eventIndex === -1) {
-        return null;
-    }
+    const eventIndex = db.batches[batchIndex].timeline.findIndex(e => e.id === eventId);
+    if (eventIndex === -1) return null;
     
     // Update the event
-    batch.timeline[eventIndex] = { ...batch.timeline[eventIndex], ...data, status: 'complete' };
+    db.batches[batchIndex].timeline[eventIndex] = { ...db.batches[batchIndex].timeline[eventIndex], ...data, status: 'complete' };
 
     // Unlock the next event
-    if (eventIndex + 1 < batch.timeline.length) {
-        batch.timeline[eventIndex + 1].status = 'pending';
+    if (eventIndex + 1 < db.batches[batchIndex].timeline.length) {
+        db.batches[batchIndex].timeline[eventIndex + 1].status = 'pending';
     }
-
-    // Since we're mutating the array directly, no need to re-assign
-    return JSON.parse(JSON.stringify(batch));
+    
+    await writeDb(db);
+    return db.batches[batchIndex];
 }
 
 
 // === PRODUCT FUNCTIONS ===
 
 export async function addAssembledProduct(productName: string, batchIds: string[]): Promise<AssembledProduct> {
-    lastProductId++;
-    const newProductId = `PROD-${lastProductId}`;
+    const db = await readDb();
+
+    const lastIdNum = db.products.reduce((max, p) => {
+        const num = parseInt(p.productId.split('-')[1]);
+        return num > max ? num : max;
+    }, 1000);
+    const newProductId = `PROD-${lastIdNum + 1}`;
     
     const componentBatchTimelines = await Promise.all(
         batchIds.map(async (id) => {
-            const batch = await getBatchById(id);
+            const batch = await getBatchById(id); // Uses the new file-based getter
             return batch?.timeline || [];
         })
     );
@@ -139,7 +145,7 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     mergedTimeline.sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime());
 
     const assemblyEvent: TimelineEvent = {
-        id: 99, // Arbitrary high ID
+        id: 99,
         title: 'Formulation & Manufacturing',
         status: 'complete',
         date: new Date().toLocaleDateString('en-CA'),
@@ -166,44 +172,40 @@ export async function addAssembledProduct(productName: string, batchIds: string[
         timeline: finalTimeline
     };
 
-    products.unshift(newProduct);
+    db.products.unshift(newProduct);
+    await writeDb(db);
     return newProduct;
 }
 
 
 export async function getAssembledProductById(productId: string): Promise<AssembledProduct | null> {
-    const product = products.find(p => p.productId.toUpperCase() === productId.toUpperCase());
-    if (product) {
-        // Return a deep copy
-        return JSON.parse(JSON.stringify(product));
-    }
-    return null;
+    const db = await readDb();
+    const product = db.products.find(p => p.productId.toUpperCase() === productId.toUpperCase());
+    return product || null;
 }
 
 export async function getAssembledProducts(): Promise<AssembledProduct[]> {
-    return products;
+    const db = await readDb();
+    return db.products;
 }
 
-// Function to update a timeline event for a specific assembled product.
 export async function updateProductTimelineEvent(productId: string, eventId: number, data: Partial<TimelineEvent>): Promise<AssembledProduct | null> {
-    const productIndex = products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
-    if (productIndex === -1) {
-        return null;
-    }
-    const product = products[productIndex];
+    const db = await readDb();
+    const productIndex = db.products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
 
-    const eventIndex = product.timeline.findIndex(e => e.id === eventId);
-    if (eventIndex === -1) {
-        return null;
-    }
+    if (productIndex === -1) return null;
+
+    const eventIndex = db.products[productIndex].timeline.findIndex(e => e.id === eventId);
+    if (eventIndex === -1) return null;
     
     // Update the event
-    product.timeline[eventIndex] = { ...product.timeline[eventIndex], ...data, status: 'complete' };
+    db.products[productIndex].timeline[eventIndex] = { ...db.products[productIndex].timeline[eventIndex], ...data, status: 'complete' };
 
     // Unlock the next event
-    if (eventIndex + 1 < product.timeline.length) {
-        product.timeline[eventIndex + 1].status = 'pending';
+    if (eventIndex + 1 < db.products[productIndex].timeline.length) {
+        db.products[productIndex].timeline[eventIndex + 1].status = 'pending';
     }
     
-    return JSON.parse(JSON.stringify(product));
+    await writeDb(db);
+    return db.products[productIndex];
 }
