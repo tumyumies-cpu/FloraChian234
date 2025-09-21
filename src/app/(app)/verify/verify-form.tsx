@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -27,7 +27,7 @@ export function VerifyForm({ role }: VerifyFormProps) {
     setHasMounted(true);
   }, []);
 
-  const isProductRole = role === 'consumer' || role === 'retailer' || role === 'distributor';
+  const isProductRole = ['consumer', 'retailer', 'distributor'].includes(role as string);
   const idType = isProductRole ? "Product" : "Batch";
   const placeholder = isProductRole ? "e.g., PROD-1001" : "e.g., HB-481516";
   const description = `You can typically find the ${idType} ID printed near the QR code on the product packaging.`;

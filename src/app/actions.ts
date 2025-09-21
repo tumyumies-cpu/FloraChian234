@@ -161,10 +161,12 @@ export async function assembleProduct(data: AssembleProductValues) {
 
 export async function verifyBatchId(batchId: string): Promise<{ success: boolean }> {
     try {
-        const batchExists = await dbGetBatchById(batchId);
-        return { success: !!batchExists };
+        const itemExists = batchId.toUpperCase().startsWith('PROD-')
+            ? await getAssembledProductById(batchId)
+            : await dbGetBatchById(batchId);
+        return { success: !!itemExists };
     } catch (error) {
-        console.error("Failed to verify batch ID:", error);
+        console.error("Failed to verify ID:", error);
         return { success: false };
     }
 }
