@@ -13,17 +13,17 @@ export function RetailerDashboard() {
           </div>
           <div>
             <CardTitle className="font-headline">Manage Inventory</CardTitle>
-            <CardDescription>Scan a batch to update shipping or retail status.</CardDescription>
+            <CardDescription>Scan a product to update shipping or retail status.</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="p-0 pt-4">
         <p className="mb-4 text-sm text-muted-foreground">
-          As a retailer, you can update a product's journey by confirming its shipment and arrival at your store. Start by looking up a batch.
+          As a retailer, you can update a product's journey by confirming its shipment and arrival at your store. Start by looking up a product.
         </p>
         <Button asChild>
           <Link href="/verify?role=retailer">
-            Look Up a Batch <ArrowRight className="ml-2 h-4 w-4" />
+            Look Up a Product <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </Button>
       </CardContent>

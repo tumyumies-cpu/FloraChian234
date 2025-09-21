@@ -149,6 +149,61 @@
   ],
   "products": [
     {
+      "productId": "PROD-1005",
+      "productName": "iiijoo",
+      "assembledDate": "2025-09-21",
+      "componentBatches": [
+        "HB-481518",
+        "HB-481517"
+      ],
+      "timeline": [
+        {
+          "id": 99,
+          "title": "Formulation & Manufacturing",
+          "status": "complete",
+          "date": "2025-09-21",
+          "description": "Combined from 2 ingredient batches to create iiijoo.",
+          "icon": "combine",
+          "allowedRole": "brand",
+          "cta": "View Final Product"
+        },
+        {
+          "id": 100,
+          "title": "Manufacturing & Packaging",
+          "status": "complete",
+          "icon": "package",
+          "allowedRole": "brand",
+          "cta": "Add Manufacturing Data",
+          "description": "Formulation & Processing:\n- Recipe ID: AYUR-R-01\n- Extraction Method: Aqueous decoction\n- Equipment: Stainless steel vats, GMP-certified\n\nQuality Control:\n- IPSS Tests: Passed - All parameters within spec\n- Heavy Metals: Passed - Pb, As, Hg, Cd below detectable limits\n- Microbial Safety: Passed - E. coli, Salmonella not detected\n\nFinal Batch Details:\n- Finished Product Batch ID: FP-68153\n- Expiry Date: 2027-09-21\n- GMP Compliance: All processes compliant with Good Manufacturing Practices.",
+          "date": "2025-09-21"
+        },
+        {
+          "id": 101,
+          "title": "Distribution",
+          "status": "pending",
+          "icon": "truck",
+          "allowedRole": "retailer",
+          "cta": "Add Shipping Manifest"
+        },
+        {
+          "id": 102,
+          "title": "Retail",
+          "status": "locked",
+          "icon": "store",
+          "allowedRole": "retailer",
+          "cta": "Confirm Retail Arrival"
+        },
+        {
+          "id": 103,
+          "title": "Consumer Scan",
+          "status": "locked",
+          "icon": "scan",
+          "allowedRole": "consumer",
+          "cta": "View Product Story"
+        }
+      ]
+    },
+    {
       "productId": "PROD-1004",
       "productName": "yhhr",
       "assembledDate": "2025-09-21",
