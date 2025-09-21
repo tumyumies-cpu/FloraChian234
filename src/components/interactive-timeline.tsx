@@ -124,13 +124,13 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
 
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
-      {events.map((event) => {
+      {events.map((event, index) => {
         const config = statusConfig[event.status];
         const EventIcon = iconMap[event.icon];
         const canTakeAction = event.allowedRole === role && event.status === 'pending';
 
         return (
-          <div key={event.id} className="relative grid grid-cols-[auto_1fr] items-start gap-x-3 pb-8">
+          <div key={`${event.id}-${index}`} className="relative grid grid-cols-[auto_1fr] items-start gap-x-3 pb-8">
             {/* Icon */}
             <div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-background">
               <div className={cn("z-10 flex h-10 w-10 items-center justify-center rounded-full", config.bgColor, config.color)}>
