@@ -1,10 +1,10 @@
 import type { LucideIcon } from 'lucide-react';
-import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine } from 'lucide-react';
+import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine, Handshake, Warehouse } from 'lucide-react';
 
 export type EventStatus = 'complete' | 'pending' | 'locked';
-export type UserRole = 'farmer' | 'processor' | 'retailer' | 'consumer' | 'admin' | 'brand';
+export type UserRole = 'farmer' | 'processor' | 'supplier' | 'brand' | 'retailer' | 'consumer' | 'admin';
 
-export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine';
+export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine' | 'handshake' | 'warehouse';
 
 export const iconMap: Record<IconName, LucideIcon> = {
   sprout: Sprout,
@@ -15,6 +15,8 @@ export const iconMap: Record<IconName, LucideIcon> = {
   store: Store,
   scan: Scan,
   combine: Combine,
+  handshake: Handshake,
+  warehouse: Warehouse,
 };
 
 export interface TimelineEvent {
@@ -50,27 +52,27 @@ export interface AssembledProduct {
 
 export const initialMockBatchData: BatchData = {
   batchId: 'HB-481516',
-  productName: 'Organic Basil',
-  farmName: 'Verdant Valley Farms',
-  location: 'Sonoma County, California',
+  productName: 'Organic Ashwagandha Root',
+  farmName: 'Himalayan Herbal Farms',
+  location: 'Uttarakhand, India',
   harvestDate: '2023-10-26',
-  processingDetails: 'The basil was hand-picked at dawn, immediately cooled, and transported to our processing facility. It was then triple-washed in spring water and gently air-dried to preserve its aromatic oils. The final product was vacuum-sealed for freshness.',
-  imageUrl: 'https://picsum.photos/seed/basil/1200/800',
-  imageHint: 'fresh basil',
+  processingDetails: 'The roots were harvested during the autumn season, carefully washed, and sun-dried for optimal potency.',
+  imageUrl: 'https://picsum.photos/seed/ashwagandha/1200/800',
+  imageHint: 'dried roots',
   timeline: [
     {
       id: 1,
       title: 'Harvested',
       status: 'complete',
       date: '2023-10-26',
-      description: 'Hand-picked from Plot 3B at Verdant Valley Farms.',
+      description: 'Hand-harvested from certified organic fields.',
       icon: 'sprout',
       allowedRole: 'farmer',
       cta: 'Update Harvest Info'
     },
     {
       id: 2,
-      title: 'Processing',
+      title: 'Local Processing',
       status: 'pending',
       icon: 'factory',
       allowedRole: 'processor',
@@ -78,15 +80,15 @@ export const initialMockBatchData: BatchData = {
     },
     {
       id: 3,
-      title: 'Lab Testing',
+      title: 'Supplier Acquisition',
       status: 'locked',
-      icon: 'flask',
-      allowedRole: 'processor',
-      cta: 'Upload Lab Results'
+      icon: 'handshake',
+      allowedRole: 'supplier',
+      cta: 'Confirm Acquisition'
     },
-     {
+    {
       id: 4,
-      title: 'Ready for Assembly',
+      title: 'Ready for Formulation',
       status: 'locked',
       icon: 'combine',
       allowedRole: 'brand',

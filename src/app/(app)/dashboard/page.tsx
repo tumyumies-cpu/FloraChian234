@@ -4,6 +4,7 @@ import { RetailerDashboard } from '@/components/dashboards/retailer-dashboard';
 import { ConsumerDashboard } from '@/components/dashboards/consumer-dashboard';
 import { AdminDashboard } from '@/components/dashboards/admin-dashboard';
 import { BrandDashboard } from '@/components/dashboards/brand-dashboard';
+import { SupplierDashboard } from '@/components/dashboards/supplier-dashboard';
 
 export default function DashboardPage({
   searchParams,
@@ -18,12 +19,14 @@ export default function DashboardPage({
         return <FarmerDashboard />;
       case 'processor':
         return <ProcessorDashboard />;
+      case 'supplier':
+        return <SupplierDashboard />;
+      case 'brand':
+        return <BrandDashboard />;
       case 'retailer':
         return <RetailerDashboard />;
       case 'admin':
         return <AdminDashboard />;
-      case 'brand':
-        return <BrandDashboard />;
       case 'consumer':
       default:
         return <ConsumerDashboard />;
@@ -36,12 +39,14 @@ export default function DashboardPage({
         return 'Farmer Dashboard';
       case 'processor':
         return 'Processor Dashboard';
+      case 'supplier':
+        return 'Supplier/Trader Dashboard';
+      case 'brand':
+        return 'Manufacturer Dashboard';
       case 'retailer':
         return 'Retailer Dashboard';
       case 'admin':
         return 'Administrator Dashboard';
-      case 'brand':
-        return 'Brand Dashboard';
       default:
         return 'Welcome to FloraChain';
     }

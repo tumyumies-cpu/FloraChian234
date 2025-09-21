@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo } from "react";
@@ -42,8 +41,8 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   });
 
   const availableBatches = useMemo(() => batches.filter(batch => {
-    const isProcessed = batch.timeline.find(e => e.title === 'Processing' && e.status === 'complete');
-    return isProcessed;
+    const isReady = batch.timeline.find(e => e.title === 'Supplier Acquisition' && e.status === 'complete');
+    return isReady;
   }), [batches]);
 
   const filteredAndSortedBatches = useMemo(() => {
@@ -105,7 +104,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2">
             <QrCode className="h-6 w-6 text-primary" />
-            Product Assembled & QR Code Ready
+            Product Formulated & QR Code Ready
           </CardTitle>
           <CardDescription>Product ID: {newProductId}</CardDescription>
         </CardHeader>
@@ -127,7 +126,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                     View Product Journey
                 </Button>
                 <Button variant="outline" size="lg" onClick={handleResetForm}>
-                    <Recycle className="mr-2" /> Assemble Another Product
+                    <Recycle className="mr-2" /> Formulate Another Product
                 </Button>
             </div>
         </CardContent>
@@ -138,7 +137,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   return (
     <Card>
         <CardHeader>
-            <CardTitle className="font-headline">Product Details</CardTitle>
+            <CardTitle className="font-headline">Product Formulation Details</CardTitle>
             <CardDescription>Give your new product a name and select the ingredient batches to include.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -151,7 +150,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                             <FormItem>
                                 <FormLabel>Final Product Name</FormLabel>
                                 <FormControl>
-                                <Input placeholder="e.g., Premium Ayurvedic Basil Tincture" {...field} />
+                                <Input placeholder="e.g., Premium Ayurvedic Resilience Blend" {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -165,7 +164,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                             <FormItem>
                                 <div className="mb-4">
                                     <FormLabel>Select Ingredient Batches</FormLabel>
-                                    <p className="text-sm text-muted-foreground">Choose one or more processed batches to combine into this product.</p>
+                                    <p className="text-sm text-muted-foreground">Choose one or more batches that have been acquired by a supplier to combine into this product.</p>
                                 </div>
                                 <div className="space-y-4">
                                     <AdvancedFilterControls
@@ -179,7 +178,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                             <TableHeader className="sticky top-0 bg-card">
                                                 <TableRow>
                                                     <TableHead className="w-[50px]"></TableHead>
-                                                    <TableHead>Product</TableHead>
+                                                    <TableHead>Ingredient</TableHead>
                                                     <TableHead>Farm</TableHead>
                                                     <TableHead>Harvest Date</TableHead>
                                                     <TableHead className="text-right">Batch ID</TableHead>
@@ -223,7 +222,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                                 {filteredAndSortedBatches.length === 0 && (
                                                     <TableRow>
                                                         <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                                                            No batches found matching your criteria.
+                                                            No ingredient batches ready for formulation. Batches must be acquired by a supplier first.
                                                         </TableCell>
                                                     </TableRow>
                                                 )}
@@ -241,12 +240,12 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                         {loading ? (
                             <>
                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                            Assembling Product...
+                            Formulating Product...
                             </>
                         ) : (
                            <>
                              <PackagePlus className="mr-2" />
-                             Assemble Product
+                             Formulate Product
                            </>
                         )}
                         </Button>
@@ -257,5 +256,3 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     </Card>
   );
 }
-
-    

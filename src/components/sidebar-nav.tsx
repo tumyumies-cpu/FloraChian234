@@ -8,7 +8,7 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine } from 'lucide-react';
+import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Handshake } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 
@@ -16,7 +16,7 @@ const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/create-batch', label: 'Create Batch', icon: PlusCircle, roles: ['farmer'] },
   { href: '/past-batches', label: 'Past Batches', icon: History, roles: ['farmer'] },
-  { href: '/verify', label: 'Verify Batch', icon: ScanLine, roles: ['consumer', 'processor', 'retailer'] },
+  { href: '/verify', label: 'Verify/Update Batch', icon: ScanLine, roles: ['consumer', 'processor', 'retailer', 'supplier'] },
   { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand'] },
 ];
 

@@ -59,7 +59,7 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
         },
         {
           id: 2,
-          title: 'Processing',
+          title: 'Local Processing',
           status: 'pending',
           icon: 'factory',
           allowedRole: 'processor',
@@ -67,19 +67,19 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
         },
         {
           id: 3,
-          title: 'Lab Testing',
+          title: 'Supplier Acquisition',
           status: 'locked',
-          icon: 'flask',
-          allowedRole: 'processor',
-          cta: 'Upload Lab Results'
+          icon: 'handshake',
+          allowedRole: 'supplier',
+          cta: 'Confirm Acquisition'
         },
         {
-          id: 4,
-          title: 'Ready for Assembly',
-          status: 'locked',
-          icon: 'combine',
-          allowedRole: 'brand',
-          cta: 'Select for Product'
+            id: 4,
+            title: 'Ready for Formulation',
+            status: 'locked',
+            icon: 'combine',
+            allowedRole: 'brand',
+            cta: 'Select for Product'
         }
       ]
   };
@@ -124,7 +124,6 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     lastProductId++;
     const newProductId = `PROD-${lastProductId}`;
     
-    // For each batchId, we get its timeline
     const componentBatchTimelines = await Promise.all(
         batchIds.map(async (id) => {
             const batch = await getBatchById(id);
@@ -132,26 +131,20 @@ export async function addAssembledProduct(productName: string, batchIds: string[
         })
     );
 
-    // We'll create a new master timeline for the assembled product
-    // For simplicity, we'll just merge them and add an assembly event.
-    // A real implementation would require more sophisticated merging logic.
     let mergedTimeline: TimelineEvent[] = [];
     componentBatchTimelines.forEach(timeline => {
         mergedTimeline = mergedTimeline.concat(timeline.filter(e => e.status === 'complete'));
     });
     
-    // Remove duplicate events if any, based on a unique property like title and date.
     mergedTimeline = mergedTimeline.filter((event, index, self) =>
         index === self.findIndex((e) => e.title === event.title && e.date === event.date && e.description === event.description)
     );
 
-    // Sort by date
     mergedTimeline.sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime());
 
-    // Add the assembly event
     const assemblyEvent: TimelineEvent = {
         id: 99, // Arbitrary high ID
-        title: 'Assembled into Final Product',
+        title: 'Formulation & Manufacturing',
         status: 'complete',
         date: new Date().toLocaleDateString('en-CA'),
         description: `Combined from ${batchIds.length} ingredient batches to create ${productName}.`,
@@ -162,9 +155,9 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     mergedTimeline.push(assemblyEvent);
     
     const finalTimeline = mergedTimeline.concat([
-        { id: 100, title: 'Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Confirm Packaging' },
-        { id: 101, title: 'Shipping', status: 'locked', icon: 'truck', allowedRole: 'retailer', cta: 'Add Shipping Manifest' },
-        { id: 102, title: 'In Store', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
+        { id: 100, title: 'Packaging & Branding', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Confirm Packaging' },
+        { id: 101, title: 'Distribution', status: 'locked', icon: 'truck', allowedRole: 'retailer', cta: 'Add Shipping Manifest' },
+        { id: 102, title: 'Retail', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
         { id: 103, title: 'Consumer Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
     ]);
 
