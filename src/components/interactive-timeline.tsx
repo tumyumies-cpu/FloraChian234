@@ -65,11 +65,9 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const { toast } = useToast();
 
   useEffect(() => {
+    // For consumers, remove the final "Consumer Scan" step as it's redundant
     if (role === 'consumer') {
-        setEvents(prevEvents => {
-            const updated = prevEvents.map(e => e.id === 104 ? { ...e, status: 'complete' } : e);
-            return updated;
-        });
+        setEvents(prevEvents => prevEvents.filter(e => e.id !== 104));
     }
   }, [role]);
 
