@@ -84,15 +84,24 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
         },
         { 
             id: 2, 
-            title: 'Local Processing', 
+            title: 'Batch Received by Processor', 
             status: 'pending', 
+            icon: 'warehouse', 
+            allowedRole: 'processor', 
+            cta: 'Confirm Receipt', 
+            consumerDescription: 'The freshly harvested batch has been received at a local processing facility.' 
+        },
+        { 
+            id: 3, 
+            title: 'Local Processing & Dispatch', 
+            status: 'locked', 
             icon: 'factory', 
             allowedRole: 'processor', 
             cta: 'Add Processing Details', 
             consumerDescription: `The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.` 
         },
         { 
-            id: 3, 
+            id: 4, 
             title: 'Supplier Receiving', 
             status: 'locked', 
             icon: 'warehouse', 
