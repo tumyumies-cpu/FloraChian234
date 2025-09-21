@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -5,7 +6,7 @@ import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
-import { Check, Lock, Edit } from 'lucide-react';
+import { Check, Lock, Edit, EyeOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
@@ -43,6 +44,18 @@ const statusConfig = {
   },
 };
 
+const visibilityRules: Record<string, string[]> = {
+    farmer: ['farmer'],
+    processor: ['farmer', 'processor'],
+    supplier: ['processor', 'supplier'],
+    distributor: ['brand', 'distributor'],
+    retailer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
+    consumer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
+    brand: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
+    admin: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer'],
+};
+
+
 export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = false }: InteractiveTimelineProps) {
   const [events, setEvents] = useState(initialEvents);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
@@ -51,7 +64,6 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
   const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues | ManufacturingEventValues | DistributionEventValues) => {
     setLoading(true);
-    // The date is now set on the server, so we don't pass it from the client.
     const result = await updateTimelineEvent(batchId, eventId, data);
 
     if (result.success && result.batch) {
@@ -70,29 +82,9 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     }
     setLoading(false);
   };
-
-  const handleCtaClick = (event: TimelineEvent) => {
-    if (event.allowedRole === role && event.status === 'pending') {
-      setEditingEventId(event.id);
-    } else if (event.status !== 'pending') {
-       // Do nothing, just let the card be a display
-    }
-     else {
-      let description = "This step is not yet available.";
-      if (event.allowedRole !== role) {
-        description = `This action is reserved for the '${event.allowedRole}' role.`;
-      }
-      toast({
-        variant: "destructive",
-        title: "Action Not Available",
-        description,
-      });
-    }
-  };
   
   const timelineEvents = useMemo(() => {
     if (isProduct) {
-      // For products, only show events from Formulation onwards (id >= 99)
       return events.filter(e => e.id >= 99);
     }
     return events;
@@ -139,6 +131,12 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
             return null;
     }
   }
+  
+  const canViewDescription = (event: TimelineEvent) => {
+    if (event.status !== 'complete' || !event.description) return false;
+    const allowedRoles = visibilityRules[role] || [];
+    return allowedRoles.includes(event.allowedRole);
+  }
 
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
@@ -146,6 +144,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
         const config = statusConfig[event.status];
         const EventIcon = iconMap[event.icon];
         const canTakeAction = event.allowedRole === role && event.status === 'pending';
+        const showDescription = canViewDescription(event);
 
         return (
           <div key={`${event.id}-${index}`} className="relative grid grid-cols-[auto_1fr] items-start gap-x-3 pb-8">
@@ -167,18 +166,27 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                   {canTakeAction && (
                     <Button
                       size="sm"
-                      onClick={() => handleCtaClick(event)}
+                      onClick={() => setEditingEventId(event.id)}
                     >
                       <config.icon className="mr-2 h-4 w-4" />
                       {event.cta}
                     </Button>
                   )}
                 </CardHeader>
-                {event.description && (
-                  <CardContent>
-                    <CardDescription className="whitespace-pre-wrap">{event.description}</CardDescription>
-                  </CardContent>
+
+                {event.status === 'complete' && event.description && (
+                     <CardContent>
+                        {showDescription ? (
+                            <CardDescription className="whitespace-pre-wrap">{event.description}</CardDescription>
+                        ) : (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
+                                <EyeOff className="h-4 w-4" />
+                                <span>Details are confidential for your role.</span>
+                            </div>
+                        )}
+                    </CardContent>
                 )}
+
                 {renderForm(event)}
               </Card>
             </div>
