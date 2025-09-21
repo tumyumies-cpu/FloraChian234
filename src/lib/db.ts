@@ -18,8 +18,8 @@ let lastProductId = 1000;
 
 // Function to get all batches. In a real app, this would query the database.
 export async function getBatches(): Promise<BatchData[]> {
-  // Return a deep copy to prevent mutation of the original data
-  return JSON.parse(JSON.stringify(batches));
+  // Return a direct reference to the in-memory array to ensure updates are reflected
+  return batches;
 }
 
 // Function to get a single batch by its ID.
@@ -90,10 +90,11 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
 
 // Function to update a timeline event for a specific batch.
 export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent>): Promise<BatchData | null> {
-    const batch = await getBatchById(batchId);
-    if (!batch) {
+    const batchIndex = batches.findIndex(b => b.batchId.toUpperCase() === batchId.toUpperCase());
+    if (batchIndex === -1) {
         return null;
     }
+    const batch = batches[batchIndex];
 
     const eventIndex = batch.timeline.findIndex(e => e.id === eventId);
     if (eventIndex === -1) {
@@ -108,13 +109,8 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
         batch.timeline[eventIndex + 1].status = 'pending';
     }
 
-    // Find the original batch in the `batches` array and update it
-    const originalBatchIndex = batches.findIndex(b => b.batchId.toUpperCase() === batchId.toUpperCase());
-    if (originalBatchIndex !== -1) {
-        batches[originalBatchIndex] = batch;
-    }
-    
-    return batch;
+    // Since we're mutating the array directly, no need to re-assign
+    return JSON.parse(JSON.stringify(batch));
 }
 
 
@@ -185,15 +181,16 @@ export async function getAssembledProductById(productId: string): Promise<Assemb
 }
 
 export async function getAssembledProducts(): Promise<AssembledProduct[]> {
-    return JSON.parse(JSON.stringify(products));
+    return products;
 }
 
 // Function to update a timeline event for a specific assembled product.
 export async function updateProductTimelineEvent(productId: string, eventId: number, data: Partial<TimelineEvent>): Promise<AssembledProduct | null> {
-    const product = await getAssembledProductById(productId);
-    if (!product) {
+    const productIndex = products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
+    if (productIndex === -1) {
         return null;
     }
+    const product = products[productIndex];
 
     const eventIndex = product.timeline.findIndex(e => e.id === eventId);
     if (eventIndex === -1) {
@@ -207,12 +204,6 @@ export async function updateProductTimelineEvent(productId: string, eventId: num
     if (eventIndex + 1 < product.timeline.length) {
         product.timeline[eventIndex + 1].status = 'pending';
     }
-
-    // Find the original product in the `products` array and update it
-    const originalProductIndex = products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
-    if (originalProductIndex !== -1) {
-        products[originalProductIndex] = product;
-    }
     
-    return product;
+    return JSON.parse(JSON.stringify(product));
 }
