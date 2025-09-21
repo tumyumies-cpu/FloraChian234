@@ -2,7 +2,7 @@
 "use server";
 
 import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById } from '@/lib/db';
-import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues } from '@/lib/schemas';
+import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues, ManufacturingEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
@@ -50,8 +50,27 @@ Quality & Compliance:
     `.trim();
 }
 
+function formatManufacturingData(data: ManufacturingEventValues): string {
+    return `
+Formulation & Processing:
+- Recipe ID: ${data.recipeId}
+- Extraction Method: ${data.extractionMethod}
+- Equipment: ${data.equipmentUsed}
 
-export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues | SupplierEventValues) {
+Quality Control:
+- IPSS Tests: ${data.qualityControl.ipssTests}
+- Heavy Metals: ${data.qualityControl.heavyMetals}
+- Microbial Safety: ${data.qualityControl.microbialSafety}
+
+Final Batch Details:
+- Finished Product Batch ID: ${data.finalBatchId}
+- Expiry Date: ${data.expiryDate}
+- GMP Compliance: ${data.gmpCompliance}
+    `.trim();
+}
+
+
+export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues | SupplierEventValues | ManufacturingEventValues) {
     try {
         let description: string | undefined;
 
@@ -59,6 +78,8 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
             description = formatProcessingData(data as ProcessingEventValues);
         } else if ('supplierId' in data) {
             description = formatSupplierData(data as SupplierEventValues);
+        } else if ('recipeId' in data) {
+            description = formatManufacturingData(data as ManufacturingEventValues);
         } else {
             description = (data as Partial<TimelineEvent>).description;
         }

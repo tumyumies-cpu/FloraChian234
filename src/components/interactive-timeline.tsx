@@ -11,8 +11,9 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
 import { ProcessingEventForm } from './processing-event-form';
-import type { ProcessingEventValues, SupplierEventValues } from '@/lib/schemas';
+import type { ProcessingEventValues, SupplierEventValues, ManufacturingEventValues } from '@/lib/schemas';
 import { SupplierEventForm } from './supplier-event-form';
+import { ManufacturingEventForm } from './manufacturing-event-form';
 
 interface InteractiveTimelineProps {
   initialEvents: TimelineEvent[];
@@ -47,7 +48,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues) => {
+  const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues | ManufacturingEventValues) => {
     setLoading(true);
     // The date is now set on the server, so we don't pass it from the client.
     const result = await updateTimelineEvent(batchId, eventId, data);
@@ -103,6 +104,14 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
         case 3: // Supplier Acquisition
             return (
                 <SupplierEventForm
+                    loading={loading}
+                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onCancel={() => setEditingEventId(null)}
+                />
+            );
+        case 100: // Manufacturing & Packaging
+            return (
+                <ManufacturingEventForm
                     loading={loading}
                     onSubmit={(data) => handleUpdate(event.id, data)}
                     onCancel={() => setEditingEventId(null)}

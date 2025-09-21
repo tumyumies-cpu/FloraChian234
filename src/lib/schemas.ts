@@ -41,6 +41,22 @@ export const SupplierEventSchema = z.object({
 export type SupplierEventValues = z.infer<typeof SupplierEventSchema>;
 
 
+export const ManufacturingEventSchema = z.object({
+    recipeId: z.string().min(1, "Recipe ID is required."),
+    extractionMethod: z.string().min(3, "Extraction method is required."),
+    equipmentUsed: z.string().min(3, "Equipment details are required."),
+    qualityControl: z.object({
+        ipssTests: z.string().min(3, "IPSS test results are required."),
+        heavyMetals: z.string().min(3, "Heavy metal test results are required."),
+        microbialSafety: z.string().min(3, "Microbial safety results are required."),
+    }),
+    finalBatchId: z.string().min(1, "Finished Product Batch ID is required."),
+    expiryDate: z.string().min(1, "Expiry date is required."),
+    gmpCompliance: z.string().min(3, "GMP compliance notes are required."),
+});
+export type ManufacturingEventValues = z.infer<typeof ManufacturingEventSchema>;
+
+
 export const AssembleProductSchema = z.object({
     productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),
     batchIds: z.array(z.string()).min(1, { message: "You must select at least one batch." }),
