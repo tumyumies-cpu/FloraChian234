@@ -147,7 +147,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     if (editingEventId !== event.id) return null;
 
     switch (event.id) {
-        case 2: // Local Processing
+        case 3: // Local Processing
             return (
                 <ProcessingEventForm
                     loading={loading}
@@ -219,7 +219,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
   const isSimpleConfirmation = (event: TimelineEvent) => {
       // IDs that are simple "confirm receipt" steps
-      const simpleConfirmationIds = [3, 102];
+      const simpleConfirmationIds = [2, 4, 102];
       return simpleConfirmationIds.includes(event.id);
   }
 
