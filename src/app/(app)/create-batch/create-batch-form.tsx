@@ -189,32 +189,53 @@ export function CreateBatchForm() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       <div className="space-y-4">
-        <h2 className="text-2xl font-headline font-bold">Harvest Photo</h2>
-        <p className="text-muted-foreground">
-          Take a real-time photo of the harvest. Our AI will perform a quick health check.
-        </p>
+        <div>
+          <h2 className="text-2xl font-headline font-bold">1. Harvest Photo</h2>
+          <p className="text-muted-foreground">
+            Take a real-time photo of the harvest for AI analysis.
+          </p>
+        </div>
         <CameraCapture onCapture={handlePhotoCapture} />
+        
+        <div>
+          <h2 className="text-2xl font-headline font-bold mt-8">2. AI Health Diagnosis</h2>
+          <p className="text-muted-foreground">
+            A quick analysis of the plant's health based on the photo.
+          </p>
+        </div>
         {diagnosisLoading && (
-          <div className="flex items-center gap-2 text-muted-foreground">
+          <div className="flex items-center gap-2 text-muted-foreground p-4 border rounded-lg">
             <LoaderCircle className="h-4 w-4 animate-spin" />
             <span>AI is analyzing the photo...</span>
           </div>
         )}
         {diagnosis && (
-          <Alert variant={diagnosis.isHealthy ? "default" : "destructive"} className={diagnosis.isHealthy ? "bg-green-50 border-green-200" : ""}>
-             <Sparkles className="h-4 w-4" />
-            <AlertTitle className="font-semibold">{diagnosis.isHealthy ? "AI Diagnosis: Plant Looks Healthy" : "AI Diagnosis: Potential Issue Detected"}</AlertTitle>
-            <AlertDescription>
-              {diagnosis.diagnosis}
-            </AlertDescription>
-          </Alert>
+          <div className={cn(
+            "p-4 border rounded-lg",
+            diagnosis.isHealthy ? "bg-green-50 border-green-200" : "bg-destructive/10 border-destructive/20"
+          )}>
+            <div className="flex items-start gap-3">
+              <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-white mt-1",  diagnosis.isHealthy ? "bg-green-500" : "bg-destructive")}>
+                 <Sparkles className="h-4 w-4" />
+              </div>
+              <div>
+                <p className="font-semibold">{diagnosis.isHealthy ? "Plant Looks Healthy" : "Potential Issue Detected"}</p>
+                <p className="text-sm text-muted-foreground">{diagnosis.diagnosis}</p>
+              </div>
+            </div>
+          </div>
         )}
+         {!diagnosis && !diagnosisLoading && (
+            <div className="p-4 border rounded-lg bg-muted/50 text-center">
+                <p className="text-sm text-muted-foreground">The AI diagnosis will appear here after a photo is taken.</p>
+            </div>
+         )}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">Batch Details</CardTitle>
-          <CardDescription>Fill out the form to register a new harvest.</CardDescription>
+          <CardTitle className="font-headline">3. Batch Details</CardTitle>
+          <CardDescription>Fill out the form to register the new harvest.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -323,7 +344,7 @@ export function CreateBatchForm() {
               />
               
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading || !photo} size="lg" className="w-full">
+                <Button type="submit" disabled={loading || !photo || !diagnosis} size="lg" className="w-full">
                   {loading ? (
                     <>
                       <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -341,3 +362,5 @@ export function CreateBatchForm() {
     </div>
   );
 }
+
+    
