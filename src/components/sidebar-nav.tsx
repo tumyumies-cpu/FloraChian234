@@ -7,7 +7,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Leaf, LayoutDashboard, PlusCircle, ScanLine } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,6 +19,12 @@ const menuItems = [
 
 export function SidebarNav() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role');
+
+  const getHref = (path: string) => {
+    return role ? `${path}?role=${role}` : path;
+  }
 
   return (
     <>
@@ -39,7 +45,7 @@ export function SidebarNav() {
                 isActive={pathname === item.href}
                 tooltip={item.label}
               >
-                <Link href={item.href}>
+                <Link href={getHref(item.href)}>
                   <item.icon />
                   <span>{item.label}</span>
                 </Link>

@@ -18,11 +18,14 @@ import { format } from "date-fns";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { mockBatchData } from "@/lib/data";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function CreateBatchForm() {
   const [loading, setLoading] = useState(false);
   const [newBatchId, setNewBatchId] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const form = useForm<CreateBatchValues>({
     resolver: zodResolver(CreateBatchSchema),
@@ -49,6 +52,13 @@ export function CreateBatchForm() {
     });
   }
 
+  const handleViewProvenance = () => {
+    if (newBatchId) {
+      const role = searchParams.get('role') || 'farmer';
+      router.push(`/provenance/${newBatchId}?role=${role}`);
+    }
+  };
+
   const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
 
   if (newBatchId && qrCodeImage) {
@@ -57,7 +67,7 @@ export function CreateBatchForm() {
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2">
             <QrCode className="h-6 w-6 text-primary" />
-            Your QR Code is Ready
+            Batch Created & QR Code Ready
           </CardTitle>
           <CardDescription>Batch ID: {newBatchId}</CardDescription>
         </CardHeader>
@@ -72,12 +82,11 @@ export function CreateBatchForm() {
             />
           </div>
           <p className="text-muted-foreground text-sm mt-4">
-            Download this QR code and attach it to your product packaging. Consumers can scan it to see the full provenance story.
+            This QR code can now be attached to product packaging. Consumers can scan it to see the full provenance story as it gets updated.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg">
-              <Download className="mr-2 h-4 w-4" />
-              Download QR Code
+            <Button size="lg" onClick={handleViewProvenance}>
+              View Product Journey
             </Button>
             <Button variant="outline" size="lg" onClick={() => { form.reset(); setNewBatchId(null); }}>
               Create Another Batch
@@ -184,10 +193,10 @@ export function CreateBatchForm() {
               name="processingDetails"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Processing & Handling Details</FormLabel>
+                  <FormLabel>Initial Notes & Details</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe the steps taken after harvest (e.g., washing, drying, packaging)."
+                      placeholder="Describe the harvest conditions, batch quality, or any other relevant details."
                       rows={4}
                       {...field}
                     />

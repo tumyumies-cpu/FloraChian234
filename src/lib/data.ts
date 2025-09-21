@@ -1,12 +1,17 @@
-import { Sprout, Factory, FlaskConical, Package, Truck, Leaf } from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, LucideIcon } from 'lucide-react';
+
+export type EventStatus = 'complete' | 'pending' | 'locked';
+export type UserRole = 'farmer' | 'processor' | 'retailer' | 'consumer';
 
 export interface TimelineEvent {
   id: number;
   title: string;
-  date: string;
-  description: string;
+  status: EventStatus;
+  date?: string;
+  description?: string;
   icon: LucideIcon;
+  allowedRole: UserRole;
+  cta: string;
 }
 
 export interface BatchData {
@@ -34,43 +39,66 @@ export const mockBatchData: BatchData = {
     {
       id: 1,
       title: 'Harvested',
+      status: 'complete',
       date: '2023-10-26',
       description: 'Hand-picked from Plot 3B at Verdant Valley Farms.',
       icon: Sprout,
+      allowedRole: 'farmer',
+      cta: 'Update Harvest Info'
     },
     {
       id: 2,
       title: 'Processing',
-      date: '2023-10-27',
-      description: 'Washed, dried, and sorted at our local facility.',
+      status: 'pending',
       icon: Factory,
+      allowedRole: 'processor',
+      cta: 'Add Processing Details'
     },
     {
       id: 3,
-      title: 'Lab Tested',
-      date: '2023-10-28',
-      description: 'Passed all quality and purity tests at Flora Labs. Report ID: FL-9876.',
+      title: 'Lab Testing',
+      status: 'locked',
       icon: FlaskConical,
+      allowedRole: 'processor',
+      cta: 'Upload Lab Results'
     },
     {
       id: 4,
-      title: 'Packaged',
-      date: '2023-10-29',
-      description: 'Sealed for freshness and prepared for distribution.',
+      title: 'Packaging',
+      status: 'locked',
       icon: Package,
+      allowedRole: 'processor',
+      cta: 'Confirm Packaging'
     },
     {
       id: 5,
-      title: 'Shipped',
-      date: '2023-10-30',
-      description: 'En route to our partner retailers.',
+      title: 'Shipping',
+      status: 'locked',
       icon: Truck,
+      allowedRole: 'retailer',
+      cta: 'Add Shipping Manifest'
+    },
+    {
+      id: 6,
+      title: 'In Store',
+      status: 'locked',
+      icon: Store,
+      allowedRole: 'retailer',
+      cta: 'Confirm Retail Arrival'
+    },
+     {
+      id: 7,
+      title: 'Consumer Scan',
+      status: 'locked',
+      icon: Scan,
+      allowedRole: 'consumer',
+      cta: 'View Product Story'
     },
   ],
 };
 
 export function getBatchData(batchId: string): BatchData | null {
-  if (batchId === mockBatchData.batchId) {
+  if (batchId.toUpperCase() === mockBatchData.batchId.toUpperCase()) {
     return mockBatchData;
   }
   return null;

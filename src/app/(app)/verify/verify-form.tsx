@@ -1,18 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { mockBatchData } from "@/lib/data";
+import { getBatchData } from "@/lib/data";
 import { ArrowRight, LoaderCircle, ScanLine } from "lucide-react";
 
 export function VerifyForm() {
   const [batchId, setBatchId] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
 
   const handleVerify = async (e: React.FormEvent) => {
@@ -30,8 +31,9 @@ export function VerifyForm() {
     // Simulate API check
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    if (batchId.toUpperCase() === mockBatchData.batchId) {
-      router.push(`/provenance/${batchId.toUpperCase()}`);
+    if (getBatchData(batchId)) {
+      const role = searchParams.get('role') || 'consumer';
+      router.push(`/provenance/${batchId.toUpperCase()}?role=${role}`);
     } else {
       toast({
         title: "Batch Not Found",

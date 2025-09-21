@@ -1,16 +1,23 @@
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { getBatchData } from '@/lib/data';
-import { ProvenanceTimeline } from '@/components/provenance-timeline';
 import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Leaf } from 'lucide-react';
+import { InteractiveTimeline } from '@/components/interactive-timeline';
 
-export default function ProvenancePage({ params }: { params: { batchId: string } }) {
+export default function ProvenancePage({ 
+  params,
+  searchParams,
+}: { 
+  params: { batchId: string };
+  searchParams: { role?: string };
+}) {
   const batchData = getBatchData(params.batchId);
+  const role = searchParams.role || 'consumer';
 
   if (!batchData) {
     notFound();
@@ -24,7 +31,7 @@ export default function ProvenancePage({ params }: { params: { batchId: string }
             <span className="font-headline text-lg font-semibold">FloraChain</span>
           </Link>
           <Button variant="outline" asChild>
-            <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
+            <Link href={{ pathname: '/', query: { role } }}><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
           </Button>
        </header>
 
@@ -64,7 +71,7 @@ export default function ProvenancePage({ params }: { params: { batchId: string }
           {/* Timeline Section */}
           <section className="space-y-6">
             <h2 className="text-3xl font-headline font-bold text-center">Product Journey</h2>
-            <ProvenanceTimeline events={batchData.timeline} />
+            <InteractiveTimeline initialEvents={batchData.timeline} role={role} />
           </section>
 
         </div>
