@@ -105,7 +105,7 @@ export default async function ProvenancePage({
           </section>
           
           {/* Ingredient Summary Section (for products only) */}
-          {isProduct && (
+          {isProduct && role !== 'distributor' && (
              <section>
                 <ComponentBatchSummary 
                     batchIds={(data as AssembledProduct).componentBatches} 
