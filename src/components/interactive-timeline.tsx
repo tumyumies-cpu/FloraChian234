@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,6 +19,7 @@ interface InteractiveTimelineProps {
   initialEvents: TimelineEvent[];
   role: UserRole | string;
   batchId: string;
+  isProduct?: boolean;
 }
 
 const statusConfig = {
@@ -42,7 +43,7 @@ const statusConfig = {
   },
 };
 
-export function InteractiveTimeline({ initialEvents, role, batchId }: InteractiveTimelineProps) {
+export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = false }: InteractiveTimelineProps) {
   const [events, setEvents] = useState(initialEvents);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -88,6 +89,15 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
       });
     }
   };
+  
+  const timelineEvents = useMemo(() => {
+    if (isProduct) {
+      // For products, only show events from Formulation onwards (id >= 99)
+      return events.filter(e => e.id >= 99);
+    }
+    return events;
+  }, [events, isProduct]);
+
 
   const renderForm = (event: TimelineEvent) => {
     if (editingEventId !== event.id) return null;
@@ -124,7 +134,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
 
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
-      {events.map((event, index) => {
+      {timelineEvents.map((event, index) => {
         const config = statusConfig[event.status];
         const EventIcon = iconMap[event.icon];
         const canTakeAction = event.allowedRole === role && event.status === 'pending';

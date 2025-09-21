@@ -58,7 +58,7 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
   const lastIdNum = db.batches.reduce((max, b) => {
     const num = parseInt(b.batchId.split('-')[1]);
     return num > max ? num : max;
-  }, 481516);
+  }, 481515); // Start number just below the first one
   const newBatchId = `HB-${lastIdNum + 1}`;
   
   const newBatch: BatchData = {
@@ -126,24 +126,6 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     }, 1000);
     const newProductId = `PROD-${lastIdNum + 1}`;
     
-    const componentBatchTimelines = await Promise.all(
-        batchIds.map(async (id) => {
-            const batch = await getBatchById(id); // Uses the new file-based getter
-            return batch?.timeline || [];
-        })
-    );
-
-    let mergedTimeline: TimelineEvent[] = [];
-    componentBatchTimelines.forEach(timeline => {
-        mergedTimeline = mergedTimeline.concat(timeline.filter(e => e.status === 'complete'));
-    });
-    
-    mergedTimeline = mergedTimeline.filter((event, index, self) =>
-        index === self.findIndex((e) => e.title === event.title && e.date === event.date && e.description === event.description)
-    );
-
-    mergedTimeline.sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime());
-
     const assemblyEvent: TimelineEvent = {
         id: 99,
         title: 'Formulation & Manufacturing',
@@ -154,14 +136,14 @@ export async function addAssembledProduct(productName: string, batchIds: string[
         allowedRole: 'brand',
         cta: 'View Final Product'
     };
-    mergedTimeline.push(assemblyEvent);
     
-    const finalTimeline = mergedTimeline.concat([
+    const finalTimeline = [
+        assemblyEvent,
         { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data' },
         { id: 101, title: 'Distribution', status: 'locked', icon: 'truck', allowedRole: 'retailer', cta: 'Add Shipping Manifest' },
         { id: 102, title: 'Retail', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
         { id: 103, title: 'Consumer Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
-    ]);
+    ];
 
 
     const newProduct: AssembledProduct = {

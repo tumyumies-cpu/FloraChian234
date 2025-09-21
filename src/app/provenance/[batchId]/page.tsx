@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Leaf } from 'lucide-react';
 import { InteractiveTimeline } from '@/components/interactive-timeline';
 import type { BatchData, AssembledProduct } from '@/lib/data';
+import { ComponentBatchSummary } from '@/components/component-batch-summary';
 
 export default async function ProvenancePage({ 
   params,
@@ -97,11 +98,24 @@ export default async function ProvenancePage({
           <section>
             <StoryGenerator {...storyGeneratorProps} />
           </section>
+          
+          {/* Ingredient Summary Section (for products only) */}
+          {isProduct && (
+             <section>
+                <ComponentBatchSummary batchIds={(data as AssembledProduct).componentBatches} />
+             </section>
+          )}
+
 
           {/* Timeline Section */}
           <section className="space-y-6">
             <h2 className="text-3xl font-headline font-bold text-center">Product Journey</h2>
-            <InteractiveTimeline initialEvents={data.timeline} role={role} batchId={isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId} />
+            <InteractiveTimeline 
+              initialEvents={data.timeline} 
+              role={role} 
+              batchId={isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}
+              isProduct={isProduct}
+            />
           </section>
 
         </div>
