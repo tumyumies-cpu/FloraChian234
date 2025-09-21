@@ -47,6 +47,7 @@ export const ManufacturingEventSchema = z.object({
     recipeId: z.string().min(1, "Recipe ID is required."),
     extractionMethod: z.string().min(3, "Extraction method is required."),
     equipmentUsed: z.string().min(3, "Equipment details are required."),
+    packagingDetails: z.string().min(3, "Packaging details are required."),
     qualityControl: z.object({
         ipssTests: z.string().min(3, "IPSS test results are required."),
         heavyMetals: z.string().min(3, "Heavy metal test results are required."),

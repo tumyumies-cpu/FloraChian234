@@ -33,6 +33,7 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
       recipeId: "AYUR-R-01",
       extractionMethod: "Aqueous decoction",
       equipmentUsed: "Stainless steel vats, GMP-certified",
+      packagingDetails: "Packaged in eco-friendly, recyclable amber glass bottles.",
       qualityControl: {
         ipssTests: "Passed - All parameters within spec",
         heavyMetals: "Passed - Pb, As, Hg, Cd below detectable limits",
@@ -58,7 +59,7 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
         <Accordion type="multiple" defaultValue={['formulation', 'processing', 'qc']} className="w-full">
           
           <AccordionItem value="formulation">
-            <AccordionTrigger>1. Formulation Data</AccordionTrigger>
+            <AccordionTrigger>1. Formulation & Processing</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-2">
               <FormField
                 control={form.control}
@@ -71,13 +72,7 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
                   </FormItem>
                 )}
               />
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="processing">
-            <AccordionTrigger>2. Processing Data</AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-2">
-                <FormField
+               <FormField
                     control={form.control}
                     name="extractionMethod"
                     render={({ field }) => (
@@ -103,7 +98,7 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
           </AccordionItem>
 
           <AccordionItem value="qc">
-            <AccordionTrigger>3. Quality Control</AccordionTrigger>
+            <AccordionTrigger>2. Quality Control & Lab Tests</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-2">
               <FormField
                 control={form.control}
@@ -142,8 +137,19 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
           </AccordionItem>
 
           <AccordionItem value="batch">
-            <AccordionTrigger>4. Final Batch Data</AccordionTrigger>
+            <AccordionTrigger>3. Packaging & Final Batch Data</AccordionTrigger>
             <AccordionContent className="space-y-4 pt-2">
+                 <FormField
+                    control={form.control}
+                    name="packagingDetails"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Packaging Details</FormLabel>
+                        <FormControl><Input {...field} /></FormControl>
+                         <FormMessage />
+                    </FormItem>
+                    )}
+                />
                  <FormField
                     control={form.control}
                     name="finalBatchId"

@@ -56,6 +56,7 @@ Formulation & Processing:
 - Recipe ID: ${data.recipeId}
 - Extraction Method: ${data.extractionMethod}
 - Equipment: ${data.equipmentUsed}
+- Packaging Details: ${data.packagingDetails}
 
 Quality Control:
 - IPSS Tests: ${data.qualityControl.ipssTests}
@@ -130,7 +131,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
                 return { success: false, message: "Product or event not found." };
             }
             revalidatePath(`/provenance/${batchId}`);
-            return { success: true, batch: updatedProduct };
+            return { success: true, product: updatedProduct };
         } else {
             const updatedBatch = await dbUpdateTimelineEvent(batchId, eventId, updateData);
             if (!updatedBatch) {
@@ -150,8 +151,7 @@ export async function assembleProduct(data: AssembleProductValues) {
     try {
         const newProduct = await addAssembledProduct(data.productName, data.batchIds);
         revalidatePath('/assemble-product');
-        // This will be the page where admins can see final products.
-        revalidatePath('/admin'); 
+        revalidatePath('/past-products'); 
         return { success: true, productId: newProduct.productId };
     } catch (error) {
         console.error("Failed to assemble product:", error);

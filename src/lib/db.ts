@@ -71,22 +71,11 @@ export async function addBatch(data: CreateBatchValues & { photo: string; diagno
     imageUrl: data.photo,
     imageHint: 'freshly harvested product',
     timeline: [
-        {
-          id: 1,
-          title: 'Harvested',
-          status: 'complete',
-          date: new Date().toLocaleDateString('en-CA'),
-          description: `Hand-picked from ${data.farmName}. Initial notes: ${data.processingDetails}. AI diagnosis: ${data.diagnosis?.diagnosis || 'N/A'}`,
-          icon: 'sprout',
-          allowedRole: 'farmer',
-          cta: 'Update Harvest Info'
-        },
-        { id: 2, title: 'Batch Received by Processor', status: 'pending', icon: 'warehouse', allowedRole: 'processor', cta: 'Confirm Receipt' },
-        { id: 3, title: 'Local Processing & Dispatch', status: 'locked', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
-        { id: 4, title: 'Supplier Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'supplier', cta: 'Confirm Receipt' },
-        { id: 5, title: 'Supplier Processing & Dispatch', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Add Dispatch Details' },
-        { id: 6, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' }
-      ]
+      { id: 1, title: 'Cultivation & Harvest', status: 'complete', date: new Date().toLocaleDateString('en-CA'), description: `Hand-picked from ${data.farmName}. Initial notes: ${data.processingDetails}. AI diagnosis: ${data.diagnosis?.diagnosis || 'N/A'}`, icon: 'sprout', allowedRole: 'farmer', cta: 'Update Harvest Info' },
+      { id: 2, title: 'Local Processing', status: 'pending', icon: 'factory', allowedRole: 'processor', cta: 'Add Processing Details' },
+      { id: 3, title: 'Supplier Acquisition', status: 'locked', icon: 'handshake', allowedRole: 'supplier', cta: 'Add Dispatch Details' },
+      { id: 4, title: 'Manufacturing & Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product' },
+    ]
   };
 
   db.batches.unshift(newBatch);
@@ -139,7 +128,7 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     
     const assemblyEvent: TimelineEvent = {
         id: 99,
-        title: 'Formulation & Manufacturing',
+        title: 'Initial Formulation',
         status: 'complete',
         date: new Date().toLocaleDateString('en-CA'),
         description: `Combined from ${batchIds.length} ingredient batches to create ${productName}.`,
@@ -151,10 +140,10 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     const finalTimeline: TimelineEvent[] = [
         assemblyEvent,
         { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data' },
-        { id: 101, title: 'Distribution', status: 'pending', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest' },
+        { id: 101, title: 'Distribution & Logistics', status: 'pending', icon: 'truck', allowedRole: 'distributor', cta: 'Add Shipping Manifest' },
         { id: 102, title: 'Retailer Receiving', status: 'locked', icon: 'warehouse', allowedRole: 'retailer', cta: 'Confirm Receipt'},
-        { id: 103, title: 'In-Store Provenance', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
-        { id: 104, title: 'Consumer Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
+        { id: 103, title: 'In-Store Inventory', status: 'locked', icon: 'store', allowedRole: 'retailer', cta: 'Confirm Retail Arrival' },
+        { id: 104, title: 'Consumer Authenticity Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story' }
     ];
 
 

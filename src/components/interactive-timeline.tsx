@@ -68,8 +68,8 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     setLoading(true);
     const result = await updateTimelineEvent(batchId, eventId, data);
 
-    if (result.success && result.batch) {
-      setEvents(result.batch.timeline);
+    if (result.success && (result.batch || result.product)) {
+      setEvents(result.batch?.timeline || result.product?.timeline || []);
       setEditingEventId(null);
       toast({
         title: "Update Successful!",
@@ -88,8 +88,8 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const handleSimpleConfirmation = async (eventId: number, title: string) => {
     setLoading(true);
     const result = await updateTimelineEvent(batchId, eventId, { description: `${title} confirmed by ${role}.` });
-     if (result.success && result.batch) {
-      setEvents(result.batch.timeline);
+     if (result.success && (result.batch || result.product)) {
+      setEvents(result.batch?.timeline || result.product?.timeline || []);
       setEditingEventId(null);
       toast({
         title: "Update Successful!",
@@ -124,7 +124,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     if (editingEventId !== event.id) return null;
 
     switch (event.id) {
-        case 3: // Local Processing & Dispatch
+        case 2: // Local Processing
             return (
                 <ProcessingEventForm
                     loading={loading}
@@ -133,7 +133,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     initialData={event.formData}
                 />
             );
-        case 5: // Supplier Processing & Dispatch
+        case 3: // Supplier Acquisition
             return (
                 <SupplierEventForm
                     loading={loading}
@@ -160,7 +160,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     initialData={event.formData}
                 />
             );
-        case 103: // In-Store Provenance
+        case 103: // In-Store Inventory
             return (
                 <RetailEventForm
                     loading={loading}
@@ -183,7 +183,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
   const isSimpleConfirmation = (event: TimelineEvent) => {
       // Add event IDs that should be simple confirmations without a form
-      const simpleConfirmationIds = [2, 4, 102];
+      const simpleConfirmationIds = [102];
       return simpleConfirmationIds.includes(event.id);
   }
 

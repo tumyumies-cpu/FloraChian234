@@ -584,23 +584,35 @@
         {
           "id": 102,
           "title": "Retailer Receiving",
-          "status": "pending",
+          "status": "complete",
           "icon": "warehouse",
           "allowedRole": "retailer",
-          "cta": "Confirm Receipt"
+          "cta": "Confirm Receipt",
+          "description": "Retailer Receiving confirmed by retailer.",
+          "date": "2025-09-21",
+          "formData": {
+            "description": "Retailer Receiving confirmed by retailer."
+          }
         },
         {
           "id": 103,
           "title": "In-Store Provenance",
-          "status": "locked",
+          "status": "complete",
           "icon": "store",
           "allowedRole": "retailer",
-          "cta": "Confirm Retail Arrival"
+          "cta": "Confirm Retail Arrival",
+          "description": "Store Details:\n- Store ID: STORE-SF-01\n- Available for Sale: 2025-09-21\n- Current Status: In Stock",
+          "date": "2025-09-21",
+          "formData": {
+            "storeId": "STORE-SF-01",
+            "saleDate": "2025-09-21",
+            "stockStatus": "in_stock"
+          }
         },
         {
           "id": 104,
           "title": "Consumer Scan",
-          "status": "locked",
+          "status": "pending",
           "icon": "scan",
           "allowedRole": "consumer",
           "cta": "View Product Story"
