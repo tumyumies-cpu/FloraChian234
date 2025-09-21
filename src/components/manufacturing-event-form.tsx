@@ -56,7 +56,7 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-4 bg-background border-t">
-        <Accordion type="multiple" defaultValue={['formulation', 'processing', 'qc']} className="w-full">
+        <Accordion type="multiple" defaultValue={['formulation', 'qc', 'batch']} className="w-full">
           
           <AccordionItem value="formulation">
             <AccordionTrigger>1. Formulation & Processing</AccordionTrigger>

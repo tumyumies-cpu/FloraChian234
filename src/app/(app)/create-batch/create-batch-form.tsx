@@ -379,5 +379,3 @@ export function CreateBatchForm() {
     </div>
   );
 }
-
-    
