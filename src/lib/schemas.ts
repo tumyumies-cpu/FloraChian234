@@ -31,6 +31,18 @@ export const ProcessingEventSchema = z.object({
 export type ProcessingEventValues = z.infer<typeof ProcessingEventSchema>;
 
 
+export const SupplierEventSchema = z.object({
+    supplierId: z.string().min(1, "Supplier ID is required."),
+    location: z.string().min(3, "Location is required."),
+    receivedDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date" }),
+    quantity: z.string().min(1, "Quantity received is required."),
+    lotNumber: z.string().min(1, "Batch/Lot number is required."),
+    inspectionReport: z.string().optional(),
+    certifications: z.string().optional(),
+});
+export type SupplierEventValues = z.infer<typeof SupplierEventSchema>;
+
+
 export const AssembleProductSchema = z.object({
     productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),
     batchIds: z.array(z.string()).min(1, { message: "You must select at least one batch." }),

@@ -2,7 +2,7 @@
 "use server";
 
 import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById } from '@/lib/db';
-import { CreateBatchValues, AssembleProductValues, ProcessingEventValues } from '@/lib/schemas';
+import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
@@ -37,15 +37,32 @@ Storage & Dispatch:
     `.trim();
 }
 
+function formatSupplierData(data: SupplierEventValues): string {
+    return `
+Acquisition:
+- Supplier ID: ${data.supplierId}
+- Location: ${data.location}
+- Received Date: ${data.receivedDate}
+- Quantity: ${data.quantity}
+- Internal Lot #: ${data.lotNumber}
 
-export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues) {
+Quality & Compliance:
+- Inspection: ${data.inspectionReport || 'N/A'}
+- Certifications: ${data.certifications || 'N/A'}
+    `.trim();
+}
+
+
+export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues | SupplierEventValues) {
     try {
         let description: string | undefined;
 
-        if ('collectionCenterId' in data) { // Check if it's ProcessingEventValues
+        if ('collectionCenterId' in data) {
             description = formatProcessingData(data as ProcessingEventValues);
+        } else if ('supplierId' in data) {
+            description = formatSupplierData(data as SupplierEventValues);
         } else {
-            description = data.description;
+            description = (data as Partial<TimelineEvent>).description;
         }
 
         const updateData: Partial<TimelineEvent> = {

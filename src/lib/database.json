@@ -23,15 +23,17 @@
         {
           "id": 2,
           "title": "Local Processing",
-          "status": "pending",
+          "status": "complete",
           "icon": "factory",
           "allowedRole": "processor",
-          "cta": "Add Processing Details"
+          "cta": "Add Processing Details",
+          "description": "Procurement:\n- Collection Center: CC-SF-101\n\nProcessing:\n- Cleaning: Manual dry cleaning\n- Drying: Sun-dried at 25°C for 72 hours (Final Moisture: 8.5%)\n- Grinding: Coarse\n\nQuality & Safety:\n- Inspection: Good color, strong aroma, consistent texture.\n\nStorage & Dispatch:\n- Stored for 14 days in Cool, dry, dark warehouse\n- Dispatched on: 2025-09-21",
+          "date": "2025-09-21"
         },
         {
           "id": 3,
           "title": "Supplier Acquisition",
-          "status": "locked",
+          "status": "pending",
           "icon": "handshake",
           "allowedRole": "supplier",
           "cta": "Confirm Acquisition"

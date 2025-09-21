@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
 import { ProcessingEventForm } from './processing-event-form';
-import type { ProcessingEventValues } from '@/lib/schemas';
+import type { ProcessingEventValues, SupplierEventValues } from '@/lib/schemas';
+import { SupplierEventForm } from './supplier-event-form';
 
 interface InteractiveTimelineProps {
   initialEvents: TimelineEvent[];
@@ -46,7 +47,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleUpdate = async (eventId: number, data: ProcessingEventValues) => {
+  const handleUpdate = async (eventId: number, data: ProcessingEventValues | SupplierEventValues) => {
     setLoading(true);
     const result = await updateTimelineEvent(batchId, eventId, { 
       ...data,
@@ -89,11 +90,35 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
     }
   };
 
+  const renderForm = (event: TimelineEvent) => {
+    if (editingEventId !== event.id) return null;
+
+    switch (event.id) {
+        case 2: // Local Processing
+            return (
+                <ProcessingEventForm
+                    loading={loading}
+                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onCancel={() => setEditingEventId(null)}
+                />
+            );
+        case 3: // Supplier Acquisition
+            return (
+                <SupplierEventForm
+                    loading={loading}
+                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onCancel={() => setEditingEventId(null)}
+                />
+            );
+        default:
+            return null;
+    }
+  }
+
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
       {events.map((event) => {
         const config = statusConfig[event.status];
-        const isEditing = editingEventId === event.id;
         const EventIcon = iconMap[event.icon];
         const canTakeAction = event.allowedRole === role && event.status === 'pending';
 
@@ -129,13 +154,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId }: Interactiv
                     <CardDescription className="whitespace-pre-wrap">{event.description}</CardDescription>
                   </CardContent>
                 )}
-                {isEditing && event.id === 2 && (
-                  <ProcessingEventForm
-                    loading={loading}
-                    onSubmit={(data) => handleUpdate(event.id, data)}
-                    onCancel={() => setEditingEventId(null)}
-                  />
-                )}
+                {renderForm(event)}
               </Card>
             </div>
           </div>
