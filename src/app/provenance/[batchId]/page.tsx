@@ -56,16 +56,6 @@ export default async function ProvenancePage({
   if (isConsumerView) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="flex items-center justify-between p-4 border-b">
-            <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
-                <Leaf className="h-6 w-6" />
-                <span className="font-headline text-lg font-semibold">FloraChain</span>
-            </Link>
-            <Button variant="outline" asChild>
-                <Link href={backLink}><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
-            </Button>
-        </header>
-
         <main className="container mx-auto max-w-4xl py-8 sm:py-12">
             <div className="space-y-12">
                 <section className="text-center">
@@ -116,16 +106,6 @@ export default async function ProvenancePage({
   // Default view for other roles
   return (
     <div className="min-h-screen bg-background">
-       <header className="flex items-center justify-between p-4 border-b md:hidden">
-         <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
-            <Leaf className="h-6 w-6" />
-            <span className="font-headline text-lg font-semibold">FloraChain</span>
-          </Link>
-          <Button variant="outline" asChild>
-            <Link href={backLink}><ArrowLeft className="mr-2 h-4 w-4" />Back</Link>
-          </Button>
-       </header>
-
       <main className="container mx-auto max-w-5xl py-8 sm:py-12">
         <div className="space-y-12">
           {/* Header Section */}
