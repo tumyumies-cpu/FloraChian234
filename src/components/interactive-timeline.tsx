@@ -51,7 +51,7 @@ const visibilityRules: Record<string, string[]> = {
     processor: ['farmer', 'processor'],
     supplier: ['farmer', 'processor', 'supplier'],
     brand: ['farmer', 'processor', 'supplier', 'brand'],
-    distributor: ['farmer', 'processor', 'supplier', 'brand', 'distributor'],
+    distributor: ['distributor'],
     retailer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer'],
     consumer: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer'],
     admin: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer'],
