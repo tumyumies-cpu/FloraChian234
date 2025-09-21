@@ -468,15 +468,24 @@
         {
           "id": 101,
           "title": "Distribution",
-          "status": "pending",
+          "status": "complete",
           "icon": "truck",
           "allowedRole": "distributor",
-          "cta": "Add Shipping Manifest"
+          "cta": "Add Shipping Manifest",
+          "description": "Warehouse & Stock:\n- Warehouse ID: WH-OAK-02\n- Stock Entry Date: 2025-09-21\n\nTransportation:\n- Mode: Refrigerated truck\n- Cold Chain: Maintained at 2-8°C during transit.\n\nDistributor:\n- ID: DIST-US-WEST-04",
+          "date": "2025-09-21",
+          "formData": {
+            "warehouseId": "WH-OAK-02",
+            "stockEntryDate": "2025-09-21",
+            "coldChain": "Maintained at 2-8°C during transit.",
+            "transportMode": "Refrigerated truck",
+            "distributorId": "DIST-US-WEST-04"
+          }
         },
         {
           "id": 102,
           "title": "Retailer Receiving",
-          "status": "locked",
+          "status": "pending",
           "icon": "warehouse",
           "allowedRole": "retailer",
           "cta": "Confirm Receipt"
