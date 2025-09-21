@@ -23,12 +23,13 @@ interface DistributionEventFormProps {
   onSubmit: (data: DistributionEventValues) => Promise<void>;
   onCancel: () => void;
   loading: boolean;
+  initialData?: DistributionEventValues;
 }
 
-export function DistributionEventForm({ onSubmit, onCancel, loading }: DistributionEventFormProps) {
+export function DistributionEventForm({ onSubmit, onCancel, loading, initialData }: DistributionEventFormProps) {
   const form = useForm<DistributionEventValues>({
     resolver: zodResolver(DistributionEventSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       warehouseId: "WH-OAK-02",
       stockEntryDate: new Date().toISOString().split('T')[0],
       coldChain: "Maintained at 2-8°C during transit.",

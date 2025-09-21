@@ -85,8 +85,10 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   
   const timelineEvents = useMemo(() => {
     if (isProduct) {
+      // For products, only show events from manufacturing onwards (IDs >= 99)
       return events.filter(e => e.id >= 99);
     }
+    // For batches, show all events
     return events;
   }, [events, isProduct]);
 
@@ -101,6 +103,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     loading={loading}
                     onSubmit={(data) => handleUpdate(event.id, data)}
                     onCancel={() => setEditingEventId(null)}
+                    initialData={event.formData}
                 />
             );
         case 3: // Supplier Acquisition
@@ -109,6 +112,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     loading={loading}
                     onSubmit={(data) => handleUpdate(event.id, data)}
                     onCancel={() => setEditingEventId(null)}
+                    initialData={event.formData}
                 />
             );
         case 100: // Manufacturing & Packaging
@@ -117,6 +121,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     loading={loading}
                     onSubmit={(data) => handleUpdate(event.id, data)}
                     onCancel={() => setEditingEventId(null)}
+                    initialData={event.formData}
                 />
             );
         case 101: // Distribution
@@ -125,6 +130,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     loading={loading}
                     onSubmit={(data) => handleUpdate(event.id, data)}
                     onCancel={() => setEditingEventId(null)}
+                    initialData={event.formData}
                 />
             );
         default:

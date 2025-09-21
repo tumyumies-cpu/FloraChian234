@@ -23,12 +23,13 @@ interface ManufacturingEventFormProps {
   onSubmit: (data: ManufacturingEventValues) => Promise<void>;
   onCancel: () => void;
   loading: boolean;
+  initialData?: ManufacturingEventValues;
 }
 
-export function ManufacturingEventForm({ onSubmit, onCancel, loading }: ManufacturingEventFormProps) {
+export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialData }: ManufacturingEventFormProps) {
   const form = useForm<ManufacturingEventValues>({
     resolver: zodResolver(ManufacturingEventSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       recipeId: "AYUR-R-01",
       extractionMethod: "Aqueous decoction",
       equipmentUsed: "Stainless steel vats, GMP-certified",
@@ -44,8 +45,10 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading }: Manufact
   });
   
   useEffect(() => {
-    form.setValue('finalBatchId', `FP-${Math.floor(10000 + Math.random() * 90000)}`);
-  }, [form]);
+    if (!initialData) {
+        form.setValue('finalBatchId', `FP-${Math.floor(10000 + Math.random() * 90000)}`);
+    }
+  }, [form, initialData]);
 
 
   return (

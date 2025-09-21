@@ -22,12 +22,13 @@ interface SupplierEventFormProps {
   onSubmit: (data: SupplierEventValues) => Promise<void>;
   onCancel: () => void;
   loading: boolean;
+  initialData?: SupplierEventValues;
 }
 
-export function SupplierEventForm({ onSubmit, onCancel, loading }: SupplierEventFormProps) {
+export function SupplierEventForm({ onSubmit, onCancel, loading, initialData }: SupplierEventFormProps) {
   const form = useForm<SupplierEventValues>({
     resolver: zodResolver(SupplierEventSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       supplierId: "TR-SF-007",
       location: "Oakland, CA Distribution Center",
       quantity: "500 kg",
@@ -38,8 +39,10 @@ export function SupplierEventForm({ onSubmit, onCancel, loading }: SupplierEvent
   });
 
   useEffect(() => {
-    form.setValue('lotNumber', `LOT-${Math.floor(1000 + Math.random() * 9000)}`);
-  }, [form]);
+    if (!initialData) {
+      form.setValue('lotNumber', `LOT-${Math.floor(1000 + Math.random() * 9000)}`);
+    }
+  }, [form, initialData]);
 
   return (
     <Form {...form}>

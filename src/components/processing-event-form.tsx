@@ -23,12 +23,13 @@ interface ProcessingEventFormProps {
   onSubmit: (data: ProcessingEventValues) => Promise<void>;
   onCancel: () => void;
   loading: boolean;
+  initialData?: ProcessingEventValues;
 }
 
-export function ProcessingEventForm({ onSubmit, onCancel, loading }: ProcessingEventFormProps) {
+export function ProcessingEventForm({ onSubmit, onCancel, loading, initialData }: ProcessingEventFormProps) {
   const form = useForm<ProcessingEventValues>({
     resolver: zodResolver(ProcessingEventSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       collectionCenterId: "CC-SF-101",
       cleaningMethod: "Manual dry cleaning",
       dryingMethod: "Sun-dried",

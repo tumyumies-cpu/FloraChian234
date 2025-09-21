@@ -105,6 +105,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
         const updateData: Partial<TimelineEvent> = {
             description,
             date: new Date().toLocaleDateString('en-CA'),
+            formData: data, // Store the raw form data
         };
 
         if (batchId.startsWith('PROD-')) {

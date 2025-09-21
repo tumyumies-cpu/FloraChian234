@@ -25,6 +25,7 @@ export interface TimelineEvent {
   status: EventStatus;
   date?: string;
   description?: string;
+  formData?: any;
   icon: IconName;
   allowedRole: UserRole;
   cta: string;
