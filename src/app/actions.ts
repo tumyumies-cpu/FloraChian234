@@ -1,7 +1,7 @@
 
 "use server";
 
-import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById } from '@/lib/db';
+import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById, getAssembledProductById } from '@/lib/db';
 import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues, RetailEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';

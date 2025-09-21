@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -16,7 +17,7 @@ const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/create-batch', label: 'Create Batch', icon: PlusCircle, roles: ['farmer'] },
   { href: '/past-batches', label: 'Past Batches', icon: History, roles: ['farmer', 'processor', 'supplier'] },
-  { href: '/past-products', label: 'Past Products', icon: Package, roles: ['brand', 'retailer'] },
+  { href: '/past-products', label: 'Past Products', icon: Package, roles: ['brand', 'retailer', 'distributor'] },
   { href: '/verify', label: 'Verify/Update', icon: ScanLine, roles: ['consumer', 'processor', 'retailer', 'supplier', 'distributor'] },
   { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand'] },
 ];
