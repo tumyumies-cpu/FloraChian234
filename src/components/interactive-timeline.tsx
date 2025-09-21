@@ -6,7 +6,7 @@ import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
-import { Check, Lock, Edit, EyeOff } from 'lucide-react';
+import { Check, Lock, Edit, EyeOff, LoaderCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
@@ -105,11 +105,14 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
   const timelineEvents = useMemo(() => {
     if (isProduct) {
-      // For products, only show events from manufacturing onwards (IDs >= 99)
-      return events.filter(e => e.id >= 99);
+      const componentBatchEvents = events
+          .filter(e => e.id < 99) // All events from component batches
+          .map((e, index) => ({...e, uniqueId: `${e.batchId}-${e.id}-${index}`}));
+      const productEvents = events.filter(e => e.id >= 99).map((e) => ({...e, uniqueId: e.id.toString()}));
+      return [...componentBatchEvents, ...productEvents];
     }
-    // For batches, show all events
-    return events;
+    // For single batches, just use ID
+    return events.map((e) => ({...e, uniqueId: e.id.toString()}));
   }, [events, isProduct]);
 
 
@@ -161,7 +164,8 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const canViewDescription = (event: TimelineEvent) => {
     if (event.status !== 'complete' || !event.description) return false;
     const allowedRoles = visibilityRules[role] || [];
-    return allowedRoles.includes(event.allowedRole);
+    // Ensure allowedRole exists before checking inclusion
+    return event.allowedRole && allowedRoles.includes(event.allowedRole);
   }
 
   const isSimpleConfirmation = (event: TimelineEvent) => {
