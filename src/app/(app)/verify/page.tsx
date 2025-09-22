@@ -1,4 +1,5 @@
 import { VerifyForm } from "./verify-form";
+import { Suspense } from "react";
 
 export default function VerifyPage({
   searchParams,
@@ -15,7 +16,9 @@ export default function VerifyPage({
           Enter an ID below to look up a product's history.
         </p>
       </div>
-      <VerifyForm role={role} />
+      <Suspense fallback={<div>Loading...</div>}>
+        <VerifyForm role={role} />
+      </Suspense>
     </div>
   );
 }
