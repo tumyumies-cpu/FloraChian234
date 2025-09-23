@@ -11,7 +11,7 @@ export default async function AssembleProductPage() {
         <h1 className="text-3xl font-headline font-bold tracking-tight">Assemble a New Product</h1>
         <p className="text-muted-foreground">Select ingredient batches to combine into a final product.</p>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Loading form...</div>}>
         <AssembleProductForm batches={batches} />
       </Suspense>
     </div>

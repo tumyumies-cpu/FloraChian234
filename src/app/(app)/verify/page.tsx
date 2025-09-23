@@ -16,7 +16,7 @@ export default function VerifyPage({
           Enter an ID below to look up a product's history.
         </p>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<div>Loading form...</div>}>
         <VerifyForm role={role} />
       </Suspense>
     </div>
