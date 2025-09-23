@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -63,6 +64,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     // When initialEvents prop changes, update the state
@@ -207,6 +209,20 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
       return simpleConfirmationIds.includes(event.id);
   }
 
+  const handleButtonClick = (event: TimelineEvent) => {
+    if (event.id === 6) { // Ready for Formulation
+      router.push(`/assemble-product?role=${role}`);
+      return;
+    }
+
+    if (isSimpleConfirmation(event)) {
+      handleSimpleConfirmation(event.id, event.title);
+    } else {
+      setEditingEventId(event.id);
+    }
+  };
+
+
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
       {timelineEvents.map((event) => {
@@ -237,16 +253,10 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                   {canTakeAction && (
                     <Button
                       size="sm"
-                      onClick={() => {
-                        if (isSimpleConfirmation(event)) {
-                            handleSimpleConfirmation(event.id, event.title);
-                        } else {
-                            setEditingEventId(event.id);
-                        }
-                      }}
-                      disabled={loading && event.status === 'pending'}
+                      onClick={() => handleButtonClick(event)}
+                      disabled={loading && (editingEventId === event.id || isSimpleConfirmation(event))}
                     >
-                      {loading && editingEventId === event.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
+                      {loading && (editingEventId === event.id || isSimpleConfirmation(event)) ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
                       {event.cta}
                     </Button>
                   )}
