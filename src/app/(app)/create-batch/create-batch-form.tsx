@@ -17,11 +17,11 @@ import { CreateBatchSchema, type CreateBatchValues } from "@/lib/schemas";
 import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles } from "lucide-react";
 import { format, subDays } from "date-fns";
 import Image from "next/image";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraCapture } from "@/components/camera-capture";
 import { diagnosePlantHealth } from "@/ai/flows/diagnose-plant-health";
-import { createBatch } from "@/app/actions";
+import { createBatch, getGeocodedLocation } from "@/app/actions";
+import QRCode from 'qrcode';
 
 type DiagnosisState = {
   isHealthy: boolean;
@@ -36,6 +36,7 @@ export function CreateBatchForm() {
   const [diagnosis, setDiagnosis] = useState<DiagnosisState>(null);
   const [diagnosisLoading, setDiagnosisLoading] = useState(false);
   const [threeDaysAgo, setThreeDaysAgo] = useState<Date | null>(null);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,6 +45,19 @@ export function CreateBatchForm() {
     // This will only run on the client, after initial hydration
     setThreeDaysAgo(subDays(new Date(), 2));
   }, []);
+
+  useEffect(() => {
+    if (newBatchId) {
+      const url = `${window.location.origin}/provenance/${newBatchId}`;
+      QRCode.toDataURL(url, { width: 250, margin: 2 }, (err, dataUrl) => {
+        if (err) {
+          console.error("Failed to generate QR code:", err);
+          return;
+        }
+        setQrCodeDataUrl(dataUrl);
+      });
+    }
+  }, [newBatchId]);
 
   const form = useForm<CreateBatchValues>({
     resolver: zodResolver(CreateBatchSchema),
@@ -81,18 +95,24 @@ export function CreateBatchForm() {
     setLoadingLocation(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
-          console.log(`Lat: ${latitude}, Lon: ${longitude}`);
-          
-          setTimeout(() => {
-             form.setValue("location", "Sonoma County, California", { shouldValidate: true });
+          const result = await getGeocodedLocation(latitude, longitude);
+
+          if (result.success && result.location) {
+             form.setValue("location", result.location, { shouldValidate: true });
              toast({
                 title: "Location Captured",
-                description: "Farm location has been set based on your current position.",
+                description: `Farm location set to: ${result.location}`,
              });
-             setLoadingLocation(false);
-          }, 1000);
+          } else {
+             toast({
+                variant: "destructive",
+                title: "Location Error",
+                description: result.message || "Could not retrieve location.",
+             });
+          }
+          setLoadingLocation(false);
         },
         (error) => {
           console.error("Geolocation error:", error);
@@ -169,11 +189,10 @@ export function CreateBatchForm() {
     setNewBatchId(null);
     setPhoto(null);
     setDiagnosis(null);
+    setQrCodeDataUrl(null);
   }
-
-  const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
   
-  if (newBatchId && qrCodeImage) {
+  if (newBatchId && qrCodeDataUrl) {
     return (
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
@@ -186,11 +205,11 @@ export function CreateBatchForm() {
         <CardContent className="text-center">
           <div className="flex justify-center p-4 border rounded-lg bg-white">
             <Image
-              src={qrCodeImage.imageUrl}
-              alt="Generated QR Code"
+              src={qrCodeDataUrl}
+              alt={`QR Code for batch ${newBatchId}`}
               width={250}
               height={250}
-              data-ai-hint={qrCodeImage.imageHint}
+              data-ai-hint="qr code"
             />
           </div>
           <p className="text-muted-foreground text-sm mt-4">

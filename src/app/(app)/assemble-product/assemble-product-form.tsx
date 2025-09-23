@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { assembleProduct } from "@/app/actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AdvancedFilterControls, type FilterState, type SortState } from "./advanced-filter-controls";
+import QRCode from 'qrcode';
 
 interface AssembleProductFormProps {
     batches: BatchData[];
@@ -29,6 +29,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const [newProductId, setNewProductId] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>({ productName: "", farmName: "", batchId: "" });
   const [sort, setSort] = useState<SortState>({ key: 'harvestDate', order: 'desc' });
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,6 +41,19 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
       batchIds: [],
     },
   });
+
+  useEffect(() => {
+    if (newProductId) {
+      const url = `${window.location.origin}/provenance/${newProductId}`;
+      QRCode.toDataURL(url, { width: 250, margin: 2 }, (err, dataUrl) => {
+        if (err) {
+          console.error("Failed to generate QR code:", err);
+          return;
+        }
+        setQrCodeDataUrl(dataUrl);
+      });
+    }
+  }, [newProductId]);
 
   const availableBatches = useMemo(() => batches.filter(batch => {
     const isReady = batch.timeline.find(e => e.title === 'Supplier Processing & Dispatch' && e.status === 'complete');
@@ -88,6 +102,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const handleResetForm = () => {
     form.reset();
     setNewProductId(null);
+    setQrCodeDataUrl(null);
   };
 
   const handleViewProvenance = () => {
@@ -97,9 +112,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     }
   };
 
-  const qrCodeImage = PlaceHolderImages.find(img => img.id === 'qr-code-placeholder');
-
-  if (newProductId && qrCodeImage) {
+  if (newProductId && qrCodeDataUrl) {
     return (
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
@@ -112,11 +125,11 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
         <CardContent className="text-center">
             <div className="flex justify-center p-4 border rounded-lg bg-white">
                 <Image
-                src={qrCodeImage.imageUrl}
-                alt="Generated QR Code for new product"
+                src={qrCodeDataUrl}
+                alt={`QR Code for product ${newProductId}`}
                 width={250}
                 height={250}
-                data-ai-hint={qrCodeImage.imageHint}
+                data-ai-hint="qr code"
                 />
             </div>
             <p className="text-muted-foreground text-sm mt-4">

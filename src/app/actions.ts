@@ -202,3 +202,24 @@ export async function getProcessorBatches() {
 export async function getBatchForSummary(batchId: string) {
     return await dbGetBatchById(batchId);
 }
+
+export async function getGeocodedLocation(latitude: number, longitude: number): Promise<{success: boolean, location?: string, message?: string}> {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+    if (!response.ok) {
+      throw new Error(`Nominatim API failed with status: ${response.status}`);
+    }
+    const data = await response.json();
+    
+    if (data.address) {
+      const { city, state, country } = data.address;
+      const locationParts = [city, state, country].filter(Boolean); // Filter out any undefined/null parts
+      return { success: true, location: locationParts.join(', ') };
+    } else {
+      return { success: false, message: "Could not determine location from coordinates." };
+    }
+  } catch (error) {
+    console.error("Geocoding error:", error);
+    return { success: false, message: "Could not retrieve location. Please enter it manually." };
+  }
+}
