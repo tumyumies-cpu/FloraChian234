@@ -14,15 +14,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from '@/hooks/use-toast';
-
-const loginSchema = z.object({
-  email: z.string().email().refine(email => email.endsWith('@florachain.com'), {
-    message: "Email must be a valid @florachain.com address."
-  }),
-  password: z.string().min(1, { message: "Password is required." }),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
+import { loginSchema, type LoginValues } from '@/lib/schemas';
+import { getUsers } from './actions';
 
 export default function LoginPage() {
   const { setAuthInfo } = useAuth();
@@ -38,15 +31,28 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (values: LoginValues) => {
+  const onSubmit = async (values: LoginValues) => {
     setLoading(true);
     // Simulate API call
-    setTimeout(() => {
-      const role = values.email.split('@')[0];
+    setTimeout(async () => {
+      const users = await getUsers();
+      const existingUser = users.find(u => u.email.toLowerCase() === values.email.toLowerCase());
+      
+      let role;
+      if (existingUser) {
+        role = existingUser.role;
+      } else if (values.email.toLowerCase() === 'admin@florachain.com') {
+        role = 'admin';
+      } else if (values.email.toLowerCase().endsWith('@florachain.com')) {
+        role = 'farmer';
+      } else {
+        role = 'consumer';
+      }
+      
       setAuthInfo({ email: values.email, role });
       toast({
         title: "Login Successful",
-        description: `Welcome, ${role}! Redirecting to your dashboard.`,
+        description: `Welcome! Redirecting to your dashboard.`,
       });
       router.push(`/dashboard?role=${role}`);
       setLoading(false);
@@ -65,7 +71,7 @@ export default function LoginPage() {
         <Card>
           <CardHeader>
             <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access your dashboard.</CardDescription>
+            <CardDescription>Enter your credentials to access the platform.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -77,7 +83,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., admin@florachain.com" {...field} />
+                        <Input placeholder="e.g., user@company.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,7 +110,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
          <p className="px-8 text-center text-sm text-muted-foreground mt-6">
-            Log in with a role-based email, like `farmer@florachain.com` or `admin@florachain.com`.
+            Use `admin@florachain.com` for admin access or `farmer@florachain.com` for farmer access. Any other email will be treated as a consumer unless explicitly added by an admin.
          </p>
       </div>
     </div>

@@ -21,9 +21,7 @@ import { addUser, updateUser, deleteUser } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 const addUserSchema = z.object({
-  email: z.string().email().refine(email => email.endsWith('@florachain.com'), {
-    message: "Email must be a valid @florachain.com address."
-  }),
+  email: z.string().email(),
   role: z.string().min(1, { message: "Role is required." }),
 });
 type AddUserValues = z.infer<typeof addUserSchema>;
@@ -153,7 +151,7 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
                         <FormField control={addUserForm.control} name="email" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
-                                <FormControl><Input placeholder="user@florachain.com" {...field} /></FormControl>
+                                <FormControl><Input placeholder="user@company.com" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )} />

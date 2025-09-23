@@ -37,8 +37,9 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const { authInfo } = useAuth();
   
   const brandName = useMemo(() => {
-    if (!authInfo?.role) return 'DefaultBrand';
-    return authInfo.role.charAt(0).toUpperCase() + authInfo.role.slice(1);
+    if (!authInfo?.email) return 'DefaultBrand';
+    const emailPrefix = authInfo.email.split('@')[0];
+    return emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1);
   }, [authInfo]);
 
   const form = useForm<AssembleProductValues>({

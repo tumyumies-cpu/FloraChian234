@@ -65,7 +65,7 @@ export const DistributionEventSchema = z.object({
     stockEntryDate: z.string().min(1, "Stock entry date is required."),
     coldChain: z.string().optional(),
     transportMode: z.string().min(3, "Transport mode is required."),
-    distributorId: z.string().min(1, "Distributor ID is required."),
+    distributorId: zstring().min(1, "Distributor ID is required."),
 });
 export type DistributionEventValues = z.infer<typeof DistributionEventSchema>;
 
@@ -86,9 +86,7 @@ export const AssembleProductSchema = z.object({
 export type AssembleProductValues = z.infer<typeof AssembleProductSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().email().refine(email => email.endsWith('@florachain.com'), {
-    message: "Email must be a valid @florachain.com address."
-  }),
+  email: z.string().email({ message: "Please enter a valid email address." }),
   password: z.string().min(1, { message: "Password is required." }),
 });
 
