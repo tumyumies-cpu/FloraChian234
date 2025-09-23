@@ -1,10 +1,9 @@
 
 "use client";
 import { VerifyForm } from "./verify-form";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from 'next/navigation';
 import { QrScanner } from "@/components/qr-scanner";
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScanLine } from "lucide-react";
 

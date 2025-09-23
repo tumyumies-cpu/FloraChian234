@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, सuspense } from 'react';
+import { Suspense, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, ShieldCheck, Edit, AtSign, Calendar, CheckCircle } from 'lucide-react';
