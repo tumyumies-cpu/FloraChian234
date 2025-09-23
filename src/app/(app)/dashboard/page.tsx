@@ -21,11 +21,7 @@ function DashboardContent() {
       case 'farmer':
         return <FarmerDashboard />;
       case 'processor':
-        return (
-          <Suspense fallback={<div>Loading processor data...</div>}>
-            <ProcessorDashboard />
-          </Suspense>
-        );
+        return <ProcessorDashboard />;
       case 'supplier':
         return <SupplierDashboard />;
       case 'brand':
