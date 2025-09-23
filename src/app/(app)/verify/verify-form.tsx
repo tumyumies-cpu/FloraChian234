@@ -8,15 +8,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { verifyBatchId } from "@/app/actions";
-import { ArrowRight, LoaderCircle, ScanLine } from "lucide-react";
+import { ArrowRight, LoaderCircle, PenSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { UserRole } from "@/lib/data";
 
 interface VerifyFormProps {
   role: UserRole | string;
+  scannedId: string | null;
 }
 
-export function VerifyForm({ role }: VerifyFormProps) {
+export function VerifyForm({ role, scannedId }: VerifyFormProps) {
   const [id, setId] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -26,6 +27,15 @@ export function VerifyForm({ role }: VerifyFormProps) {
   useEffect(() => {
     setHasMounted(true);
   }, []);
+  
+  useEffect(() => {
+    if (scannedId) {
+      setId(scannedId);
+      // Automatically submit the form when a QR code is scanned
+      handleVerify(scannedId);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scannedId]);
 
   const isProductRole = ['consumer', 'retailer', 'distributor'].includes(role as string);
   const idType = isProductRole ? "Product" : "Batch";
@@ -33,9 +43,8 @@ export function VerifyForm({ role }: VerifyFormProps) {
   const description = `You can typically find the ${idType} ID printed near the QR code on the product packaging.`;
 
 
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id) {
+  const handleVerify = async (idToVerify: string) => {
+    if (!idToVerify) {
       toast({
         title: "Error",
         description: `Please enter a ${idType} ID.`,
@@ -45,32 +54,34 @@ export function VerifyForm({ role }: VerifyFormProps) {
     }
     setLoading(true);
 
-    const result = await verifyBatchId(id);
+    const result = await verifyBatchId(idToVerify);
     
     if (result.success) {
-      router.push(`/provenance/${id.toUpperCase()}?role=${role}`);
+      router.push(`/provenance/${idToVerify.toUpperCase()}?role=${role}`);
     } else {
       toast({
         title: `${idType} Not Found`,
-        description: `The ${idType} ID "${id}" could not be found. Please check the ID and try again.`,
+        description: `The ${idType} ID "${idToVerify}" could not be found. Please check the ID and try again.`,
         variant: "destructive",
       });
       setLoading(false);
     }
   };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      handleVerify(id);
+  }
 
   if (!hasMounted) {
     return (
-        <Card className="max-w-2xl">
+        <Card>
             <CardHeader>
                 <Skeleton className="h-8 w-48" />
                 <Skeleton className="h-4 w-full" />
             </CardHeader>
             <CardContent className="space-y-4">
-                <div className="flex gap-2">
-                    <Skeleton className="h-12 flex-grow" />
-                    <Skeleton className="h-12 w-12" />
-                </div>
+                <Skeleton className="h-12 flex-grow" />
                 <Skeleton className="h-11 w-full" />
             </CardContent>
         </Card>
@@ -78,16 +89,22 @@ export function VerifyForm({ role }: VerifyFormProps) {
   }
 
   return (
-    <Card className="max-w-2xl">
+    <Card>
       <CardHeader>
-        <CardTitle className="font-headline">Enter ${idType} ID</CardTitle>
-        <CardDescription>
-          {description}
-        </CardDescription>
+        <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <PenSquare className="h-6 w-6" />
+            </div>
+            <div>
+                <CardTitle className="font-headline">Or Enter ID Manually</CardTitle>
+                <CardDescription>
+                {description}
+                </CardDescription>
+            </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleVerify} className="space-y-4">
-          <div className="flex gap-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               value={id}
               onChange={(e) => setId(e.target.value)}
@@ -95,10 +112,6 @@ export function VerifyForm({ role }: VerifyFormProps) {
               className="text-lg h-12"
               aria-label={`${idType} ID`}
             />
-            <Button size="icon" variant="outline" className="h-12 w-12 shrink-0" type="button" aria-label="Scan QR Code">
-              <ScanLine className="h-6 w-6" />
-            </Button>
-          </div>
           <Button type="submit" disabled={loading} className="w-full" size="lg">
             {loading ? (
               <>
