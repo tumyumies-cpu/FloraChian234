@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, सuspense } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, ShieldCheck, Edit, AtSign, Calendar, CheckCircle } from 'lucide-react';
@@ -9,13 +8,14 @@ import type { UserRole } from '@/lib/data';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function getRoleLabel(role: string | null) {
   if (!role) return "User";
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
-export default function ProfilePage() {
+function ProfileContent() {
   const searchParams = useSearchParams();
   const role = (searchParams.get('role') || 'consumer') as UserRole;
   const roleLabel = getRoleLabel(role);
@@ -107,4 +107,53 @@ export default function ProfilePage() {
       </div>
     </div>
   );
+}
+
+function ProfilePageSkeleton() {
+  return (
+    <div className="space-y-8">
+      <div>
+        <Skeleton className="h-10 w-1/3" />
+        <Skeleton className="h-5 w-1/2 mt-2" />
+      </div>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="md:col-span-1">
+          <Card>
+            <CardContent className="flex flex-col items-center p-6 text-center">
+              <Skeleton className="h-24 w-24 rounded-full" />
+              <Skeleton className="h-8 w-24 mt-4" />
+              <Skeleton className="h-5 w-32 mt-2" />
+            </CardContent>
+          </Card>
+        </div>
+        <div className="md:col-span-2">
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-8 w-1/3" />
+              <Skeleton className="h-5 w-2/3 mt-2" />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <Skeleton className="h-6 w-6" />
+                  <div className="w-full space-y-2">
+                    <Skeleton className="h-4 w-1/4" />
+                    <Skeleton className="h-5 w-1/2" />
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<ProfilePageSkeleton />}>
+      <ProfileContent />
+    </Suspense>
+  )
 }
