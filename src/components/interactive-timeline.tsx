@@ -244,7 +244,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                             setEditingEventId(event.id);
                         }
                       }}
-                      disabled={loading}
+                      disabled={loading && event.status === 'pending'}
                     >
                       {loading && editingEventId === event.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
                       {event.cta}
@@ -266,7 +266,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                             )}
                         </CardContent>
                     )}
-                     {role !== 'consumer' && (
+                     {role !== 'consumer' && showDescription && (
                         <CardFooter>
                            <Button asChild variant="secondary" size="sm">
                                 <Link href={`/document/${batchId}?stage=${event.id}`} target="_blank">

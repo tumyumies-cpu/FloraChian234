@@ -36,13 +36,14 @@ function PrintableReport() {
                 }
                 setData(fetchedData as BatchData | AssembledProduct);
 
-                const stageEvent = fetchedData.timeline.find(e => e.id === parseInt(stageId, 10));
+                const timeline = 'productId' in fetchedData ? fetchedData.timeline : (fetchedData as BatchData).timeline;
+                const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
+
                 if (stageEvent) {
                     setStage(stageEvent);
                 }
 
-                const url = `${window.location.origin}/provenance/${id}`;
-                const qrUrl = await QRCode.toDataURL(url, { width: 150, margin: 2 });
+                const qrUrl = await QRCode.toDataURL(id, { width: 150, margin: 2 });
                 setQrCodeDataUrl(qrUrl);
                 
                 setLoading(false);
