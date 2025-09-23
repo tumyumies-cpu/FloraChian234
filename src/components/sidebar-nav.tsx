@@ -4,11 +4,9 @@
 import {
   SidebarContent,
   SidebarHeader,
-  SidebarFooter,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Package, User, Settings, Shield } from 'lucide-react';
@@ -22,11 +20,6 @@ const menuItems = [
   { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand', 'admin'] },
   { href: '/past-products', label: 'Past Products', icon: Package, roles: ['brand', 'distributor', 'retailer', 'admin'] },
   { href: '/verify', label: 'Verify/Update', icon: ScanLine, roles: ['consumer', 'processor', 'supplier', 'distributor', 'retailer'] },
-];
-
-const secondaryMenuItems = [
-  { href: '/profile', label: 'Profile', icon: User, roles: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer', 'admin'] },
-  { href: '/settings', label: 'Settings', icon: Settings, roles: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer', 'admin'] },
 ];
 
 export function SidebarNav() {
@@ -43,11 +36,6 @@ export function SidebarNav() {
     return item.roles?.includes(role);
   });
   
-  const filteredSecondaryMenuItems = secondaryMenuItems.filter(item => {
-    if (!role) return false;
-    return item.roles?.includes(role);
-  });
-
   return (
     <>
       <SidebarHeader>
@@ -77,27 +65,6 @@ export function SidebarNav() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
-      </SidebarContent>
-        <SidebarContent>
-            <SidebarSeparator />
-            <SidebarMenu>
-                 {filteredSecondaryMenuItems.map((item) => (
-                    <SidebarMenuItem key={item.href}>
-                    <Link href={getHref(item.href)}>
-                        <SidebarMenuButton
-                        asChild
-                        isActive={pathname === item.href}
-                        tooltip={item.label}
-                        >
-                        <div>
-                            <item.icon />
-                            <span>{item.label}</span>
-                        </div>
-                        </SidebarMenuButton>
-                    </Link>
-                    </SidebarMenuItem>
-                ))}
-            </SidebarMenu>
       </SidebarContent>
     </>
   );
