@@ -1,6 +1,7 @@
 
 /**
  * @fileoverview This file simulates a simple JSON file-based database for the application.
+ * On a serverless hosting platform, this will be read-only and in-memory.
  */
 import fs from 'fs/promises';
 import path from 'path';
@@ -18,21 +19,34 @@ type Database = {
   users: User[];
 };
 
-// Function to read the entire database from the JSON file.
+// In-memory cache for the database
+let dbCache: Database | null = null;
+
+// Function to read the entire database.
+// It reads from the file once and then uses an in-memory cache.
 async function readDb(): Promise<Database> {
+  if (dbCache) {
+    return dbCache;
+  }
   try {
     const data = await fs.readFile(dbPath, 'utf-8');
-    return JSON.parse(data);
+    dbCache = JSON.parse(data);
+    return dbCache!;
   } catch (error) {
-    // If the file doesn't exist or is invalid, return a default structure
     console.error("Could not read database file:", error);
-    return { batches: [], products: [], users: [] };
+    const defaultDb = { batches: [], products: [], users: [] };
+    dbCache = defaultDb;
+    return dbCache;
   }
 }
 
-// Function to write the entire database to the JSON file.
+// NOTE: In a serverless environment, writeDb will not persist across requests.
+// These functions will now only modify the in-memory cache.
 async function writeDb(db: Database): Promise<void> {
-  await fs.writeFile(dbPath, JSON.stringify(db, null, 2), 'utf-8');
+  // In a real serverless app, this would write to a persistent database (e.g., Firestore, Vercel Postgres).
+  // For this prototype, we are just updating the in-memory cache.
+  dbCache = db;
+  return Promise.resolve();
 }
 
 
@@ -154,12 +168,12 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
     if (nextEventIndex !== -1 && db.batches[batchIndex].timeline[nextEventIndex].status === 'locked') {
         db.batches[batchIndex].timeline[nextEventIndex].status = 'pending';
     }
-
+    
     // Specific logic for when a supplier dispatches, making it ready for formulation
     if (eventId === 5) { // ID for "Supplier Processing & Dispatch"
         const formulationEventIndex = db.batches[batchIndex].timeline.findIndex(e => e.id === 6); // ID for "Ready for Formulation"
         if (formulationEventIndex !== -1) {
-            db.batches[batchIndex].timeline[formulationEventIndex].status = 'complete'; // Mark it as ready
+            db.batches[batchIndex].timeline[formulationEventIndex].status = 'pending'; // Mark it as ready for brand
             db.batches[batchIndex].timeline[formulationEventIndex].date = new Date().toLocaleDateString('en-CA');
         }
     }
