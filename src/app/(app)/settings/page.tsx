@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
@@ -7,15 +8,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function ThemeSwitcher() {
     const { theme, setTheme } = useTheme();
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    if (!hasMounted) {
+        return (
+            <div className="space-y-4">
+                <Skeleton className="h-5 w-16" />
+                <div className="grid max-w-md grid-cols-2 gap-8 pt-2">
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                </div>
+            </div>
+        );
+    }
   
     return (
       <div className="space-y-4">
         <Label>Theme</Label>
         <RadioGroup
-          defaultValue={theme}
+          value={theme}
           onValueChange={setTheme}
           className="grid max-w-md grid-cols-2 gap-8 pt-2"
         >
@@ -81,6 +100,7 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">Manage your account and application preferences.</p>
       </div>
 
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <Card>
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
@@ -117,6 +137,7 @@ export default function SettingsPage() {
             </div>
         </CardContent>
       </Card>
+      </div>
 
     </div>
   );
