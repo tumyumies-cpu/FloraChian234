@@ -48,8 +48,7 @@ export function CreateBatchForm() {
 
   useEffect(() => {
     if (newBatchId) {
-      const url = `${window.location.origin}/provenance/${newBatchId}`;
-      QRCode.toDataURL(url, { width: 250, margin: 2 }, (err, dataUrl) => {
+      QRCode.toDataURL(newBatchId, { width: 250, margin: 2 }, (err, dataUrl) => {
         if (err) {
           console.error("Failed to generate QR code:", err);
           return;
@@ -213,7 +212,7 @@ export function CreateBatchForm() {
             />
           </div>
           <p className="text-muted-foreground text-sm mt-4">
-            This QR code can now be attached to product packaging. Consumers can scan it to see the full provenance story as it gets updated.
+            This QR code now contains the Batch ID and can be attached to the physical batch for scanning at the next stage of the supply chain.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={handleViewProvenance}>
