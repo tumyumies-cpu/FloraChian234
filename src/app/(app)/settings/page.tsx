@@ -4,7 +4,6 @@ import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FormItem } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
@@ -20,7 +19,7 @@ function ThemeSwitcher() {
           onValueChange={setTheme}
           className="grid max-w-md grid-cols-2 gap-8 pt-2"
         >
-          <FormItem>
+          <div>
             <Label className="[&:has([data-state=checked])>div]:border-primary">
               <RadioGroupItem value="light" className="sr-only" />
               <div className="items-center rounded-md border-2 border-muted p-1 hover:border-accent">
@@ -43,8 +42,8 @@ function ThemeSwitcher() {
                 Light
               </span>
             </Label>
-          </FormItem>
-          <FormItem>
+          </div>
+          <div>
             <Label className="[&:has([data-state=checked])>div]:border-primary">
               <RadioGroupItem value="dark" className="sr-only" />
               <div className="items-center rounded-md border-2 border-muted bg-popover p-1 hover:border-accent">
@@ -67,7 +66,7 @@ function ThemeSwitcher() {
                 Dark
               </span>
             </Label>
-          </FormItem>
+          </div>
         </RadioGroup>
       </div>
     );
@@ -82,7 +81,7 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">Manage your account and application preferences.</p>
       </div>
 
-      <Card className="max-w-2xl">
+      <Card>
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
           <CardDescription>Customize the look and feel of the application.</CardDescription>
@@ -92,7 +91,7 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
       
-      <Card className="max-w-2xl">
+      <Card>
         <CardHeader>
           <CardTitle>Notifications</CardTitle>
           <CardDescription>Configure how you receive notifications.</CardDescription>
