@@ -1,7 +1,7 @@
+
 "use client";
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-import { getBatchDetails } from '@/app/actions';
 import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
@@ -13,10 +13,13 @@ import { ComponentBatchSummary } from '@/components/component-batch-summary';
 import { useSearchParams, useParams, notFound } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDbContext } from '@/context/db-context';
 
 export default function ProvenancePage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const { db, loading: dbLoading } = useDbContext();
+
   const batchId = params.batchId as string;
   const role = (searchParams.get('role') || 'consumer') as UserRole | string;
   const fromProduct = searchParams.get('fromProduct');
@@ -25,23 +28,25 @@ export default function ProvenancePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      const fetchedData = await getBatchDetails(batchId);
-      
-      if (!fetchedData) {
-        notFound();
-      } else {
-        setData(fetchedData as BatchData | AssembledProduct);
-      }
-      setLoading(false);
-    }
-    if (batchId) {
-      fetchData();
-    }
-  }, [batchId]);
+    if (dbLoading || !db) return;
 
-  if (loading || !data) {
+    setLoading(true);
+    let foundData: BatchData | AssembledProduct | null = null;
+    if (batchId.startsWith('PROD-')) {
+        foundData = db.products.find(p => p.productId.toUpperCase() === batchId.toUpperCase()) || null;
+    } else {
+        foundData = db.batches.find(b => b.batchId.toUpperCase() === batchId.toUpperCase()) || null;
+    }
+    
+    if (!foundData) {
+      notFound();
+    } else {
+      setData(foundData);
+    }
+    setLoading(false);
+  }, [batchId, db, dbLoading]);
+
+  if (loading || dbLoading || !data) {
     return (
       <div className="container mx-auto max-w-5xl py-8 sm:py-12 space-y-8">
         <Skeleton className="h-8 w-24" />

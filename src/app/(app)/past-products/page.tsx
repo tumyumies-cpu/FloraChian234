@@ -1,13 +1,17 @@
 
+'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAllAssembledProducts } from "@/app/actions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useSearchParams } from "next/navigation";
+import { useDbContext } from "@/context/db-context";
 
-export default async function PastProductsPage({ searchParams }: { searchParams: { role?: string } }) {
-  const role = searchParams.role || 'retailer';
-  const products = await getAllAssembledProducts();
+export default function PastProductsPage() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'retailer';
+  const { db } = useDbContext();
+  const products = db?.products || [];
 
   return (
     <div className="space-y-8">

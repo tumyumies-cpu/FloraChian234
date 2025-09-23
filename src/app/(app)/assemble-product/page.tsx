@@ -1,28 +1,18 @@
 
 "use client";
-import { getAllBatches } from "@/app/actions";
 import { AssembleProductForm } from "./assemble-product-form";
 import { Suspense, useEffect, useState } from "react";
 import type { BatchData } from "@/lib/data";
+import { useDbContext } from "@/context/db-context";
 
 function AssembleProductContent() {
-  const [batches, setBatches] = useState<BatchData[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchBatches() {
-      const fetchedBatches = await getAllBatches();
-      setBatches(fetchedBatches);
-      setLoading(false);
-    }
-    fetchBatches();
-  }, []);
+  const { db, loading } = useDbContext();
   
-  if (loading) {
+  if (loading || !db) {
     return <div>Loading batches...</div>;
   }
   
-  return <AssembleProductForm batches={batches} />;
+  return <AssembleProductForm batches={db.batches} />;
 }
 
 

@@ -1,23 +1,12 @@
 
-"use server";
+'use client';
 
-import { addBatch as dbAddBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct as dbAddAssembledProduct, updateProductTimelineEvent as dbUpdateProductTimelineEvent, getBatchById as dbGetBatchById, getAssembledProductById as dbGetAssembledProductById, getBatches as dbGetBatches, getAssembledProducts as dbGetAssembledProducts, getUsers as dbGetUsers, addUser as dbAddUser, updateUser as dbUpdateUser, deleteUser as dbDeleteUser } from '@/lib/db';
+// IMPORTANT: This file now contains client-side data management functions
+// that interact with the DbContext, which uses localStorage.
+// They are not server actions anymore.
+
 import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues, RetailEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
-import { revalidatePath } from 'next/cache';
-
-export async function createBatch(data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }) {
-    try {
-        const newBatch = await dbAddBatch(data);
-        revalidatePath('/past-batches');
-        revalidatePath('/assemble-product');
-        revalidatePath('/dashboard');
-        return { success: true, batchId: newBatch.batchId };
-    } catch (error) {
-        console.error("Failed to create batch:", error);
-        return { success: false, message: "An unexpected error occurred." };
-    }
-}
 
 function formatProcessingData(data: ProcessingEventValues): string {
     return `
@@ -100,107 +89,20 @@ Store Details:
     `.trim();
 }
 
-
-export async function updateTimelineEvent(batchId: string, eventId: number, data: Partial<TimelineEvent> | ProcessingEventValues | SupplierEventValues | ManufacturingEventValues | DistributionEventValues | RetailEventValues) {
-    try {
-        let description: string | undefined;
-
-        if ('collectionCenterId' in data) {
-            description = formatProcessingData(data as ProcessingEventValues);
-        } else if ('supplierId' in data) {
-            description = formatSupplierData(data as SupplierEventValues);
-        } else if ('recipeId' in data) {
-            description = formatManufacturingData(data as ManufacturingEventValues);
-        } else if ('warehouseId' in data) {
-            description = formatDistributionData(data as DistributionEventValues);
-        } else if ('storeId' in data) {
-            description = formatRetailData(data as RetailEventValues);
-        } else {
-            description = (data as Partial<TimelineEvent>).description;
-        }
-
-        // Always set the date on the server to prevent user modification
-        const updateData: Partial<TimelineEvent> = {
-            description: description ?? '',
-            date: new Date().toLocaleDateString('en-CA'),
-            formData: data, // Store the raw form data
-        };
-
-        if (batchId.startsWith('PROD-')) {
-            const updatedProduct = await dbUpdateProductTimelineEvent(batchId, eventId, updateData);
-            if (!updatedProduct) {
-                return { success: false, message: "Product or event not found." };
-            }
-            revalidatePath(`/provenance/${batchId}`);
-            revalidatePath('/dashboard');
-            return { success: true, product: updatedProduct };
-        } else {
-            const updatedBatch = await dbUpdateTimelineEvent(batchId, eventId, updateData);
-            if (!updatedBatch) {
-                return { success: false, message: "Batch or event not found." };
-            }
-            revalidatePath(`/provenance/${batchId}`);
-            revalidatePath('/past-batches');
-            revalidatePath('/dashboard');
-            return { success: true, batch: updatedBatch };
-        }
-    } catch (error) {
-        console.error("Failed to update timeline event:", error);
-        return { success: false, message: "An unexpected error occurred." };
+export function formatTimelineDescription(eventId: number, data: any): string | undefined {
+    if ('collectionCenterId' in data) {
+        return formatProcessingData(data as ProcessingEventValues);
+    } else if ('supplierId' in data) {
+        return formatSupplierData(data as SupplierEventValues);
+    } else if ('recipeId' in data) {
+        return formatManufacturingData(data as ManufacturingEventValues);
+    } else if ('warehouseId' in data) {
+        return formatDistributionData(data as DistributionEventValues);
+    } else if ('storeId' in data) {
+        return formatRetailData(data as RetailEventValues);
+    } else {
+        return (data as Partial<TimelineEvent>).description;
     }
-}
-
-export async function assembleProduct(data: AssembleProductValues) {
-    try {
-        const newProduct = await dbAddAssembledProduct(data.productName, data.batchIds, data.brandName);
-        revalidatePath('/assemble-product');
-        revalidatePath('/past-products'); 
-        revalidatePath('/dashboard');
-        return { success: true, productId: newProduct.productId };
-    } catch (error) {
-        console.error("Failed to assemble product:", error);
-        return { success: false, message: "An unexpected error occurred." };
-    }
-}
-
-export async function verifyBatchId(batchId: string): Promise<{ success: boolean }> {
-    try {
-        const itemExists = batchId.toUpperCase().startsWith('PROD-')
-            ? await dbGetAssembledProductById(batchId)
-            : await dbGetBatchById(batchId);
-        return { success: !!itemExists };
-    } catch (error) {
-        console.error("Failed to verify ID:", error);
-        return { success: false };
-    }
-}
-
-// Data fetching server actions
-export async function getBatchDetails(batchId: string) {
-    const isProduct = batchId.startsWith('PROD-');
-    if (isProduct) {
-        return await dbGetAssembledProductById(batchId);
-    }
-    return await dbGetBatchById(batchId);
-}
-
-export async function getAllBatches() {
-    return await dbGetBatches();
-}
-
-export async function getAllAssembledProducts() {
-    return await dbGetAssembledProducts();
-}
-
-export async function getProcessorBatches() {
-    const allBatches = await dbGetBatches();
-    const incoming = allBatches.filter(b => b.timeline.some(e => e.id === 2 && e.status === 'pending'));
-    const processed = allBatches.filter(b => b.timeline.some(e => e.id === 3 && e.status === 'complete'));
-    return { incoming, processed };
-}
-
-export async function getBatchForSummary(batchId: string) {
-    return await dbGetBatchById(batchId);
 }
 
 export async function getGeocodedLocation(latitude: number, longitude: number): Promise<{success: boolean, location?: string, message?: string}> {
@@ -222,39 +124,4 @@ export async function getGeocodedLocation(latitude: number, longitude: number): 
     console.error("Geocoding error:", error);
     return { success: false, message: "Could not retrieve location. Please enter it manually." };
   }
-}
-
-// User Management Actions
-export async function getUsers() {
-    return await dbGetUsers();
-}
-
-export async function addUser(email: string, role: string) {
-    try {
-        await dbAddUser(email, role);
-        revalidatePath('/dashboard');
-        return { success: true };
-    } catch (error: any) {
-        return { success: false, message: error.message };
-    }
-}
-
-export async function updateUser(userId: number, newRole: string) {
-    try {
-        await dbUpdateUser(userId, newRole);
-        revalidatePath('/dashboard');
-        return { success: true };
-    } catch (error: any) {
-        return { success: false, message: error.message };
-    }
-}
-
-export async function deleteUser(userId: number) {
-    try {
-        await dbDeleteUser(userId);
-        revalidatePath('/dashboard');
-        return { success: true };
-    } catch (error: any) {
-        return { success: false, message: error.message };
-    }
 }

@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams, notFound } from 'next/navigation';
 import Image from 'next/image';
 import QRCode from 'qrcode';
-import { getBatchDetails } from '@/app/actions';
 import type { BatchData, AssembledProduct, TimelineEvent } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -13,10 +12,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Leaf, Printer } from 'lucide-react';
+import { useDbContext } from '@/context/db-context';
 
 function PrintableReport() {
     const params = useParams();
     const searchParams = useSearchParams();
+    const { getBatchById, getProductById } = useDbContext();
+    
     const id = params.id as string;
     const stageId = searchParams.get('stage');
 
@@ -27,35 +29,31 @@ function PrintableReport() {
 
     useEffect(() => {
         if (id && stageId) {
-            const fetchData = async () => {
-                setLoading(true);
-                const fetchedData = await getBatchDetails(id);
-                if (!fetchedData) {
-                    notFound();
-                    return;
-                }
-                setData(fetchedData as BatchData | AssembledProduct);
+            setLoading(true);
+            const isProduct = id.startsWith('PROD-');
+            const fetchedData = isProduct ? getProductById(id) : getBatchById(id);
 
-                const timeline = 'productId' in fetchedData ? fetchedData.timeline : (fetchedData as BatchData).timeline;
-                const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
+            if (!fetchedData) {
+                notFound();
+                return;
+            }
+            setData(fetchedData as BatchData | AssembledProduct);
 
-                if (stageEvent) {
-                    setStage(stageEvent);
-                }
+            const timeline = 'productId' in fetchedData ? fetchedData.timeline : (fetchedData as BatchData).timeline;
+            const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
 
-                const qrUrl = await QRCode.toDataURL(id, { width: 150, margin: 2 });
-                setQrCodeDataUrl(qrUrl);
-                
-                setLoading(false);
-            };
-            fetchData();
+            if (stageEvent) {
+                setStage(stageEvent);
+            }
+
+            QRCode.toDataURL(id, { width: 150, margin: 2 }).then(setQrCodeDataUrl);
+            
+            setLoading(false);
         }
-    }, [id, stageId]);
+    }, [id, stageId, getBatchById, getProductById]);
     
     useEffect(() => {
-        // Automatically trigger print dialog once data is loaded
         if (!loading && typeof window !== 'undefined') {
-            // A small timeout helps ensure content is rendered before print dialog appears
             setTimeout(() => window.print(), 500);
         }
     }, [loading]);

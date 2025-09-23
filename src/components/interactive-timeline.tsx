@@ -10,13 +10,14 @@ import { Button } from './ui/button';
 import { Check, Lock, Edit, EyeOff, LoaderCircle, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { updateTimelineEvent } from '@/app/actions';
+import { formatTimelineDescription } from '@/app/actions';
 import { ProcessingEventForm } from './processing-event-form';
 import { SupplierEventForm } from './supplier-event-form';
 import { ManufacturingEventForm } from './manufacturing-event-form';
 import { DistributionEventForm } from './distribution-event-form';
 import { RetailEventForm } from './retail-event-form';
 import Link from 'next/link';
+import { useDbContext } from '@/context/db-context';
 
 
 interface InteractiveTimelineProps {
@@ -60,71 +61,73 @@ const visibilityRules: Record<string, string[]> = {
 
 
 export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = false }: InteractiveTimelineProps) {
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] useState(initialEvents);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const { updateTimelineEvent } = useDbContext();
 
   useEffect(() => {
-    // When initialEvents prop changes, update the state
     setEvents(initialEvents);
-    // For consumers, remove the final "Consumer Scan" step as it's redundant
     if (role === 'consumer') {
         setEvents(prevEvents => prevEvents.filter(e => e.id !== 104));
     }
   }, [initialEvents, role]);
 
-  const handleUpdate = async (eventId: number, data: any) => {
+  const handleUpdate = (eventId: number, data: any) => {
     setLoading(true);
-    const result = await updateTimelineEvent(batchId, eventId, data);
-
-    if (result.success && (result.batch || result.product)) {
-      const updatedEvents = result.batch?.timeline || result.product?.timeline || [];
-      setEvents(updatedEvents);
-      setEditingEventId(null);
-      toast({
-        title: "Update Successful!",
-        description: `The '${events.find(e => e.id === eventId)?.title}' step has been completed.`,
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Update Failed",
-        description: result.message || "An unknown error occurred.",
-      });
+    try {
+        const description = formatTimelineDescription(eventId, data);
+        const eventData = {
+            description: description ?? '',
+            date: new Date().toLocaleDateString('en-CA'),
+            formData: data,
+        }
+        updateTimelineEvent(batchId, eventId, eventData, isProduct);
+        setEditingEventId(null);
+        toast({
+            title: "Update Successful!",
+            description: `The '${events.find(e => e.id === eventId)?.title}' step has been completed.`,
+        });
+    } catch(error) {
+        console.error("Update failed", error);
+        toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: "An unknown error occurred.",
+        });
+    } finally {
+        setLoading(false);
     }
-    setLoading(false);
   };
   
-  const handleSimpleConfirmation = async (eventId: number, title: string) => {
+  const handleSimpleConfirmation = (eventId: number, title: string) => {
     setLoading(true);
-    const result = await updateTimelineEvent(batchId, eventId, { description: `${title} confirmed by ${role}.` });
-     if (result.success && (result.batch || result.product)) {
-      const updatedEvents = result.batch?.timeline || result.product?.timeline || [];
-      setEvents(updatedEvents);
-      setEditingEventId(null);
-      toast({
-        title: "Update Successful!",
-        description: `The '${title}' step has been completed.`,
-      });
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Update Failed",
-        description: result.message || "An unknown error occurred.",
-      });
+    try {
+        const eventData = { description: `${title} confirmed by ${role}.` };
+        updateTimelineEvent(batchId, eventId, eventData, isProduct);
+        setEditingEventId(null);
+        toast({
+            title: "Update Successful!",
+            description: `The '${title}' step has been completed.`,
+        });
+    } catch (error) {
+        console.error("Update failed", error);
+        toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: "An unknown error occurred.",
+        });
+    } finally {
+        setLoading(false);
     }
-    setLoading(false);
   };
 
   const timelineEvents = useMemo(() => {
     if (isProduct) {
-        // For products, we want to show all events.
-        // We will just add a unique key to handle potential duplicate IDs from batch timelines.
         return events.map((e, index) => ({...e, uniqueId: `${e.id}-${index}`}));
     }
-    // For single batches, just use ID as it's already unique
     return events.map(e => ({...e, uniqueId: e.id.toString()}));
   }, [events, isProduct]);
 
@@ -132,12 +135,16 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const renderForm = (event: TimelineEvent) => {
     if (editingEventId !== event.id) return null;
 
+    const handleSubmit = async (data: any) => {
+      handleUpdate(event.id, data);
+    }
+
     switch (event.id) {
         case 3: // Local Processing
             return (
                 <ProcessingEventForm
                     loading={loading}
-                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onSubmit={handleSubmit}
                     onCancel={() => setEditingEventId(null)}
                     initialData={event.formData}
                 />
@@ -146,7 +153,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
             return (
                 <SupplierEventForm
                     loading={loading}
-                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onSubmit={handleSubmit}
                     onCancel={() => setEditingEventId(null)}
                     initialData={event.formData}
                 />
@@ -155,7 +162,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
             return (
                 <ManufacturingEventForm
                     loading={loading}
-                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onSubmit={handleSubmit}
                     onCancel={() => setEditingEventId(null)}
                     initialData={event.formData}
                 />
@@ -164,7 +171,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
             return (
                 <DistributionEventForm
                     loading={loading}
-                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onSubmit={handleSubmit}
                     onCancel={() => setEditingEventId(null)}
                     initialData={event.formData}
                 />
@@ -173,7 +180,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
             return (
                 <RetailEventForm
                     loading={loading}
-                    onSubmit={(data) => handleUpdate(event.id, data)}
+                    onSubmit={handleSubmit}
                     onCancel={() => setEditingEventId(null)}
                     initialData={event.formData}
                 />
@@ -195,16 +202,13 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     const description = getDescriptionForRole(event);
     if (!description) return false;
     
-    // For consumers, we show the consumerDescription.
     if (role === 'consumer') return true;
 
-    // For other roles, we check against the visibility rules.
     const allowedRoles = visibilityRules[role] || [];
     return event.allowedRole && allowedRoles.includes(event.allowedRole);
   }
 
   const isSimpleConfirmation = (event: TimelineEvent) => {
-      // IDs that are simple "confirm receipt" steps
       const simpleConfirmationIds = [2, 4, 102];
       return simpleConfirmationIds.includes(event.id);
   }

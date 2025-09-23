@@ -1,12 +1,16 @@
 
+'use client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAllBatches } from "@/app/actions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
+import { useDbContext } from "@/context/db-context";
 
-export default async function PastBatchesPage({ searchParams }: { searchParams: { role?: string } }) {
-  const role = searchParams.role || 'farmer';
-  const batches = await getAllBatches();
+export default function PastBatchesPage() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'farmer';
+  const { db } = useDbContext();
+  const batches = db?.batches || [];
 
   return (
     <div className="space-y-8">

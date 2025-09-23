@@ -20,8 +20,9 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraCapture } from "@/components/camera-capture";
 import { diagnosePlantHealth } from "@/ai/flows/diagnose-plant-health";
-import { createBatch, getGeocodedLocation } from "@/app/actions";
+import { getGeocodedLocation } from "@/app/actions";
 import QRCode from 'qrcode';
+import { useDbContext } from "@/context/db-context";
 
 type DiagnosisState = {
   isHealthy: boolean;
@@ -40,6 +41,7 @@ export function CreateBatchForm() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { addBatch } = useDbContext();
 
   useEffect(() => {
     // This will only run on the client, after initial hydration
@@ -152,21 +154,22 @@ export function CreateBatchForm() {
     }
 
     setLoading(true);
-    const result = await createBatch({ ...values, photo, diagnosis });
-    setLoading(false);
-
-    if (result.success && result.batchId) {
-        setNewBatchId(result.batchId);
+    try {
+        const newBatch = addBatch({ ...values, photo, diagnosis });
+        setNewBatchId(newBatch.batchId);
         toast({
             title: "Batch Created Successfully!",
-            description: `Batch ID ${result.batchId} is now being tracked.`,
+            description: `Batch ID ${newBatch.batchId} is now being tracked.`,
         });
-    } else {
+    } catch (error) {
+        console.error("Failed to create batch:", error);
         toast({
             variant: "destructive",
             title: "Failed to Create Batch",
-            description: result.message || "An unknown error occurred.",
+            description: "An unexpected error occurred.",
         });
+    } finally {
+        setLoading(false);
     }
   }
 

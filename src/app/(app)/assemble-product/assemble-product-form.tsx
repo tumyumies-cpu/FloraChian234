@@ -13,13 +13,13 @@ import { AssembleProductSchema, type AssembleProductValues } from "@/lib/schemas
 import { LoaderCircle, PackagePlus, Recycle, QrCode } from "lucide-react";
 import type { BatchData } from "@/lib/data";
 import { Checkbox } from "@/components/ui/checkbox";
-import { assembleProduct } from "@/app/actions";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AdvancedFilterControls, type FilterState, type SortState } from "./advanced-filter-controls";
 import QRCode from 'qrcode';
 import { useAuth } from "@/context/auth-context";
+import { useDbContext } from "@/context/db-context";
 
 interface AssembleProductFormProps {
     batches: BatchData[];
@@ -35,6 +35,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { authInfo } = useAuth();
+  const { addProduct } = useDbContext();
   
   const brandName = useMemo(() => {
     if (!authInfo?.email) return 'DefaultBrand';
@@ -69,7 +70,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   }, [newProductId]);
 
   const availableBatches = useMemo(() => batches.filter(batch => {
-    const isReady = batch.timeline.find(e => e.id === 6 && e.status === 'complete');
+    const isReady = batch.timeline.find(e => e.id === 6 && e.status === 'pending');
     return isReady;
   }), [batches]);
 
@@ -94,21 +95,22 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
 
   async function onSubmit(values: AssembleProductValues) {
     setLoading(true);
-    const result = await assembleProduct(values);
-    setLoading(false);
-
-    if (result.success && result.productId) {
-        setNewProductId(result.productId);
+    try {
+        const newProduct = addProduct(values.productName, values.batchIds, values.brandName);
+        setNewProductId(newProduct.productId);
         toast({
             title: "Product Assembled Successfully!",
-            description: `New product SKU ${result.productId} has been created.`,
+            description: `New product SKU ${newProduct.productId} has been created.`,
         });
-    } else {
+    } catch (error) {
+        console.error("Failed to assemble product", error);
         toast({
             variant: "destructive",
             title: "Failed to Assemble Product",
-            description: result.message || "An unknown error occurred.",
+            description: "An unknown error occurred.",
         });
+    } finally {
+        setLoading(false);
     }
   }
 

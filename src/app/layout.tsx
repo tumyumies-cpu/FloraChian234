@@ -4,6 +4,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/context/auth-context';
 import { ThemeProvider } from '@/components/theme-provider';
+import { DbProvider } from '@/context/db-context';
 
 export const metadata: Metadata = {
   title: 'FloraChain Provenance',
@@ -30,7 +31,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            {children}
+            <DbProvider>
+              {children}
+            </DbProvider>
           </AuthProvider>
           <Toaster />
         </ThemeProvider>

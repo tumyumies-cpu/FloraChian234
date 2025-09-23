@@ -17,8 +17,8 @@ import type { TimelineEvent, BatchData, AssembledProduct, User } from '@/lib/dat
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { addUser, updateUser, deleteUser } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { useDbContext } from '@/context/db-context';
 
 const addUserSchema = z.object({
   email: z.string().email(),
@@ -43,9 +43,10 @@ interface AdminDashboardProps {
 
 export function AdminDashboard({ initialBatches, initialProducts, initialUsers }: AdminDashboardProps) {
     const [searchTerm, setSearchTerm] = useState('');
-    const [users, setUsers] = useState(initialUsers);
     const [isAddUserOpen, setAddUserOpen] = useState(false);
     const { toast } = useToast();
+    const { addUser, updateUser, deleteUser, db } = useDbContext();
+    const users = db?.users || initialUsers;
 
     const filteredBatches = useMemo(() => initialBatches.filter(b => b.batchId.toLowerCase().includes(searchTerm.toLowerCase()) || b.productName.toLowerCase().includes(searchTerm.toLowerCase())), [initialBatches, searchTerm]);
     const filteredProducts = useMemo(() => initialProducts.filter(p => p.productId.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase()) || p.brandName.toLowerCase().includes(searchTerm.toLowerCase())), [initialProducts, searchTerm]);
@@ -59,35 +60,32 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
         defaultValues: { email: "", role: "farmer" },
     });
 
-    const handleAddUser = async (values: AddUserValues) => {
-        const result = await addUser(values.email, values.role);
-        if (result.success) {
-            setUsers(prev => [...prev, { id: Math.random(), ...values }]);
+    const handleAddUser = (values: AddUserValues) => {
+        try {
+            addUser(values.email, values.role);
             toast({ title: "User Added", description: `${values.email} has been added.` });
             setAddUserOpen(false);
             addUserForm.reset();
-        } else {
-            toast({ variant: "destructive", title: "Failed to Add User", description: result.message });
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Failed to Add User", description: error.message });
         }
     };
 
-    const handleUpdateUserRole = async (userId: number, newRole: string) => {
-        const result = await updateUser(userId, newRole);
-        if (result.success) {
-            setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    const handleUpdateUserRole = (userId: number, newRole: string) => {
+        try {
+            updateUser(userId, newRole);
             toast({ title: "Role Updated", description: `User role has been updated to ${newRole}.` });
-        } else {
-            toast({ variant: "destructive", title: "Update Failed", description: result.message });
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Update Failed", description: error.message });
         }
     };
 
-    const handleDeleteUser = async (userId: number) => {
-        const result = await deleteUser(userId);
-        if (result.success) {
-            setUsers(prev => prev.filter(u => u.id !== userId));
+    const handleDeleteUser = (userId: number) => {
+        try {
+            deleteUser(userId);
             toast({ title: "User Deleted", description: "The user has been successfully removed." });
-        } else {
-            toast({ variant: "destructive", title: "Deletion Failed", description: result.message });
+        } catch (error: any) {
+            toast({ variant: "destructive", title: "Deletion Failed", description: error.message });
         }
     };
 

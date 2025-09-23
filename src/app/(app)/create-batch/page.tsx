@@ -1,6 +1,11 @@
 
+'use client';
 import { CreateBatchForm } from "./create-batch-form";
 import { Suspense } from "react";
+
+function CreateBatchContent() {
+  return <CreateBatchForm />;
+}
 
 export default function CreateBatchPage() {
   return (
@@ -10,7 +15,7 @@ export default function CreateBatchPage() {
         <p className="text-muted-foreground">Capture a photo and enter the details below to start tracking a new harvest.</p>
       </div>
       <Suspense fallback={<div>Loading form...</div>}>
-        <CreateBatchForm />
+        <CreateBatchContent />
       </Suspense>
     </div>
   );

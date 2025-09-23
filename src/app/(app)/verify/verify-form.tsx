@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { verifyBatchId } from "@/app/actions";
 import { ArrowRight, LoaderCircle, PenSquare } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { UserRole } from "@/lib/data";
+import { useDbContext } from "@/context/db-context";
 
 interface VerifyFormProps {
   role: UserRole | string;
@@ -23,6 +23,7 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   const [hasMounted, setHasMounted] = useState(false);
+  const { verifyId } = useDbContext();
 
   useEffect(() => {
     setHasMounted(true);
@@ -54,9 +55,9 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
     }
     setLoading(true);
 
-    const result = await verifyBatchId(idToVerify);
+    const exists = verifyId(idToVerify);
     
-    if (result.success) {
+    if (exists) {
       router.push(`/provenance/${idToVerify.toUpperCase()}?role=${role}`);
     } else {
       toast({

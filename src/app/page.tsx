@@ -14,11 +14,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from '@/hooks/use-toast';
 import { loginSchema, type LoginValues } from '@/lib/schemas';
-import { getUsers } from './actions';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDbContext } from '@/context/db-context';
 
 function LoginContent() {
   const { setAuthInfo } = useAuth();
+  const { db } = useDbContext();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -35,7 +36,7 @@ function LoginContent() {
     setLoading(true);
     // Simulate API call
     setTimeout(async () => {
-      const users = await getUsers();
+      const users = db?.users || [];
       const existingUser = users.find(u => u.email.toLowerCase() === values.email.toLowerCase());
       
       let role;
