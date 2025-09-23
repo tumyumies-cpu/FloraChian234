@@ -24,16 +24,21 @@
         {
           "id": 2,
           "title": "Batch Received by Processor",
-          "status": "pending",
+          "status": "complete",
           "icon": "warehouse",
           "allowedRole": "processor",
           "cta": "Confirm Receipt",
-          "consumerDescription": "The freshly harvested batch has been received at a local processing facility."
+          "consumerDescription": "The freshly harvested batch has been received at a local processing facility.",
+          "description": "Batch Received by Processor confirmed by processor.",
+          "date": "2025-09-23",
+          "formData": {
+            "description": "Batch Received by Processor confirmed by processor."
+          }
         },
         {
           "id": 3,
           "title": "Local Processing & Dispatch",
-          "status": "locked",
+          "status": "pending",
           "icon": "factory",
           "allowedRole": "processor",
           "cta": "Add Processing Details",
