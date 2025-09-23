@@ -11,6 +11,7 @@ export async function createBatch(data: CreateBatchValues & { photo: string; dia
         const newBatch = await dbAddBatch(data);
         revalidatePath('/past-batches');
         revalidatePath('/assemble-product');
+        revalidatePath('/dashboard');
         return { success: true, batchId: newBatch.batchId };
     } catch (error) {
         console.error("Failed to create batch:", error);
@@ -131,6 +132,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
                 return { success: false, message: "Product or event not found." };
             }
             revalidatePath(`/provenance/${batchId}`);
+            revalidatePath('/dashboard');
             return { success: true, product: updatedProduct };
         } else {
             const updatedBatch = await dbUpdateTimelineEvent(batchId, eventId, updateData);
@@ -139,6 +141,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
             }
             revalidatePath(`/provenance/${batchId}`);
             revalidatePath('/past-batches');
+            revalidatePath('/dashboard');
             return { success: true, batch: updatedBatch };
         }
     } catch (error) {
@@ -152,6 +155,7 @@ export async function assembleProduct(data: AssembleProductValues) {
         const newProduct = await dbAddAssembledProduct(data.productName, data.batchIds);
         revalidatePath('/assemble-product');
         revalidatePath('/past-products'); 
+        revalidatePath('/dashboard');
         return { success: true, productId: newProduct.productId };
     } catch (error) {
         console.error("Failed to assemble product:", error);
@@ -186,6 +190,13 @@ export async function getAllBatches() {
 
 export async function getAllAssembledProducts() {
     return await dbGetAssembledProducts();
+}
+
+export async function getProcessorBatches() {
+    const allBatches = await dbGetBatches();
+    const incoming = allBatches.filter(b => b.timeline.some(e => e.id === 2 && e.status === 'pending'));
+    const processed = allBatches.filter(b => b.timeline.some(e => e.id === 3 && e.status === 'complete'));
+    return { incoming, processed };
 }
 
 export async function getBatchForSummary(batchId: string) {
