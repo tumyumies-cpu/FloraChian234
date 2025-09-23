@@ -120,7 +120,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
 
         // Always set the date on the server to prevent user modification
         const updateData: Partial<TimelineEvent> = {
-            description,
+            description: description ?? '',
             date: new Date().toLocaleDateString('en-CA'),
             formData: data, // Store the raw form data
         };

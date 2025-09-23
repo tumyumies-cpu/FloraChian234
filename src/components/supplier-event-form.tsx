@@ -90,7 +90,7 @@ export function SupplierEventForm({ onSubmit, onCancel, loading, initialData }: 
                 render={({ field }) => (
                 <FormItem>
                     <FormLabel>Internal Lot Number</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl><Input {...field} readOnly className="bg-muted" /></FormControl>
                     <FormMessage />
                 </FormItem>
                 )}

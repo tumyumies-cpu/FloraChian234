@@ -156,7 +156,7 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
                     render={({ field }) => (
                     <FormItem>
                         <FormLabel>Finished Product Batch ID</FormLabel>
-                        <FormControl><Input {...field} /></FormControl>
+                        <FormControl><Input {...field} readOnly className="bg-muted" /></FormControl>
                          <FormMessage />
                     </FormItem>
                     )}
