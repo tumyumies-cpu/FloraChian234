@@ -1,11 +1,12 @@
+
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
 import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
-import { Check, Lock, Edit, EyeOff, LoaderCircle } from 'lucide-react';
+import { Check, Lock, Edit, EyeOff, LoaderCircle, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
@@ -14,6 +15,7 @@ import { SupplierEventForm } from './supplier-event-form';
 import { ManufacturingEventForm } from './manufacturing-event-form';
 import { DistributionEventForm } from './distribution-event-form';
 import { RetailEventForm } from './retail-event-form';
+import Link from 'next/link';
 
 
 interface InteractiveTimelineProps {
@@ -250,18 +252,33 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                   )}
                 </CardHeader>
 
-                {event.status === 'complete' && description && (
-                     <CardContent>
-                        {showDescription ? (
-                            <CardDescription className="whitespace-pre-wrap">{description}</CardDescription>
-                        ) : (
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
-                                <EyeOff className="h-4 w-4" />
-                                <span>Details are confidential for your role.</span>
-                            </div>
-                        )}
-                    </CardContent>
+                {event.status === 'complete' && (
+                    <>
+                    {description && (
+                        <CardContent>
+                            {showDescription ? (
+                                <CardDescription className="whitespace-pre-wrap">{description}</CardDescription>
+                            ) : (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground italic">
+                                    <EyeOff className="h-4 w-4" />
+                                    <span>Details are confidential for your role.</span>
+                                </div>
+                            )}
+                        </CardContent>
+                    )}
+                     {role !== 'consumer' && (
+                        <CardFooter>
+                           <Button asChild variant="secondary" size="sm">
+                                <Link href={`/document/${batchId}?stage=${event.id}`} target="_blank">
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download Report
+                                </Link>
+                           </Button>
+                        </CardFooter>
+                     )}
+                    </>
                 )}
+
 
                 {renderForm(event)}
               </Card>
