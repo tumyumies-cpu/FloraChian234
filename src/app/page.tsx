@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -5,39 +6,52 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, Tractor, Warehouse, ShoppingCart, ShieldCheck, Leaf, Combine, Handshake, Truck } from 'lucide-react';
-import type { UserRole } from '@/lib/data';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Leaf, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useToast } from '@/hooks/use-toast';
 
-const roles = [
-  { value: 'consumer', label: 'Consumer', icon: User },
-  { value: 'farmer', label: 'Farmer', icon: Tractor },
-  { value: 'processor', label: 'Processor', icon: Warehouse },
-  { value: 'supplier', label: 'Supplier/Trader', icon: Handshake },
-  { value: 'brand', label: 'Manufacturer', icon: Combine },
-  { value: 'distributor', label: 'Distributor', icon: Truck },
-  { value: 'retailer', label: 'Retailer', icon: ShoppingCart },
-  { value: 'admin', label: 'Admin', icon: ShieldCheck },
-];
+const loginSchema = z.object({
+  email: z.string().email().refine(email => email.endsWith('@florachain.com'), {
+    message: "Email must be a valid @florachain.com address."
+  }),
+  password: z.string().min(1, { message: "Password is required." }),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const { setRole } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(roles[0].value as UserRole);
+  const { setAuthInfo } = useAuth();
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedRole) {
-      setRole(selectedRole);
-      router.push(`/dashboard?role=${selectedRole}`);
-    }
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = (values: LoginValues) => {
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      const role = values.email.split('@')[0];
+      setAuthInfo({ email: values.email, role });
+      toast({
+        title: "Login Successful",
+        description: `Welcome, ${role}! Redirecting to your dashboard.`,
+      });
+      router.push(`/dashboard?role=${role}`);
+      setLoading(false);
+    }, 1000);
   };
-  
-  const handleRoleChange = (roleValue: string) => {
-    setSelectedRole(roleValue as UserRole);
-  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -50,52 +64,48 @@ export default function LoginPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline text-2xl">Welcome</CardTitle>
-            <CardDescription>Select your role to access your dashboard.</CardDescription>
+            <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+            <CardDescription>Enter your credentials to access your dashboard.</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="role-select">Role</Label>
-                <Select onValueChange={handleRoleChange} defaultValue={selectedRole || roles[0].value}>
-                  <SelectTrigger id="role-select" className="h-11">
-                    <SelectValue placeholder="Select a role..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map(r => (
-                      <SelectItem key={r.value} value={r.value}>
-                        <div className="flex items-center gap-2">
-                          <r.icon className="h-4 w-4 text-muted-foreground" />
-                          <span>{r.label}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button type="submit" className="w-full" size="lg" disabled={!selectedRole}>
-                Sign In
-              </Button>
-            </form>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., admin@florachain.com" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="••••••••" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                  {loading ? <LoaderCircle className="animate-spin" /> : "Sign In"}
+                </Button>
+              </form>
+            </Form>
           </CardContent>
         </Card>
          <p className="px-8 text-center text-sm text-muted-foreground mt-6">
-            By clicking continue, you agree to our{" "}
-            <a
-              href="/terms"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a
-              href="/privacy"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Privacy Policy
-            </a>
-            .
-          </p>
+            Log in with a role-based email, like `farmer@florachain.com` or `admin@florachain.com`.
+         </p>
       </div>
     </div>
   );

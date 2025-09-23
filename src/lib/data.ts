@@ -1,10 +1,11 @@
+
 import type { LucideIcon } from 'lucide-react';
-import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine, Handshake, Warehouse } from 'lucide-react';
+import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine, Handshake, Warehouse, User as UserIcon, Shield } from 'lucide-react';
 
 export type EventStatus = 'complete' | 'pending' | 'locked';
 export type UserRole = 'farmer' | 'processor' | 'supplier' | 'brand' | 'distributor' | 'retailer' | 'consumer' | 'admin';
 
-export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine' | 'handshake' | 'warehouse';
+export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine' | 'handshake' | 'warehouse' | 'user' | 'shield';
 
 export const iconMap: Record<IconName, LucideIcon> = {
   sprout: Sprout,
@@ -17,6 +18,8 @@ export const iconMap: Record<IconName, LucideIcon> = {
   combine: Combine,
   handshake: Handshake,
   warehouse: Warehouse,
+  user: UserIcon,
+  shield: Shield
 };
 
 export interface TimelineEvent {
@@ -28,7 +31,7 @@ export interface TimelineEvent {
   consumerDescription?: string;
   formData?: any;
   icon: IconName;
-  allowedRole: UserRole;
+  allowedRole: UserRole | string;
   cta: string;
 }
 
@@ -50,4 +53,10 @@ export interface AssembledProduct {
   assembledDate: string;
   componentBatches: string[]; // Array of batchIds
   timeline: TimelineEvent[];
+}
+
+export interface User {
+    id: number;
+    email: string;
+    role: UserRole | string;
 }

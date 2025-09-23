@@ -1,45 +1,50 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { UserRole } from '@/lib/data';
 
-interface AuthContextType {
+interface AuthInfo {
+  email: string | null;
   role: UserRole | null;
-  setRole: (role: UserRole | null) => void;
+}
+
+interface AuthContextType {
+  authInfo: AuthInfo | null;
+  setAuthInfo: (authInfo: AuthInfo | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [role, setRoleState] = useState<UserRole | null>(null);
+  const [authInfo, setAuthInfoState] = useState<AuthInfo | null>(null);
 
   useEffect(() => {
-    // On initial load, try to get the role from localStorage
     try {
-      const storedRole = localStorage.getItem('userRole') as UserRole | null;
-      if (storedRole) {
-        setRoleState(storedRole);
+      const storedAuthInfo = localStorage.getItem('authInfo');
+      if (storedAuthInfo) {
+        setAuthInfoState(JSON.parse(storedAuthInfo));
       }
     } catch (error) {
-      console.warn("Could not access localStorage. Role persistence will be disabled.");
+      console.warn("Could not access localStorage. Auth persistence will be disabled.");
     }
   }, []);
 
-  const setRole = (newRole: UserRole | null) => {
-    setRoleState(newRole);
+  const setAuthInfo = (newAuthInfo: AuthInfo | null) => {
+    setAuthInfoState(newAuthInfo);
     try {
-      if (newRole) {
-        localStorage.setItem('userRole', newRole);
+      if (newAuthInfo) {
+        localStorage.setItem('authInfo', JSON.stringify(newAuthInfo));
       } else {
-        localStorage.removeItem('userRole');
+        localStorage.removeItem('authInfo');
       }
     } catch (error) {
-       console.warn("Could not access localStorage. Role persistence will be disabled.");
+       console.warn("Could not access localStorage. Auth persistence will be disabled.");
     }
   };
 
   return (
-    <AuthContext.Provider value={{ role, setRole }}>
+    <AuthContext.Provider value={{ authInfo, setAuthInfo }}>
       {children}
     </AuthContext.Provider>
   );

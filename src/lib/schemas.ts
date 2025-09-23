@@ -83,3 +83,12 @@ export const AssembleProductSchema = z.object({
 });
 
 export type AssembleProductValues = z.infer<typeof AssembleProductSchema>;
+
+export const loginSchema = z.object({
+  email: z.string().email().refine(email => email.endsWith('@florachain.com'), {
+    message: "Email must be a valid @florachain.com address."
+  }),
+  password: z.string().min(1, { message: "Password is required." }),
+});
+
+export type LoginValues = z.infer<typeof loginSchema>;

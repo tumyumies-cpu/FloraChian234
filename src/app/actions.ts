@@ -1,7 +1,7 @@
 
 "use server";
 
-import { addBatch as dbAddBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct as dbAddAssembledProduct, updateProductTimelineEvent as dbUpdateProductTimelineEvent, getBatchById as dbGetBatchById, getAssembledProductById as dbGetAssembledProductById, getBatches as dbGetBatches, getAssembledProducts as dbGetAssembledProducts } from '@/lib/db';
+import { addBatch as dbAddBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct as dbAddAssembledProduct, updateProductTimelineEvent as dbUpdateProductTimelineEvent, getBatchById as dbGetBatchById, getAssembledProductById as dbGetAssembledProductById, getBatches as dbGetBatches, getAssembledProducts as dbGetAssembledProducts, getUsers as dbGetUsers, addUser as dbAddUser, updateUser as dbUpdateUser, deleteUser as dbDeleteUser } from '@/lib/db';
 import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues, RetailEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
@@ -222,4 +222,39 @@ export async function getGeocodedLocation(latitude: number, longitude: number): 
     console.error("Geocoding error:", error);
     return { success: false, message: "Could not retrieve location. Please enter it manually." };
   }
+}
+
+// User Management Actions
+export async function getUsers() {
+    return await dbGetUsers();
+}
+
+export async function addUser(email: string, role: string) {
+    try {
+        await dbAddUser(email, role);
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function updateUser(userId: number, newRole: string) {
+    try {
+        await dbUpdateUser(userId, newRole);
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
+}
+
+export async function deleteUser(userId: number) {
+    try {
+        await dbDeleteUser(userId);
+        revalidatePath('/dashboard');
+        return { success: true };
+    } catch (error: any) {
+        return { success: false, message: error.message };
+    }
 }

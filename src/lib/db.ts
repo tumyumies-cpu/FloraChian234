@@ -5,7 +5,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-import type { BatchData, TimelineEvent, AssembledProduct } from './data';
+import type { BatchData, TimelineEvent, AssembledProduct, User } from './data';
 import { CreateBatchValues } from './schemas';
 
 // Path to the JSON file that acts as our database
@@ -15,6 +15,7 @@ const dbPath = path.join(process.cwd(), 'src', 'lib', 'database.json');
 type Database = {
   batches: BatchData[];
   products: AssembledProduct[];
+  users: User[];
 };
 
 // Function to read the entire database from the JSON file.
@@ -25,7 +26,7 @@ async function readDb(): Promise<Database> {
   } catch (error) {
     // If the file doesn't exist or is invalid, return a default structure
     console.error("Could not read database file:", error);
-    return { batches: [], products: [] };
+    return { batches: [], products: [], users: [] };
   }
 }
 
@@ -233,10 +234,55 @@ export async function updateProductTimelineEvent(productId: string, eventId: num
     db.products[productIndex].timeline[eventIndex] = { ...db.products[productIndex].timeline[eventIndex], ...data, status: 'complete' };
 
     // Unlock the next event
-    if (eventIndex + 1 < db.products[productIndex].timeline.length) {
-        db.products[productIndex].timeline[eventIndex + 1].status = 'pending';
+    const nextEvent = db.products[productIndex].timeline[eventIndex + 1];
+    if (nextEvent?.status === 'locked') {
+        nextEvent.status = 'pending';
     }
     
     await writeDb(db);
     return db.products[productIndex];
+}
+
+
+// === USER FUNCTIONS ===
+
+export async function getUsers(): Promise<User[]> {
+  const db = await readDb();
+  return db.users || [];
+}
+
+export async function addUser(email: string, role: string): Promise<User> {
+  const db = await readDb();
+  if (db.users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+    throw new Error("A user with this email already exists.");
+  }
+
+  const lastId = db.users.reduce((max, u) => u.id > max ? u.id : max, 0);
+  const newUser: User = { id: lastId + 1, email, role };
+  
+  db.users.push(newUser);
+  await writeDb(db);
+  return newUser;
+}
+
+export async function updateUser(userId: number, newRole: string): Promise<User | null> {
+    const db = await readDb();
+    const userIndex = db.users.findIndex(u => u.id === userId);
+    if (userIndex === -1) {
+        throw new Error("User not found.");
+    }
+    db.users[userIndex].role = newRole;
+    await writeDb(db);
+    return db.users[userIndex];
+}
+
+export async function deleteUser(userId: number): Promise<{ success: boolean }> {
+    const db = await readDb();
+    const initialLength = db.users.length;
+    db.users = db.users.filter(u => u.id !== userId);
+    if (db.users.length === initialLength) {
+        throw new Error("User not found.");
+    }
+    await writeDb(db);
+    return { success: true };
 }
