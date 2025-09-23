@@ -264,6 +264,73 @@
   ],
   "products": [
     {
+      "productId": "PROD-1002",
+      "productName": "ninja",
+      "brandName": "Brand",
+      "assembledDate": "2025-09-23",
+      "componentBatches": [
+        "HB-481518"
+      ],
+      "timeline": [
+        {
+          "id": 99,
+          "title": "Formulation & Manufacturing",
+          "status": "complete",
+          "date": "2025-09-23",
+          "description": "Combined from 1 ingredient batches to create ninja.",
+          "consumerDescription": "Based on classical formulations, this product combines high-quality ingredients into a final blend.",
+          "icon": "combine",
+          "allowedRole": "brand",
+          "cta": "View Final Product"
+        },
+        {
+          "id": 100,
+          "title": "Manufacturing & Packaging",
+          "status": "pending",
+          "icon": "package",
+          "allowedRole": "brand",
+          "cta": "Add Manufacturing Data",
+          "consumerDescription": "The product is manufactured and packaged in a GMP-certified facility, ensuring safety and quality."
+        },
+        {
+          "id": 101,
+          "title": "Distribution",
+          "status": "locked",
+          "icon": "truck",
+          "allowedRole": "distributor",
+          "cta": "Add Shipping Manifest",
+          "consumerDescription": "Dispatched to verified distributors, ensuring the product is handled carefully in transit."
+        },
+        {
+          "id": 102,
+          "title": "Retailer Receiving",
+          "status": "locked",
+          "icon": "warehouse",
+          "allowedRole": "retailer",
+          "cta": "Confirm Receipt",
+          "consumerDescription": "Product received by a verified retail partner."
+        },
+        {
+          "id": 103,
+          "title": "In-Store Inventory",
+          "status": "locked",
+          "icon": "store",
+          "allowedRole": "retailer",
+          "cta": "Confirm Retail Arrival",
+          "consumerDescription": "Product is available for purchase at your trusted local or online store."
+        },
+        {
+          "id": 104,
+          "title": "Consumer Authenticity Scan",
+          "status": "locked",
+          "icon": "scan",
+          "allowedRole": "consumer",
+          "cta": "View Product Story",
+          "consumerDescription": "You have scanned a verified, authentic product. Thank you for choosing FloraChain."
+        }
+      ]
+    },
+    {
       "productId": "PROD-1001",
       "productName": "blend",
       "assembledDate": "2025-09-23",
