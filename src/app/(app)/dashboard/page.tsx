@@ -9,29 +9,23 @@ import { BrandDashboard } from '@/components/dashboards/brand-dashboard';
 import { SupplierDashboard } from '@/components/dashboards/supplier-dashboard';
 import { DistributorDashboard } from '@/components/dashboards/distributor-dashboard';
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
-import type { BatchData, UserRole } from '@/lib/data';
-import { getProcessorBatches } from '@/app/actions';
+import { Suspense } from 'react';
+import type { UserRole } from '@/lib/data';
 
 function DashboardContent() {
   const searchParams = useSearchParams();
   const role = (searchParams.get('role') || 'consumer') as UserRole;
-
-  const [processorData, setProcessorData] = useState<{ incoming: BatchData[], processed: BatchData[] } | null>(null);
-
-  useEffect(() => {
-    if (role === 'processor') {
-      getProcessorBatches().then(data => setProcessorData(data));
-    }
-  }, [role]);
 
   const renderDashboard = () => {
     switch (role) {
       case 'farmer':
         return <FarmerDashboard />;
       case 'processor':
-        if (!processorData) return <div>Loading processor data...</div>;
-        return <ProcessorDashboard incoming={processorData.incoming} processed={processorData.processed} />;
+        return (
+          <Suspense fallback={<div>Loading processor data...</div>}>
+            <ProcessorDashboard />
+          </Suspense>
+        );
       case 'supplier':
         return <SupplierDashboard />;
       case 'brand':
