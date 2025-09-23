@@ -146,16 +146,22 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
     const eventIndex = db.batches[batchIndex].timeline.findIndex(e => e.id === eventId);
     if (eventIndex === -1) return null;
     
-    // Update the event
+    // Update the current event
     db.batches[batchIndex].timeline[eventIndex] = { ...db.batches[batchIndex].timeline[eventIndex], ...data, status: 'complete' };
 
-    // Unlock the next event if it exists
-    const nextEvent = db.batches[batchIndex].timeline.find(e => e.id > eventId);
-    if (nextEvent) {
-      const nextEventIndex = db.batches[batchIndex].timeline.findIndex(e => e.id === nextEvent.id);
-      if (db.batches[batchIndex].timeline[nextEventIndex].status === 'locked') {
+    // Find the next event in the sequence and unlock it
+    const nextEventIndex = db.batches[batchIndex].timeline.findIndex(e => e.id > eventId);
+    if (nextEventIndex !== -1 && db.batches[batchIndex].timeline[nextEventIndex].status === 'locked') {
         db.batches[batchIndex].timeline[nextEventIndex].status = 'pending';
-      }
+    }
+
+    // Specific logic for when a supplier dispatches, making it ready for formulation
+    if (eventId === 5) { // ID for "Supplier Processing & Dispatch"
+        const formulationEventIndex = db.batches[batchIndex].timeline.findIndex(e => e.id === 6); // ID for "Ready for Formulation"
+        if (formulationEventIndex !== -1) {
+            db.batches[batchIndex].timeline[formulationEventIndex].status = 'complete'; // Mark it as ready
+            db.batches[batchIndex].timeline[formulationEventIndex].date = new Date().toLocaleDateString('en-CA');
+        }
     }
     
     await writeDb(db);

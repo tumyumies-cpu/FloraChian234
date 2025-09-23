@@ -69,7 +69,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   }, [newProductId]);
 
   const availableBatches = useMemo(() => batches.filter(batch => {
-    const isReady = batch.timeline.find(e => e.title === 'Supplier Processing & Dispatch' && e.status === 'complete');
+    const isReady = batch.timeline.find(e => e.id === 6 && e.status === 'complete');
     return isReady;
   }), [batches]);
 
