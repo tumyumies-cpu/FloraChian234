@@ -1,3 +1,4 @@
+
 "use client";
 import { FarmerDashboard } from '@/components/dashboards/farmer-dashboard';
 import { RetailerDashboard } from '@/components/dashboards/retailer-dashboard';
@@ -7,7 +8,7 @@ import { SupplierDashboard } from '@/components/dashboards/supplier-dashboard';
 import { DistributorDashboard } from '@/components/dashboards/distributor-dashboard';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
-import type { UserRole } from '@/lib/data';
+import type { UserRole, BatchData } from '@/lib/data';
 import { AdminDashboard } from '@/components/dashboards/admin-dashboard';
 import { ProcessorDashboard } from '@/components/dashboards/processor-dashboard';
 
@@ -81,6 +82,7 @@ function DashboardContent() {
     </div>
   );
 }
+
 
 export default function DashboardPage() {
   return (

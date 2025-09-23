@@ -1,4 +1,6 @@
 
+'use client';
+import { Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
@@ -7,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import type { TimelineEvent } from '@/lib/data';
 import { getProcessorBatches } from '@/app/actions';
 import { ArrowRight, History, ScanLine } from 'lucide-react';
-import { Suspense } from 'react';
+
 
 function getStatus(timeline: TimelineEvent[]) {
     const completedSteps = timeline.filter(e => e.status === 'complete').length;
@@ -111,7 +113,7 @@ async function ProcessorBatchTables() {
     )
 }
 
-export async function ProcessorDashboard() {
+export function ProcessorDashboard() {
   return (
     <div className="p-6">
         <div className="grid md:grid-cols-2 gap-6">
