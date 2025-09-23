@@ -1,9 +1,21 @@
+"use client";
 import { getBatches } from "@/lib/db";
 import { AssembleProductForm } from "./assemble-product-form";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
+import type { BatchData } from "@/lib/data";
 
-export default async function AssembleProductPage() {
-  const batches = await getBatches();
+export default function AssembleProductPage() {
+  const [batches, setBatches] = useState<BatchData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchBatches() {
+      const fetchedBatches = await getBatches();
+      setBatches(fetchedBatches);
+      setLoading(false);
+    }
+    fetchBatches();
+  }, []);
   
   return (
     <div className="space-y-8">
@@ -12,7 +24,7 @@ export default async function AssembleProductPage() {
         <p className="text-muted-foreground">Select ingredient batches to combine into a final product.</p>
       </div>
       <Suspense fallback={<div>Loading form...</div>}>
-        <AssembleProductForm batches={batches} />
+        {loading ? <div>Loading batches...</div> : <AssembleProductForm batches={batches} />}
       </Suspense>
     </div>
   );

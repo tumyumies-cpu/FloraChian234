@@ -1,18 +1,35 @@
-
+"use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAssembledProducts } from "@/lib/db";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import type { AssembledProduct } from "@/lib/data";
 
-export const dynamic = 'force-dynamic';
+function PastProductsContent() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'retailer';
+  const [products, setProducts] = useState<AssembledProduct[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function PastProductsPage({
-  searchParams,
-}: {
-  searchParams: { role?: string };
-}) {
-  const role = searchParams.role || 'retailer';
-  const products = await getAssembledProducts();
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const fetchedProducts = await getAssembledProducts();
+        setProducts(fetchedProducts);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
+
+  if (loading) {
+    return <div>Loading products...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -50,4 +67,12 @@ export default async function PastProductsPage({
       </Card>
     </div>
   );
+}
+
+export default function PastProductsPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <PastProductsContent />
+        </Suspense>
+    )
 }

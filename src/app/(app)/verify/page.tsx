@@ -1,12 +1,11 @@
+"use client";
 import { VerifyForm } from "./verify-form";
 import { Suspense } from "react";
+import { useSearchParams } from 'next/navigation';
 
-export default function VerifyPage({
-  searchParams,
-}: {
-  searchParams: { role?: string };
-}) {
-  const role = searchParams.role || 'consumer';
+function VerifyContent() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'consumer';
 
   return (
     <div className="space-y-8">
@@ -16,9 +15,15 @@ export default function VerifyPage({
           Enter an ID below to look up a product's history.
         </p>
       </div>
-      <Suspense fallback={<div>Loading form...</div>}>
-        <VerifyForm role={role} />
-      </Suspense>
+      <VerifyForm role={role} />
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div>Loading form...</div>}>
+      <VerifyContent />
+    </Suspense>
   );
 }

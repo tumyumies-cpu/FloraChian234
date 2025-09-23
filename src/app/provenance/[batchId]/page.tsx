@@ -1,38 +1,81 @@
+"use client";
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { getBatchById, getAssembledProductById } from '@/lib/db';
 import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Leaf, ShieldCheck, MapPin, Calendar, Microscope, PackageCheck } from 'lucide-react';
+import { ArrowLeft, ShieldCheck } from 'lucide-react';
 import { InteractiveTimeline } from '@/components/interactive-timeline';
 import type { BatchData, AssembledProduct, UserRole } from '@/lib/data';
 import { ComponentBatchSummary } from '@/components/component-batch-summary';
+import { useSearchParams, useParams, notFound } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default async function ProvenancePage({ 
-  params,
-  searchParams,
-}: { 
-  params: { batchId: string };
-  searchParams: { role?: string; fromProduct?: string };
-}) {
-  const { batchId } = params;
-  const role = (searchParams.role || 'consumer') as UserRole | string;
-  const fromProduct = searchParams.fromProduct;
+export default function ProvenancePage() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const batchId = params.batchId as string;
+  const role = (searchParams.get('role') || 'consumer') as UserRole | string;
+  const fromProduct = searchParams.get('fromProduct');
 
-  let data: BatchData | AssembledProduct | null = null;
+  const [data, setData] = useState<BatchData | AssembledProduct | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const isProduct = batchId.startsWith('PROD-');
 
-  if (isProduct) {
-    data = await getAssembledProductById(batchId);
-  } else {
-    data = await getBatchById(batchId);
-  }
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      let fetchedData: BatchData | AssembledProduct | null = null;
+      if (isProduct) {
+        fetchedData = await getAssembledProductById(batchId);
+      } else {
+        fetchedData = await getBatchById(batchId);
+      }
+      
+      if (!fetchedData) {
+        notFound();
+      } else {
+        setData(fetchedData);
+      }
+      setLoading(false);
+    }
+    if (batchId) {
+      fetchData();
+    }
+  }, [batchId, isProduct]);
 
-  if (!data) {
-    notFound();
+  if (loading || !data) {
+    return (
+      <div className="container mx-auto max-w-5xl py-8 sm:py-12 space-y-8">
+        <Skeleton className="h-8 w-24" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="space-y-4">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-12 w-3/4" />
+                <Skeleton className="h-8 w-1/2" />
+                <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
+                    <Skeleton className="h-5 w-28" />
+                    <Skeleton className="h-5 w-32" />
+                </div>
+            </div>
+            <Skeleton className="aspect-video w-full" />
+        </div>
+         <Separator />
+         <Skeleton className="h-48 w-full" />
+         <Separator />
+         <div className="space-y-6">
+            <Skeleton className="h-10 w-1/3 mx-auto" />
+            <div className="space-y-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-24 w-full" />
+            </div>
+         </div>
+      </div>
+    );
   }
 
   const storyGeneratorProps = {
@@ -101,7 +144,6 @@ export default async function ProvenancePage({
       </div>
     )
   }
-
 
   // Default view for other roles
   return (

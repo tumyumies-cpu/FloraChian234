@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
@@ -11,7 +10,6 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { updateTimelineEvent } from '@/app/actions';
 import { ProcessingEventForm } from './processing-event-form';
-import type { ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues, RetailEventValues } from '@/lib/schemas';
 import { SupplierEventForm } from './supplier-event-form';
 import { ManufacturingEventForm } from './manufacturing-event-form';
 import { DistributionEventForm } from './distribution-event-form';
@@ -65,11 +63,13 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   const { toast } = useToast();
 
   useEffect(() => {
+    // When initialEvents prop changes, update the state
+    setEvents(initialEvents);
     // For consumers, remove the final "Consumer Scan" step as it's redundant
     if (role === 'consumer') {
         setEvents(prevEvents => prevEvents.filter(e => e.id !== 104));
     }
-  }, [role]);
+  }, [initialEvents, role]);
 
   const handleUpdate = async (eventId: number, data: any) => {
     setLoading(true);
@@ -77,8 +77,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
 
     if (result.success && (result.batch || result.product)) {
       const updatedEvents = result.batch?.timeline || result.product?.timeline || [];
-      const finalEvents = isProduct ? updatedEvents : await getRefreshedEvents(batchId);
-      setEvents(finalEvents);
+      setEvents(updatedEvents);
       setEditingEventId(null);
       toast({
         title: "Update Successful!",
@@ -99,8 +98,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     const result = await updateTimelineEvent(batchId, eventId, { description: `${title} confirmed by ${role}.` });
      if (result.success && (result.batch || result.product)) {
       const updatedEvents = result.batch?.timeline || result.product?.timeline || [];
-      const finalEvents = isProduct ? updatedEvents : await getRefreshedEvents(batchId);
-      setEvents(finalEvents);
+      setEvents(updatedEvents);
       setEditingEventId(null);
       toast({
         title: "Update Successful!",
@@ -115,31 +113,15 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     }
     setLoading(false);
   };
-  
-  // Helper function to re-fetch events for a single batch to ensure latest state
-  const getRefreshedEvents = async (id: string) => {
-      // In a real app, you'd fetch this from the server, e.g., `await getBatchById(id)`
-      // For this simulation, we'll just return the current state as there's no server fetch
-      const res = await fetch(`/api/get-batch?id=${id}`);
-      if (res.ok) {
-          const data = await res.json();
-          return data.timeline;
-      }
-      return initialEvents;
-  }
 
   const timelineEvents = useMemo(() => {
     if (isProduct) {
-        // For products, only show the product-specific timeline steps
-        const productSteps = events.filter(e => e.id >= 99);
-        // De-duplicate ingredient steps, showing only the first occurrence for context
-        const ingredientSteps = events.filter(e => e.id < 99);
-        const uniqueIngredientSteps = Array.from(new Map(ingredientSteps.map(e => [e.id, e])).values());
-        
-        return [...uniqueIngredientSteps, ...productSteps].map(e => ({ ...e, uniqueId: e.id.toString() }));
+        // For products, we want to show all events.
+        // We will just add a unique key to handle potential duplicate IDs from batch timelines.
+        return events.map((e, index) => ({...e, uniqueId: `${e.id}-${index}`}));
     }
-    // For single batches, just use ID
-    return events.map((e, index) => ({...e, uniqueId: `${e.id}-${index}`}));
+    // For single batches, just use ID as it's already unique
+    return events.map(e => ({...e, uniqueId: e.id.toString()}));
   }, [events, isProduct]);
 
 

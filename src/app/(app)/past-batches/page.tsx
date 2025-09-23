@@ -1,18 +1,35 @@
-
+"use client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getBatches } from "@/lib/db";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import type { BatchData } from "@/lib/data";
 
-export const dynamic = 'force-dynamic';
+function PastBatchesContent() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'farmer';
+  const [batches, setBatches] = useState<BatchData[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    async function fetchBatches() {
+      try {
+        const fetchedBatches = await getBatches();
+        setBatches(fetchedBatches);
+      } catch (error) {
+        console.error("Failed to fetch batches:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchBatches();
+  }, []);
 
-export default async function PastBatchesPage({
-  searchParams,
-}: {
-  searchParams: { role?: string };
-}) {
-  const role = searchParams.role || 'farmer';
-  const batches = await getBatches();
+  if (loading) {
+    return <div>Loading batches...</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -50,4 +67,12 @@ export default async function PastBatchesPage({
       </Card>
     </div>
   );
+}
+
+export default function PastBatchesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PastBatchesContent />
+    </Suspense>
+  )
 }

@@ -1,3 +1,4 @@
+"use client";
 import { FarmerDashboard } from '@/components/dashboards/farmer-dashboard';
 import { ProcessorDashboard } from '@/components/dashboards/processor-dashboard';
 import { RetailerDashboard } from '@/components/dashboards/retailer-dashboard';
@@ -6,13 +7,12 @@ import { AdminDashboard } from '@/components/dashboards/admin-dashboard';
 import { BrandDashboard } from '@/components/dashboards/brand-dashboard';
 import { SupplierDashboard } from '@/components/dashboards/supplier-dashboard';
 import { DistributorDashboard } from '@/components/dashboards/distributor-dashboard';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function DashboardPage({
-  searchParams,
-}: {
-  searchParams: { role?: string };
-}) {
-  const role = searchParams.role || 'consumer';
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const role = searchParams.get('role') || 'consumer';
 
   const renderDashboard = () => {
     switch (role) {
@@ -70,5 +70,13 @@ export default function DashboardPage({
         {renderDashboard()}
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>Loading Dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
