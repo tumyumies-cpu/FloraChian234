@@ -41,12 +41,13 @@ function LoginContent() {
       let role;
       if (existingUser) {
         role = existingUser.role;
-      } else if (values.email.toLowerCase() === 'admin@florachain.com') {
-        role = 'admin';
-      } else if (values.email.toLowerCase().endsWith('@florachain.com')) {
-        role = 'farmer';
       } else {
-        role = 'consumer';
+        // Default role logic for users NOT in the database
+        if (values.email.toLowerCase().endsWith('@florachain.com')) {
+          role = 'farmer';
+        } else {
+          role = 'consumer';
+        }
       }
       
       setAuthInfo({ email: values.email, role });
