@@ -1,7 +1,7 @@
 "use client";
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-import { getBatchById, getAssembledProductById } from '@/lib/db';
+import { getBatchDetails } from '@/app/actions';
 import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
@@ -29,24 +29,19 @@ export default function ProvenancePage() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      let fetchedData: BatchData | AssembledProduct | null = null;
-      if (isProduct) {
-        fetchedData = await getAssembledProductById(batchId);
-      } else {
-        fetchedData = await getBatchById(batchId);
-      }
+      const fetchedData = await getBatchDetails(batchId);
       
       if (!fetchedData) {
         notFound();
       } else {
-        setData(fetchedData);
+        setData(fetchedData as BatchData | AssembledProduct);
       }
       setLoading(false);
     }
     if (batchId) {
       fetchData();
     }
-  }, [batchId, isProduct]);
+  }, [batchId]);
 
   if (loading || !data) {
     return (

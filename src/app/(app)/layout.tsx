@@ -1,4 +1,3 @@
-"use client";
 
 import { MainHeader } from '@/components/main-header';
 import { SidebarNav } from '@/components/sidebar-nav';

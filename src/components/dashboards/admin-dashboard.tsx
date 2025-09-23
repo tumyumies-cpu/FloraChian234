@@ -4,10 +4,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { getBatches, getAssembledProducts } from '@/lib/db';
+import { getAllBatches, getAllAssembledProducts } from '@/app/actions';
 import Link from 'next/link';
 import { ShieldCheck, Search, ListOrdered, BarChart, Package, PackageCheck } from 'lucide-react';
-import type { BatchData, AssembledProduct, TimelineEvent } from '@/lib/data';
+import type { TimelineEvent } from '@/lib/data';
 
 function getStatus(timeline: TimelineEvent[]) {
     const completedSteps = timeline.filter(e => e.status === 'complete').length;
@@ -22,8 +22,10 @@ function getStatus(timeline: TimelineEvent[]) {
 }
 
 export async function AdminDashboard() {
-  const batches = await getBatches();
-  const products = await getAssembledProducts();
+  const [batches, products] = await Promise.all([
+    getAllBatches(),
+    getAllAssembledProducts()
+  ]);
 
   const totalBatches = batches.length;
   const inProgressBatches = batches.filter(b => 
@@ -186,5 +188,3 @@ export async function AdminDashboard() {
     </div>
   );
 }
-
-    

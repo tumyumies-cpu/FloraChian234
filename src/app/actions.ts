@@ -1,14 +1,14 @@
 
 "use server";
 
-import { addBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct, updateProductTimelineEvent, getBatchById as dbGetBatchById, getAssembledProductById } from '@/lib/db';
+import { addBatch as dbAddBatch, updateTimelineEvent as dbUpdateTimelineEvent, addAssembledProduct as dbAddAssembledProduct, updateProductTimelineEvent as dbUpdateProductTimelineEvent, getBatchById as dbGetBatchById, getAssembledProductById as dbGetAssembledProductById, getBatches as dbGetBatches, getAssembledProducts as dbGetAssembledProducts } from '@/lib/db';
 import { CreateBatchValues, AssembleProductValues, ProcessingEventValues, SupplierEventValues, ManufacturingEventValues, DistributionEventValues, RetailEventValues } from '@/lib/schemas';
 import type { TimelineEvent } from '@/lib/data';
 import { revalidatePath } from 'next/cache';
 
 export async function createBatch(data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }) {
     try {
-        const newBatch = await addBatch(data);
+        const newBatch = await dbAddBatch(data);
         revalidatePath('/past-batches');
         revalidatePath('/assemble-product');
         return { success: true, batchId: newBatch.batchId };
@@ -126,7 +126,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
         };
 
         if (batchId.startsWith('PROD-')) {
-            const updatedProduct = await updateProductTimelineEvent(batchId, eventId, updateData);
+            const updatedProduct = await dbUpdateProductTimelineEvent(batchId, eventId, updateData);
             if (!updatedProduct) {
                 return { success: false, message: "Product or event not found." };
             }
@@ -149,7 +149,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
 
 export async function assembleProduct(data: AssembleProductValues) {
     try {
-        const newProduct = await addAssembledProduct(data.productName, data.batchIds);
+        const newProduct = await dbAddAssembledProduct(data.productName, data.batchIds);
         revalidatePath('/assemble-product');
         revalidatePath('/past-products'); 
         return { success: true, productId: newProduct.productId };
@@ -162,11 +162,32 @@ export async function assembleProduct(data: AssembleProductValues) {
 export async function verifyBatchId(batchId: string): Promise<{ success: boolean }> {
     try {
         const itemExists = batchId.toUpperCase().startsWith('PROD-')
-            ? await getAssembledProductById(batchId)
+            ? await dbGetAssembledProductById(batchId)
             : await dbGetBatchById(batchId);
         return { success: !!itemExists };
     } catch (error) {
         console.error("Failed to verify ID:", error);
         return { success: false };
     }
+}
+
+// Data fetching server actions
+export async function getBatchDetails(batchId: string) {
+    const isProduct = batchId.startsWith('PROD-');
+    if (isProduct) {
+        return await dbGetAssembledProductById(batchId);
+    }
+    return await dbGetBatchById(batchId);
+}
+
+export async function getAllBatches() {
+    return await dbGetBatches();
+}
+
+export async function getAllAssembledProducts() {
+    return await dbGetAssembledProducts();
+}
+
+export async function getBatchForSummary(batchId: string) {
+    return await dbGetBatchById(batchId);
 }

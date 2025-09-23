@@ -1,10 +1,15 @@
-import { getBatchById } from '@/lib/db';
+
+"use client";
+
+import { getBatchForSummary } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Package } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
+import type { BatchData } from '@/lib/data';
+import { useEffect, useState } from 'react';
 
 interface ComponentBatchSummaryProps {
   batchIds: string[];
@@ -12,12 +17,33 @@ interface ComponentBatchSummaryProps {
   role: string;
 }
 
-export async function ComponentBatchSummary({ batchIds, productId, role }: ComponentBatchSummaryProps) {
-  const batchDetails = await Promise.all(
-    batchIds.map(id => getBatchById(id))
-  );
+export function ComponentBatchSummary({ batchIds, productId, role }: ComponentBatchSummaryProps) {
+  const [batchDetails, setBatchDetails] = useState<(BatchData | null)[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const validBatches = batchDetails.filter(b => b !== null);
+  useEffect(() => {
+    async function fetchBatches() {
+      setLoading(true);
+      const promises = batchIds.map(id => getBatchForSummary(id));
+      try {
+        const results = await Promise.all(promises);
+        setBatchDetails(results);
+      } catch (error) {
+        console.error("Failed to fetch batch summaries:", error);
+        setBatchDetails([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchBatches();
+  }, [batchIds]);
+
+
+  if (loading) {
+      return <p>Loading ingredient details...</p>;
+  }
+
+  const validBatches = batchDetails.filter(b => b !== null) as BatchData[];
 
   return (
     <Card>

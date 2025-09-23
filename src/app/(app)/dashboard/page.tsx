@@ -1,3 +1,4 @@
+
 "use client";
 import { FarmerDashboard } from '@/components/dashboards/farmer-dashboard';
 import { ProcessorDashboard } from '@/components/dashboards/processor-dashboard';
@@ -29,7 +30,11 @@ function DashboardContent() {
       case 'retailer':
         return <RetailerDashboard />;
       case 'admin':
-        return <AdminDashboard />;
+        return (
+          <Suspense fallback={<div>Loading dashboard data...</div>}>
+            <AdminDashboard />
+          </Suspense>
+        );
       case 'consumer':
       default:
         return <ConsumerDashboard />;
