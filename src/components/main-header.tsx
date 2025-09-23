@@ -39,7 +39,7 @@ export function MainHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur-sm sm:justify-end">
+    <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background px-4 sm:justify-end sm:bg-background/80 sm:backdrop-blur-sm">
       <div className="md:hidden">
         <SidebarTrigger />
       </div>
