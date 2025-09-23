@@ -19,6 +19,7 @@ import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AdvancedFilterControls, type FilterState, type SortState } from "./advanced-filter-controls";
 import QRCode from 'qrcode';
+import { useAuth } from "@/context/auth-context";
 
 interface AssembleProductFormProps {
     batches: BatchData[];
@@ -33,14 +34,25 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { authInfo } = useAuth();
+  
+  const brandName = useMemo(() => {
+    if (!authInfo?.role) return 'DefaultBrand';
+    return authInfo.role.charAt(0).toUpperCase() + authInfo.role.slice(1);
+  }, [authInfo]);
 
   const form = useForm<AssembleProductValues>({
     resolver: zodResolver(AssembleProductSchema),
     defaultValues: {
       productName: "",
       batchIds: [],
+      brandName: brandName,
     },
   });
+  
+  useEffect(() => {
+    form.setValue('brandName', brandName);
+  }, [brandName, form]);
 
   useEffect(() => {
     if (newProductId) {
@@ -157,6 +169,19 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
         <CardContent>
             <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                     <FormField
+                        control={form.control}
+                        name="brandName"
+                        render={({ field }) => (
+                            <FormItem className="hidden">
+                                <FormLabel>Brand Name</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                     <FormField
                         control={form.control}
                         name="productName"

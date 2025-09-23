@@ -80,6 +80,7 @@ export type RetailEventValues = z.infer<typeof RetailEventSchema>;
 export const AssembleProductSchema = z.object({
     productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),
     batchIds: z.array(z.string()).min(1, { message: "You must select at least one batch." }),
+    brandName: z.string().min(1),
 });
 
 export type AssembleProductValues = z.infer<typeof AssembleProductSchema>;

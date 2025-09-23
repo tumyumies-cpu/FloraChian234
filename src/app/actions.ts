@@ -152,7 +152,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
 
 export async function assembleProduct(data: AssembleProductValues) {
     try {
-        const newProduct = await dbAddAssembledProduct(data.productName, data.batchIds);
+        const newProduct = await dbAddAssembledProduct(data.productName, data.batchIds, data.brandName);
         revalidatePath('/assemble-product');
         revalidatePath('/past-products'); 
         revalidatePath('/dashboard');

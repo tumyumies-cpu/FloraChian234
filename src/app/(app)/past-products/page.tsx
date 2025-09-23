@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getAllAssembledProducts } from "@/app/actions";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default async function PastProductsPage({ searchParams }: { searchParams: { role?: string } }) {
   const role = searchParams.role || 'retailer';
@@ -26,8 +27,11 @@ export default async function PastProductsPage({ searchParams }: { searchParams:
               products.map(product => (
                 <div key={product.productId} className="border rounded-lg p-4 flex items-center justify-between">
                   <div>
-                    <h3 className="font-semibold">{product.productName} - <span className="font-mono text-muted-foreground">{product.productId}</span></h3>
-                    <p className="text-sm text-muted-foreground">Assembled on {new Date(product.assembledDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <h3 className="font-semibold">{product.productName}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <p className="text-sm text-muted-foreground">ID: <span className="font-mono">{product.productId}</span></p>
+                      <Badge variant="outline">By {product.brandName}</Badge>
+                    </div>
                   </div>
                   <Button asChild variant="outline">
                     <Link href={`/provenance/${product.productId}?role=${role}`}>View Details</Link>

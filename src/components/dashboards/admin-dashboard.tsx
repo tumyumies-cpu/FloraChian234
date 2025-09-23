@@ -50,7 +50,7 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
     const { toast } = useToast();
 
     const filteredBatches = useMemo(() => initialBatches.filter(b => b.batchId.toLowerCase().includes(searchTerm.toLowerCase()) || b.productName.toLowerCase().includes(searchTerm.toLowerCase())), [initialBatches, searchTerm]);
-    const filteredProducts = useMemo(() => initialProducts.filter(p => p.productId.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase())), [initialProducts, searchTerm]);
+    const filteredProducts = useMemo(() => initialProducts.filter(p => p.productId.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase()) || p.brandName.toLowerCase().includes(searchTerm.toLowerCase())), [initialProducts, searchTerm]);
     const filteredUsers = useMemo(() => users.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()) || u.role.toLowerCase().includes(searchTerm.toLowerCase())), [users, searchTerm]);
 
     const inProgressBatches = initialBatches.filter(b => b.timeline.some(e => e.status === 'pending')).length;
@@ -182,7 +182,7 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
 
        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by ID, Product, User, or Role..." className="pl-9" onChange={(e) => setSearchTerm(e.target.value)} />
+          <Input placeholder="Search by ID, Product, Brand, User, or Role..." className="pl-9" onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -266,12 +266,15 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
                     <h3 className="font-semibold">Assembled Products</h3>
                      <div className="border rounded-md max-h-[24.5rem] overflow-y-auto">
                         <Table>
-                          <TableHeader className="sticky top-0 bg-card"><TableRow><TableHead>Product ID</TableHead><TableHead>Name</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
+                          <TableHeader className="sticky top-0 bg-card"><TableRow><TableHead>Product</TableHead><TableHead>Brand</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead></TableRow></TableHeader>
                           <TableBody>
                             {filteredProducts.map(product => (
                                 <TableRow key={product.productId}>
-                                    <TableCell className="font-mono text-xs">{product.productId}</TableCell>
-                                    <TableCell className="font-medium">{product.productName}</TableCell>
+                                    <TableCell className="font-medium">
+                                        <div>{product.productName}</div>
+                                        <div className="text-xs font-mono text-muted-foreground">{product.productId}</div>
+                                    </TableCell>
+                                    <TableCell><Badge variant="secondary">{product.brandName}</Badge></TableCell>
                                     <TableCell>{getStatus(product.timeline)}</TableCell>
                                     <TableCell className="text-right">
                                         <Button asChild variant="outline" size="sm"><Link href={`/provenance/${product.productId}?role=admin`}>View</Link></Button>

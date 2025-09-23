@@ -50,6 +50,7 @@ export interface BatchData {
 export interface AssembledProduct {
   productId: string;
   productName: string;
+  brandName: string;
   assembledDate: string;
   componentBatches: string[]; // Array of batchIds
   timeline: TimelineEvent[];

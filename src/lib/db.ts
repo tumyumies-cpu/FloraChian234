@@ -165,7 +165,7 @@ export async function updateTimelineEvent(batchId: string, eventId: number, data
 
 // === PRODUCT FUNCTIONS ===
 
-export async function addAssembledProduct(productName: string, batchIds: string[]): Promise<AssembledProduct> {
+export async function addAssembledProduct(productName: string, batchIds: string[], brandName: string): Promise<AssembledProduct> {
     const db = await readDb();
 
     const lastIdNum = db.products.reduce((max, p) => {
@@ -177,6 +177,7 @@ export async function addAssembledProduct(productName: string, batchIds: string[
     const newProduct: AssembledProduct = {
         productId: newProductId,
         productName: productName,
+        brandName: brandName,
         assembledDate: new Date().toISOString().split('T')[0],
         componentBatches: batchIds,
         timeline: [
