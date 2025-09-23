@@ -1,13 +1,13 @@
 'use client';
 
-import * useTheme from 'next-themes';
+import { useTheme } from 'next-themes';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { FormItem } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Switch } from '@/components/ui/switch';
-import { Moon, Sun } from 'lucide-react';
 
 function ThemeSwitcher() {
     const { theme, setTheme } = useTheme();
