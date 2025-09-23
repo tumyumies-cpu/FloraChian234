@@ -37,7 +37,7 @@ export function QrScanner({ onScan }: QrScannerProps) {
             inversionAttempts: "dontInvert",
           });
 
-          if (code) {
+          if (code && code.data) { // Check for actual data
             setQrCodeDetected(true);
             setScanActive(false); // Stop scanning once a code is found
             onScan(code.data);
@@ -55,10 +55,14 @@ export function QrScanner({ onScan }: QrScannerProps) {
         }
       }
     }
-    requestAnimationFrame(tick);
+    if (scanActive) {
+        requestAnimationFrame(tick);
+    }
   }, [scanActive, onScan, toast]);
 
   useEffect(() => {
+    let animationFrameId: number;
+
     const getCameraPermission = async () => {
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         console.error("Camera API not available in this browser.");
@@ -71,6 +75,7 @@ export function QrScanner({ onScan }: QrScannerProps) {
         setHasCameraPermission(true);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
+          animationFrameId = requestAnimationFrame(tick);
         }
       } catch (error) {
         console.error("Error accessing camera:", error);
@@ -82,18 +87,22 @@ export function QrScanner({ onScan }: QrScannerProps) {
         });
       }
     };
-    getCameraPermission();
-
-    requestAnimationFrame(tick);
+    
+    if (scanActive) {
+        getCameraPermission();
+    }
 
     return () => {
-      // Cleanup: Stop camera tracks when component unmounts
+      // Cleanup: Stop camera tracks and animation frame when component unmounts or scan becomes inactive
       if (videoRef.current && videoRef.current.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach(track => track.stop());
       }
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
-  }, [toast, tick]);
+  }, [toast, tick, scanActive]);
 
 
   return (
