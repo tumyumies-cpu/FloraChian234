@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
@@ -10,14 +10,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Leaf, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from '@/hooks/use-toast';
 import { loginSchema, type LoginValues } from '@/lib/schemas';
 import { getUsers } from './actions';
+import { Skeleton } from '@/components/ui/skeleton';
 
-export default function LoginPage() {
+function LoginContent() {
   const { setAuthInfo } = useAuth();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -60,6 +60,88 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+          <CardDescription>Enter your credentials to access the platform.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., user@company.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+                {loading ? <LoaderCircle className="animate-spin" /> : "Sign In"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+      <p className="px-8 text-center text-sm text-muted-foreground mt-6">
+          Use `admin@florachain.com` for admin access or `farmer@florachain.com` for farmer access. Any other email will be treated as a consumer unless explicitly added by an admin.
+      </p>
+    </>
+  );
+}
+
+function LoginFormSkeleton() {
+    return (
+        <>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
+                    <CardDescription>Enter your credentials to access the platform.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-4 w-1/4" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                    <Skeleton className="h-11 w-full" />
+                </CardContent>
+            </Card>
+            <Skeleton className="h-10 w-3/4 mx-auto mt-6" />
+        </>
+    );
+}
+
+export default function LoginPage() {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
@@ -68,50 +150,7 @@ export default function LoginPage() {
                 <span className="font-headline text-2xl font-semibold">FloraChain</span>
             </Link>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-            <CardDescription>Enter your credentials to access the platform.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., user@company.com" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                  {loading ? <LoaderCircle className="animate-spin" /> : "Sign In"}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-         <p className="px-8 text-center text-sm text-muted-foreground mt-6">
-            Use `admin@florachain.com` for admin access or `farmer@florachain.com` for farmer access. Any other email will be treated as a consumer unless explicitly added by an admin.
-         </p>
+        {hasMounted ? <LoginContent /> : <LoginFormSkeleton />}
       </div>
     </div>
   );
