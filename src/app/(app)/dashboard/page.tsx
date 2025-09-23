@@ -1,16 +1,16 @@
 
 "use client";
 import { FarmerDashboard } from '@/components/dashboards/farmer-dashboard';
-import { ProcessorDashboard } from '@/components/dashboards/processor-dashboard';
 import { RetailerDashboard } from '@/components/dashboards/retailer-dashboard';
 import { ConsumerDashboard } from '@/components/dashboards/consumer-dashboard';
-import { AdminDashboard } from '@/components/dashboards/admin-dashboard';
 import { BrandDashboard } from '@/components/dashboards/brand-dashboard';
 import { SupplierDashboard } from '@/components/dashboards/supplier-dashboard';
 import { DistributorDashboard } from '@/components/dashboards/distributor-dashboard';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import type { UserRole } from '@/lib/data';
+import { AdminDashboard } from '@/components/dashboards/admin-dashboard';
+import { ProcessorDashboard } from '@/components/dashboards/processor-dashboard';
 
 function DashboardContent() {
   const searchParams = useSearchParams();
@@ -21,7 +21,11 @@ function DashboardContent() {
       case 'farmer':
         return <FarmerDashboard />;
       case 'processor':
-        return <ProcessorDashboard />;
+        return (
+          <Suspense fallback={<div>Loading dashboard data...</div>}>
+            <ProcessorDashboard />
+          </Suspense>
+        );
       case 'supplier':
         return <SupplierDashboard />;
       case 'brand':
