@@ -1,13 +1,12 @@
 
+"use client";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScanLine, ArrowRight, History } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { getProcessorBatches } from '@/app/actions';
-import type { TimelineEvent } from '@/lib/data';
-import { Suspense } from 'react';
+import type { BatchData, TimelineEvent } from '@/lib/data';
 
 function getStatus(timeline: TimelineEvent[]) {
     const completedSteps = timeline.filter(e => e.status === 'complete').length;
@@ -21,10 +20,12 @@ function getStatus(timeline: TimelineEvent[]) {
     return <Badge variant="outline">Created</Badge>;
 }
 
+interface ProcessorBatchTablesProps {
+    incoming: BatchData[];
+    processed: BatchData[];
+}
 
-async function ProcessorBatchTables() {
-    const { incoming, processed } = await getProcessorBatches();
-    
+function ProcessorBatchTables({ incoming, processed }: ProcessorBatchTablesProps) {
     return (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6">
             <Card>
@@ -113,8 +114,12 @@ async function ProcessorBatchTables() {
     )
 }
 
+interface ProcessorDashboardProps {
+    incoming: BatchData[];
+    processed: BatchData[];
+}
 
-export function ProcessorDashboard() {
+export function ProcessorDashboard({ incoming, processed }: ProcessorDashboardProps) {
   return (
     <div className="p-6">
         <div className="grid md:grid-cols-2 gap-6">
@@ -167,9 +172,7 @@ export function ProcessorDashboard() {
             </div>
         </div>
         
-        <Suspense fallback={<div>Loading processor data...</div>}>
-            <ProcessorBatchTables />
-        </Suspense>
+        <ProcessorBatchTables incoming={incoming} processed={processed} />
 
     </div>
   );
