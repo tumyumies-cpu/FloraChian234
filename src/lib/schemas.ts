@@ -65,7 +65,7 @@ export const DistributionEventSchema = z.object({
     stockEntryDate: z.string().min(1, "Stock entry date is required."),
     coldChain: z.string().optional(),
     transportMode: z.string().min(3, "Transport mode is required."),
-    distributorId: zstring().min(1, "Distributor ID is required."),
+    distributorId: z.string().min(1, "Distributor ID is required."),
 });
 export type DistributionEventValues = z.infer<typeof DistributionEventSchema>;
 
