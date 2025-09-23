@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import type { TimelineEvent } from '@/lib/data';
 import { getProcessorBatches } from '@/app/actions';
 import { ArrowRight, History, ScanLine } from 'lucide-react';
+import { Suspense } from 'react';
 
 function getStatus(timeline: TimelineEvent[]) {
     const completedSteps = timeline.filter(e => e.status === 'complete').length;
@@ -163,7 +164,9 @@ export async function ProcessorDashboard() {
             </div>
         </div>
         
-        <ProcessorBatchTables />
+        <Suspense fallback={<div className="mt-6">Loading batch data...</div>}>
+            <ProcessorBatchTables />
+        </Suspense>
 
     </div>
   );
