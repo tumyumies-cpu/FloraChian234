@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Package, User, Settings, Shield } from 'lucide-react';
+import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 
@@ -24,11 +24,16 @@ const menuItems = [
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { authInfo } = useAuth();
+  const { authInfo, loading } = useAuth();
   const role = authInfo?.role;
 
   const getHref = (path: string) => {
     return role ? `${path}?role=${role}` : path;
+  }
+
+  // Don't render until auth state is loaded
+  if (loading) {
+    return null;
   }
 
   const filteredMenuItems = menuItems.filter(item => {

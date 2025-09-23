@@ -20,7 +20,7 @@ import { useState, useEffect } from "react";
 import { Skeleton } from "./ui/skeleton";
 
 export function MainHeader() {
-  const { authInfo, setAuthInfo } = useAuth();
+  const { authInfo, setAuthInfo, loading } = useAuth();
   const router = useRouter();
   const [hasMounted, setHasMounted] = useState(false);
 
@@ -44,7 +44,7 @@ export function MainHeader() {
         <SidebarTrigger />
       </div>
 
-      {!hasMounted ? (
+      {(loading || !hasMounted) ? (
         <Skeleton className="h-9 w-9 rounded-full" />
       ) : (
         <DropdownMenu>
