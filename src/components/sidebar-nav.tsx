@@ -7,20 +7,26 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Handshake, Package, Truck, Store } from 'lucide-react';
+import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Package, Settings, User } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 
 const menuItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer', 'admin'] },
   { href: '/create-batch', label: 'Create Batch', icon: PlusCircle, roles: ['farmer'] },
   { href: '/past-batches', label: 'Past Batches', icon: History, roles: ['farmer', 'processor', 'supplier', 'admin'] },
   { href: '/past-products', label: 'Past Products', icon: Package, roles: ['brand', 'retailer', 'distributor', 'admin'] },
   { href: '/verify', label: 'Verify/Update', icon: ScanLine, roles: ['consumer', 'processor', 'retailer', 'supplier', 'distributor'] },
   { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand'] },
 ];
+
+const secondaryMenuItems = [
+    { href: '/profile', label: 'Profile', icon: User },
+    { href: '/settings', label: 'Settings', icon: Settings },
+]
 
 export function SidebarNav() {
   const pathname = usePathname();
@@ -32,8 +38,6 @@ export function SidebarNav() {
 
   const filteredMenuItems = menuItems.filter(item => {
     if (!role) return false;
-    if (item.href === '/dashboard') return true; // Everyone sees dashboard
-    if (role === 'admin') return item.roles?.includes(role); // Admin sees dashboard and history pages
     return item.roles?.includes(role);
   });
 
@@ -47,10 +51,31 @@ export function SidebarNav() {
           <span className="font-headline text-lg font-semibold">FloraChain</span>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="flex-grow">
         <SidebarMenu>
           {filteredMenuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
+              <Link href={getHref(item.href)}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href}
+                  tooltip={item.label}
+                >
+                  <div>
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </div>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+       <SidebarContent>
+        <SidebarMenu>
+          <SidebarSeparator className="my-2" />
+          {secondaryMenuItems.map((item) => (
+             <SidebarMenuItem key={item.href}>
               <Link href={getHref(item.href)}>
                 <SidebarMenuButton
                   asChild
