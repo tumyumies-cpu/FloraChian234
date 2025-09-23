@@ -7,10 +7,9 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Package, Settings, User } from 'lucide-react';
+import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
 
@@ -22,11 +21,6 @@ const menuItems = [
   { href: '/verify', label: 'Verify/Update', icon: ScanLine, roles: ['consumer', 'processor', 'retailer', 'supplier', 'distributor'] },
   { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand'] },
 ];
-
-const secondaryMenuItems = [
-    { href: '/profile', label: 'Profile', icon: User },
-    { href: '/settings', label: 'Settings', icon: Settings },
-]
 
 export function SidebarNav() {
   const pathname = usePathname();
@@ -55,27 +49,6 @@ export function SidebarNav() {
         <SidebarMenu>
           {filteredMenuItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={getHref(item.href)}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === item.href}
-                  tooltip={item.label}
-                >
-                  <div>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </div>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-       <SidebarContent>
-        <SidebarMenu>
-          <SidebarSeparator className="my-2" />
-          {secondaryMenuItems.map((item) => (
-             <SidebarMenuItem key={item.href}>
               <Link href={getHref(item.href)}>
                 <SidebarMenuButton
                   asChild
