@@ -1,16 +1,30 @@
+
+'use client';
+
+import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, ShieldCheck } from 'lucide-react';
+import { User, ShieldCheck, Edit } from 'lucide-react';
 import type { UserRole } from '@/lib/data';
+import { useSearchParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 function getRoleLabel(role: string | null) {
   if (!role) return "User";
   return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
-export default function ProfilePage({ searchParams }: { searchParams: { role?: string } }) {
-  const role = (searchParams.role || 'consumer') as UserRole;
+export default function ProfilePage() {
+  const searchParams = useSearchParams();
+  const role = (searchParams.get('role') || 'consumer') as UserRole;
   const roleLabel = getRoleLabel(role);
+
+  const [avatarKey, setAvatarKey] = useState(Date.now());
+
+  const handleEditAvatar = () => {
+    // Re-renders the avatar with a new random image by changing the key
+    setAvatarKey(Date.now());
+  };
 
   return (
     <div className="space-y-8">
@@ -22,12 +36,23 @@ export default function ProfilePage({ searchParams }: { searchParams: { role?: s
       <Card className="max-w-2xl">
         <CardHeader>
           <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24 border-4 border-primary/20">
-              <AvatarImage src={`https://i.pravatar.cc/150?u=${role}`} alt={`${roleLabel} Avatar`} />
-              <AvatarFallback>
-                <User className="h-10 w-10" />
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative group">
+              <Avatar className="h-24 w-24 border-4 border-primary/20">
+                <AvatarImage key={avatarKey} src={`https://i.pravatar.cc/150?u=${role}&t=${avatarKey}`} alt={`${roleLabel} Avatar`} />
+                <AvatarFallback>
+                  <User className="h-10 w-10" />
+                </AvatarFallback>
+              </Avatar>
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-background group-hover:bg-accent"
+                onClick={handleEditAvatar}
+              >
+                <Edit className="h-4 w-4" />
+                <span className="sr-only">Edit Avatar</span>
+              </Button>
+            </div>
             <div className="space-y-1">
               <CardTitle className="text-3xl font-headline">{roleLabel}</CardTitle>
               <CardDescription className="text-lg">{role}@florachain.com</CardDescription>
