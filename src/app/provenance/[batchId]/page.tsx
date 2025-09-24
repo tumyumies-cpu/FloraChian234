@@ -11,11 +11,12 @@ import { InteractiveTimeline } from '@/components/interactive-timeline';
 import type { BatchData, AssembledProduct, UserRole } from '@/lib/data';
 import { ComponentBatchSummary } from '@/components/component-batch-summary';
 import { useSearchParams, useParams, notFound } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useDbContext } from '@/context/db-context';
+import { useDbContext, DbProvider } from '@/context/db-context';
 
-export default function ProvenancePage() {
+
+function ProvenancePageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const { db, loading: dbLoading } = useDbContext();
@@ -185,4 +186,14 @@ export default function ProvenancePage() {
       </main>
     </div>
   );
+}
+
+export default function ProvenancePage() {
+    return (
+        <DbProvider>
+            <Suspense fallback={<div>Loading...</div>}>
+                <ProvenancePageContent />
+            </Suspense>
+        </DbProvider>
+    );
 }
