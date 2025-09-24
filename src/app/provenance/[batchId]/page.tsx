@@ -101,16 +101,14 @@ function ProvenancePageContent() {
     <div className="min-h-screen">
       <main className={`container mx-auto py-8 sm:py-12 ${isConsumerView ? 'max-w-4xl' : 'max-w-5xl'}`}>
         <div className="space-y-8">
-            {!isConsumerView && (
-              <div className="mb-4">
-                <Button asChild variant="ghost">
-                    <Link href={backLink}>
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back
-                    </Link>
-                </Button>
-              </div>
-            )}
+            <div className="mb-4">
+              <Button asChild variant="ghost">
+                  <Link href={backLink}>
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back
+                  </Link>
+              </Button>
+            </div>
             
             {/* Header Section */}
             <section className={isConsumerView ? 'text-center' : 'grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center'}>
