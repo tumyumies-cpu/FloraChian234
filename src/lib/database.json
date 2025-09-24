@@ -100,7 +100,9 @@
         {
           "id": 2,
           "title": "Batch Received by Processor",
-          "status": "pending",
+          "status": "complete",
+          "date": "2024-04-03",
+          "description": "Batch Received by Processor confirmed by processor.",
           "icon": "warehouse",
           "allowedRole": "processor",
           "cta": "Confirm Receipt",
@@ -109,16 +111,20 @@
         {
           "id": 3,
           "title": "Local Processing & Dispatch",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-04-06",
+          "description": "Procurement:\n- Collection Center: CC-ERD-01\n\nProcessing:\n- Cleaning: Mechanical washing\n- Drying: Mechanical drying at 60°C for 8 hours (Final Moisture: 9.0%)\n- Grinding: N/A\n\nQuality & Safety:\n- Inspection: High curcumin content confirmed by lab.\n\nStorage & Dispatch:\n- Stored for 3 days in dry warehouse",
+          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.",
           "icon": "factory",
           "allowedRole": "processor",
-          "cta": "Add Processing Details",
-          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey."
+          "cta": "Add Processing Details"
         },
         {
           "id": 4,
           "title": "Supplier Receiving",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-04-10",
+          "description": "Supplier Receiving confirmed by supplier.",
           "icon": "warehouse",
           "allowedRole": "supplier",
           "cta": "Confirm Receipt",
@@ -127,16 +133,18 @@
         {
           "id": 5,
           "title": "Supplier Processing & Dispatch",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-04-12",
+          "description": "Acquisition:\n- Supplier ID: AYUR-SUPPLY-SOUTH\n- Location: Chennai, TN Hub\n- Quantity: 1200 kg\n- Internal Lot #: LOT-T-112-24\n\nQuality & Compliance:\n- Inspection: Verified curcumin content > 5%.\n- Certifications: Fair Trade, India Organic",
+          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer.",
           "icon": "handshake",
           "allowedRole": "supplier",
-          "cta": "Add Dispatch Details",
-          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer."
+          "cta": "Add Dispatch Details"
         },
         {
           "id": 6,
           "title": "Ready for Formulation",
-          "status": "locked",
+          "status": "pending",
           "icon": "combine",
           "allowedRole": "brand",
           "cta": "Select for Product",
@@ -168,7 +176,9 @@
         {
           "id": 2,
           "title": "Batch Received by Processor",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-05-12",
+          "description": "Batch Received by Processor confirmed by processor.",
           "icon": "warehouse",
           "allowedRole": "processor",
           "cta": "Confirm Receipt",
@@ -177,16 +187,20 @@
         {
           "id": 3,
           "title": "Local Processing & Dispatch",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-05-14",
+          "description": "Procurement:\n- Collection Center: CC-DDN-02\n\nProcessing:\n- Cleaning: Manual sorting\n- Drying: Shade-dried for 120 hours (Final Moisture: 10.5%)\n- Grinding: N/A\n\nQuality & Safety:\n- Inspection: High essential oil content noted.\n\nStorage & Dispatch:\n- Stored for 2 days in ventilated warehouse",
+          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.",
           "icon": "factory",
           "allowedRole": "processor",
-          "cta": "Add Processing Details",
-          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey."
+          "cta": "Add Processing Details"
         },
         {
           "id": 4,
           "title": "Supplier Receiving",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-05-18",
+          "description": "Supplier Receiving confirmed by supplier.",
           "icon": "warehouse",
           "allowedRole": "supplier",
           "cta": "Confirm Receipt",
@@ -195,16 +209,18 @@
         {
           "id": 5,
           "title": "Supplier Processing & Dispatch",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-05-20",
+          "description": "Acquisition:\n- Supplier ID: AYUR-SUPPLY-NORTH\n- Location: Delhi, DL Hub\n- Quantity: 400 kg\n- Internal Lot #: LOT-TL-451-24\n\nQuality & Compliance:\n- Inspection: Verified. Eugenol content within spec.\n- Certifications: USDA Organic, Non-GMO Project Verified",
+          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer.",
           "icon": "handshake",
           "allowedRole": "supplier",
-          "cta": "Add Dispatch Details",
-          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer."
+          "cta": "Add Dispatch Details"
         },
         {
           "id": 6,
           "title": "Ready for Formulation",
-          "status": "locked",
+          "status": "pending",
           "icon": "combine",
           "allowedRole": "brand",
           "cta": "Select for Product",
@@ -216,21 +232,21 @@
   "products": [
     {
       "productId": "PROD-1001",
-      "productName": "Ayurvedic Resilience Blend",
+      "productName": "Serene Spirit Ashwagandha Tincture",
       "brandName": "Dharma Naturals",
       "assembledDate": "2024-04-05",
       "componentBatches": [
         "HB-ASH-001"
       ],
-      "imageUrl": "https://picsum.photos/seed/product/1200/800",
-      "imageHint": "herbal product bottle",
+      "imageUrl": "https://picsum.photos/seed/tincture/1200/800",
+      "imageHint": "herbal tincture bottle",
       "timeline": [
         {
           "id": 99,
           "title": "Formulation & Manufacturing",
           "status": "complete",
           "date": "2024-04-05",
-          "description": "Combined from 1 ingredient batches to create Ayurvedic Resilience Blend.",
+          "description": "Combined from 1 ingredient batches to create Serene Spirit Ashwagandha Tincture.",
           "consumerDescription": "Based on classical formulations, this product combines high-quality ingredients into a final blend.",
           "icon": "combine",
           "allowedRole": "brand",
@@ -250,7 +266,78 @@
         {
           "id": 101,
           "title": "Distribution",
+          "status": "complete",
+          "date": "2024-04-15",
+          "description": "Warehouse & Stock:\n- Warehouse ID: WH-DAL-01\n- Stock Entry Date: 2024-04-15\n\nTransportation:\n- Mode: Climate-controlled truck\n- Cold Chain: Maintained at 15-25°C\n\nDistributor:\n- ID: DIST-US-CENTRAL",
+          "consumerDescription": "Dispatched to verified distributors, ensuring the product is handled carefully in transit.",
+          "icon": "truck",
+          "allowedRole": "distributor",
+          "cta": "Add Shipping Manifest"
+        },
+        {
+          "id": 102,
+          "title": "Retailer Receiving",
           "status": "pending",
+          "icon": "warehouse",
+          "allowedRole": "retailer",
+          "cta": "Confirm Receipt",
+          "consumerDescription": "Product received by a verified retail partner."
+        },
+        {
+          "id": 103,
+          "title": "In-Store Inventory",
+          "status": "locked",
+          "icon": "store",
+          "allowedRole": "retailer",
+          "cta": "Confirm Retail Arrival",
+          "consumerDescription": "Product is available for purchase at your trusted local or online store."
+        },
+        {
+          "id": 104,
+          "title": "Consumer Authenticity Scan",
+          "status": "locked",
+          "icon": "scan",
+          "allowedRole": "consumer",
+          "cta": "View Product Story",
+          "consumerDescription": "You have scanned a verified, authentic product. Thank you for choosing FloraChain."
+        }
+      ]
+    },
+    {
+      "productId": "PROD-1002",
+      "productName": "Golden Glow Turmeric Capsules",
+      "brandName": "Surya Wellness",
+      "assembledDate": "2024-04-20",
+      "componentBatches": [
+        "HB-TRM-002"
+      ],
+      "imageUrl": "https://picsum.photos/seed/capsules/1200/800",
+      "imageHint": "herbal capsules bottle",
+      "timeline": [
+        {
+          "id": 99,
+          "title": "Formulation & Manufacturing",
+          "status": "complete",
+          "date": "2024-04-20",
+          "description": "Combined from 1 ingredient batch to create Golden Glow Turmeric Capsules.",
+          "consumerDescription": "Based on classical formulations, this product combines high-quality ingredients into a final blend.",
+          "icon": "combine",
+          "allowedRole": "brand",
+          "cta": "View Final Product"
+        },
+        {
+          "id": 100,
+          "title": "Manufacturing & Packaging",
+          "status": "pending",
+          "icon": "package",
+          "allowedRole": "brand",
+          "cta": "Add Manufacturing Data",
+          "consumerDescription": "The product is manufactured and packaged in a GMP-certified facility, ensuring safety and quality."
+        },
+        {
+          "id": 101,
+          "title": "Distribution",
+          "status": "locked",
           "icon": "truck",
           "allowedRole": "distributor",
           "cta": "Add Shipping Manifest",
@@ -331,6 +418,16 @@
       "id": 9,
       "email": "sunita@satvikfarms.com",
       "role": "farmer"
+    },
+    {
+      "id": 10,
+      "email": "info@dharmanaturals.com",
+      "role": "brand"
+    },
+    {
+      "id": 11,
+      "email": "contact@suryawellness.com",
+      "role": "brand"
     }
   ]
 }
