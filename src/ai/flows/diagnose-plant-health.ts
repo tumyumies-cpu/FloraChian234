@@ -26,20 +26,9 @@ const DiagnosePlantHealthOutputSchema = z.object({
 });
 export type DiagnosePlantHealthOutput = z.infer<typeof DiagnosePlantHealthOutputSchema>;
 
-// This function now immediately returns a mocked response to avoid API rate limits.
 export async function diagnosePlantHealth(input: DiagnosePlantHealthInput): Promise<DiagnosePlantHealthOutput> {
-  console.log("Returning mocked plant health diagnosis to avoid API rate limits.");
-  return Promise.resolve({
-    isHealthy: true,
-    diagnosis: "Mocked response: The plant appears to be in good health with no visible signs of stress or disease."
-  });
+  return diagnosePlantHealthFlow(input);
 }
-
-// The original flow and prompt are kept below for easy restoration.
-// To re-enable the live API call, change the diagnosePlantHealth function to:
-// export async function diagnosePlantHealth(input: DiagnosePlantHealthInput): Promise<DiagnosePlantHealthOutput> {
-//   return diagnosePlantHealthFlow(input);
-// }
 
 const prompt = ai.definePrompt({
   name: 'diagnosePlantHealthPrompt',
