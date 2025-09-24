@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CreateBatchSchema, type CreateBatchValues } from "@/lib/schemas";
-import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles } from "lucide-react";
+import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles, Languages, Leaf, AlertTriangle, CheckCircle, Info } from "lucide-react";
 import { format, subDays } from "date-fns";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -23,6 +23,9 @@ import { diagnosePlantHealth, DiagnosePlantHealthOutput } from "@/ai/flows/diagn
 import { getGeocodedLocation } from "@/app/actions";
 import QRCode from 'qrcode';
 import { useDbContext } from "@/context/db-context";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 
 type DiagnosisState = DiagnosePlantHealthOutput | null;
 
@@ -35,6 +38,7 @@ export function CreateBatchForm() {
   const [diagnosisLoading, setDiagnosisLoading] = useState(false);
   const [threeDaysAgo, setThreeDaysAgo] = useState<Date | null>(null);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+  const [language, setLanguage] = useState('English');
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -73,21 +77,26 @@ export function CreateBatchForm() {
     setDiagnosis(null);
     setDiagnosisLoading(true);
     try {
-      const result = await diagnosePlantHealth({ photoDataUri: dataUrl });
+      const result = await diagnosePlantHealth({ photoDataUri: dataUrl, language });
       setDiagnosis(result);
     } catch (error) {
       console.error("Diagnosis failed:", error);
       toast({
         variant: 'destructive',
         title: 'AI Diagnosis Failed',
-        description: 'Could not analyze the plant health. Please proceed manually.',
+        description: 'Could not analyze the plant health. Please try again or proceed manually.',
       });
-      // Allow proceeding without diagnosis
-      setDiagnosis({ isPlant: true, isHealthy: true, diagnosis: 'Diagnosis could not be completed.' });
+      // Allow proceeding without diagnosis by creating a mock 'error' diagnosis object
+      setDiagnosis({ 
+          isPlant: false, 
+          identification: { commonName: 'Error', latinName: 'Error', description: 'AI analysis could not be completed.' },
+          healthAssessment: { isHealthy: false, diagnosis: 'N/A', potentialCauses: [], recommendations: [] },
+          careGuide: { title: 'N/A', guide: 'N/A' },
+      });
     } finally {
       setDiagnosisLoading(false);
     }
-  }, [toast]);
+  }, [toast, language]);
 
   const handleGetLocation = () => {
     setLoadingLocation(true);
@@ -240,7 +249,7 @@ export function CreateBatchForm() {
     if (diagnosisLoading) return "Analyzing...";
     if (!diagnosis) return "Awaiting Photo";
     if (!diagnosis.isPlant) return "No Plant Detected";
-    if (diagnosis.isHealthy) return "Plant Looks Healthy";
+    if (diagnosis.healthAssessment.isHealthy) return "Plant Looks Healthy";
     return "Potential Issue Detected";
   }
 
@@ -255,32 +264,100 @@ export function CreateBatchForm() {
         </div>
         <CameraCapture onCapture={handlePhotoCapture} />
         
-        <div>
-          <h2 className="text-2xl font-headline font-bold mt-8">2. AI Health Diagnosis</h2>
-          <p className="text-muted-foreground">
-            A quick analysis of the plant's health based on the photo.
-          </p>
+        <div className="space-y-4">
+            <div>
+              <h2 className="text-2xl font-headline font-bold mt-8">2. AI Health Diagnosis</h2>
+              <p className="text-muted-foreground">
+                Select a language and get a detailed analysis of the plant's health.
+              </p>
+            </div>
+            <div className="max-w-xs">
+                <Label htmlFor="language-select">Report Language</Label>
+                <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger id="language-select" className="mt-2">
+                        <div className="flex items-center gap-2">
+                          <Languages className="h-4 w-4" />
+                          <SelectValue placeholder="Select language" />
+                        </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="English">English</SelectItem>
+                        <SelectItem value="Hindi">Hindi</SelectItem>
+                        <SelectItem value="Spanish">Spanish</SelectItem>
+                        <SelectItem value="French">French</SelectItem>
+                        <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
         
         <Card className={cn(
           "transition-all",
-          !photo && "opacity-50"
+          !photo && "opacity-50 pointer-events-none"
         )}>
-          <CardHeader className="flex-row items-start gap-3 space-y-0">
-             <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-white shrink-0 mt-1",
-                !diagnosis ? "bg-muted-foreground" : !diagnosis.isPlant ? "bg-amber-500" : diagnosis.isHealthy ? "bg-green-500" : "bg-destructive"
-              )}>
-               <Sparkles className="h-4 w-4" />
+          <CardHeader className="flex-row items-start gap-4 space-y-0">
+            <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-white shrink-0 mt-1",
+              !diagnosis ? "bg-muted-foreground" : !diagnosis.isPlant ? "bg-amber-500" : diagnosis.healthAssessment.isHealthy ? "bg-green-500" : "bg-destructive"
+            )}>
+              {diagnosisLoading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
             </div>
             <div>
               <CardTitle className="text-lg">
                 {getDiagnosisTitle()}
               </CardTitle>
               <CardDescription>
-                {diagnosisLoading ? "AI is analyzing the photo..." : diagnosis ? diagnosis.diagnosis : "The AI diagnosis will appear here after a photo is taken."}
+                {diagnosisLoading ? "AI is analyzing the photo..." : diagnosis ? diagnosis.identification.description : "The AI diagnosis will appear here after a photo is taken."}
               </CardDescription>
             </div>
           </CardHeader>
+          {diagnosis && diagnosis.isPlant && (
+            <CardContent>
+                <Accordion type="single" collapsible className="w-full" defaultValue="diagnosis">
+                  <AccordionItem value="diagnosis">
+                    <AccordionTrigger>Diagnosis & Recommendations</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                       <div className="flex items-center gap-2">
+                        {diagnosis.healthAssessment.isHealthy ? 
+                            <CheckCircle className="h-5 w-5 text-green-600" /> : 
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                        }
+                        <h4 className="font-semibold">{diagnosis.healthAssessment.isHealthy ? 'Healthy' : 'Issues Found'}</h4>
+                       </div>
+                       <p className="text-sm text-muted-foreground">{diagnosis.healthAssessment.diagnosis}</p>
+                       
+                       {!diagnosis.healthAssessment.isHealthy && (
+                        <>
+                          <div>
+                            <h5 className="font-semibold mb-2">Potential Causes</h5>
+                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                {diagnosis.healthAssessment.potentialCauses.map((cause, i) => <li key={i}>{cause}</li>)}
+                            </ul>
+                          </div>
+                          <div>
+                            <h5 className="font-semibold mb-2">Recommendations</h5>
+                            <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                {diagnosis.healthAssessment.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
+                            </ul>
+                          </div>
+                        </>
+                       )}
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="care-guide">
+                    <AccordionTrigger>{diagnosis.careGuide.title}</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                      <div className="flex items-start gap-2">
+                        <Leaf className="h-5 w-5 text-primary mt-1" />
+                        <div>
+                          <h4 className="font-semibold">{diagnosis.identification.commonName} <Badge variant="outline" className="ml-2 italic">{diagnosis.identification.latinName}</Badge></h4>
+                          <p className="text-sm text-muted-foreground mt-2">{diagnosis.careGuide.guide}</p>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+            </CardContent>
+          )}
         </Card>
       </div>
 
