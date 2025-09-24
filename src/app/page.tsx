@@ -66,22 +66,34 @@ export default function HomePage() {
           <p className="mt-4 max-w-3xl mx-auto text-lg text-muted-foreground">
             Our mission is to empower communities, protect biodiversity, and restore trust in Ayurveda through cutting-edge technology.
           </p>
-          <div className="mt-12 max-w-4xl mx-auto text-left space-y-8">
-             <div className="p-8 border rounded-lg bg-card text-card-foreground">
-                <p className="text-base md:text-lg leading-relaxed">
-                FloraChain is a blockchain-powered traceability platform designed to bring trust, transparency, and sustainability to the Ayurvedic herb supply chain. By combining geo-tagging, smart contracts, and secure digital records, FloraChain ensures every herb can be tracked from farm to final product.
-                </p>
-             </div>
-             <div className="p-8 border rounded-lg bg-card text-card-foreground">
-                <p className="text-base md:text-lg leading-relaxed">
-                Our system empowers farmers with fair pricing and recognition, protects consumers from adulterated or unsafe products, and enables businesses to maintain compliance with national and global quality standards. With QR/NFC-enabled verification, customers can instantly check the authenticity and origin of Ayurvedic products, fostering confidence in traditional medicine while promoting sustainable sourcing practices.
-                </p>
-             </div>
-             <div className="p-8 border rounded-lg bg-card text-card-foreground">
-                <p className="text-base md:text-lg leading-relaxed">
-                At FloraChain, we aim to empower rural communities, protect biodiversity, and restore trust in Ayurveda through cutting-edge technology.
-                </p>
-            </div>
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+              <div className="flex flex-col items-center text-center md:items-start md:text-left">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <ShieldCheck className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-xl font-headline font-semibold">Trust & Transparency</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    FloraChain is a blockchain-powered traceability platform designed to bring trust and transparency to the Ayurvedic herb supply chain. By combining geo-tagging, smart contracts, and secure digital records, we ensure every herb can be tracked from farm to final product.
+                  </p>
+              </div>
+              <div className="flex flex-col items-center text-center md:items-start md:text-left">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Globe className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-xl font-headline font-semibold">Quality & Compliance</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    Our system empowers farmers with fair pricing, protects consumers from adulterated products, and enables businesses to maintain compliance with global quality standards. With QR-enabled verification, customers can instantly check product authenticity and origin.
+                  </p>
+              </div>
+              <div className="flex flex-col items-center text-center md:items-start md:text-left">
+                   <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Users className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-4 text-xl font-headline font-semibold">Empowering Communities</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    At FloraChain, we aim to empower rural communities, protect biodiversity, and restore trust in Ayurveda through cutting-edge technology, fostering confidence in traditional medicine while promoting sustainable sourcing practices.
+                  </p>
+              </div>
           </div>
         </div>
       </section>
