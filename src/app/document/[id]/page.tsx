@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -12,7 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Leaf, Printer } from 'lucide-react';
-import { useDbContext } from '@/context/db-context';
+import { useDbContext, DbProvider } from '@/context/db-context';
 
 function PrintableReport() {
     const params = useParams();
@@ -147,6 +148,8 @@ function PrintableReport() {
 
 export default function DocumentPage() {
   return (
+    <DbProvider>
       <PrintableReport />
+    </DbProvider>
   );
 }
