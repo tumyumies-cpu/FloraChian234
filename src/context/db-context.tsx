@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { getDb, writeDb, type Database } from '@/lib/db';
 import type { BatchData, AssembledProduct, User, TimelineEvent } from '@/lib/data';
 import type { CreateBatchValues } from '@/lib/schemas';
+import type { DiagnosePlantHealthOutput } from '@/ai/flows/diagnose-plant-health';
 
 
 interface DbContextType {
@@ -12,7 +13,7 @@ interface DbContextType {
     getBatchById: (id: string) => BatchData | null;
     getProductById: (id: string) => AssembledProduct | null;
     verifyId: (id: string) => boolean;
-    addBatch: (data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }) => BatchData;
+    addBatch: (data: CreateBatchValues & { photo: string; diagnosis: DiagnosePlantHealthOutput | null }) => BatchData;
     addProduct: (productName: string, batchIds: string[], brandName: string, photo: string) => AssembledProduct;
     updateTimelineEvent: (id: string, eventId: number, data: Partial<TimelineEvent>, isProduct: boolean) => void;
     removeBatchFromProduct: (productId: string, batchId: string) => void;
@@ -61,7 +62,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
         return !!currentDb.batches.find(b => b.batchId.toUpperCase() === id.toUpperCase());
     }, []);
     
-    const addBatch = (data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }) => {
+    const addBatch = (data: CreateBatchValues & { photo: string; diagnosis: DiagnosePlantHealthOutput | null }) => {
         const currentDb = getDb();
         const lastIdNum = currentDb.batches.reduce((max, b) => {
             const num = parseInt(b.batchId.split('-')[1]);

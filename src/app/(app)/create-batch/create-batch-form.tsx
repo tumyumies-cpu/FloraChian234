@@ -19,15 +19,12 @@ import { format, subDays } from "date-fns";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraCapture } from "@/components/camera-capture";
-import { diagnosePlantHealth } from "@/ai/flows/diagnose-plant-health";
+import { diagnosePlantHealth, DiagnosePlantHealthOutput } from "@/ai/flows/diagnose-plant-health";
 import { getGeocodedLocation } from "@/app/actions";
 import QRCode from 'qrcode';
 import { useDbContext } from "@/context/db-context";
 
-type DiagnosisState = {
-  isHealthy: boolean;
-  diagnosis: string;
-} | null;
+type DiagnosisState = DiagnosePlantHealthOutput | null;
 
 export function CreateBatchForm() {
   const [loading, setLoading] = useState(false);
@@ -86,7 +83,7 @@ export function CreateBatchForm() {
         description: 'Could not analyze the plant health. Please proceed manually.',
       });
       // Allow proceeding without diagnosis
-      setDiagnosis({ isHealthy: true, diagnosis: 'Diagnosis could not be completed.' });
+      setDiagnosis({ isPlant: true, isHealthy: true, diagnosis: 'Diagnosis could not be completed.' });
     } finally {
       setDiagnosisLoading(false);
     }
@@ -239,6 +236,14 @@ export function CreateBatchForm() {
     );
   }
 
+  const getDiagnosisTitle = () => {
+    if (diagnosisLoading) return "Analyzing...";
+    if (!diagnosis) return "Awaiting Photo";
+    if (!diagnosis.isPlant) return "No Plant Detected";
+    if (diagnosis.isHealthy) return "Plant Looks Healthy";
+    return "Potential Issue Detected";
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       <div className="space-y-4">
@@ -263,13 +268,13 @@ export function CreateBatchForm() {
         )}>
           <CardHeader className="flex-row items-start gap-3 space-y-0">
              <div className={cn("flex h-8 w-8 items-center justify-center rounded-full text-white shrink-0 mt-1",
-                !diagnosis ? "bg-muted-foreground" : diagnosis.isHealthy ? "bg-green-500" : "bg-destructive"
+                !diagnosis ? "bg-muted-foreground" : !diagnosis.isPlant ? "bg-amber-500" : diagnosis.isHealthy ? "bg-green-500" : "bg-destructive"
               )}>
                <Sparkles className="h-4 w-4" />
             </div>
             <div>
               <CardTitle className="text-lg">
-                {diagnosisLoading ? "Analyzing..." : diagnosis ? (diagnosis.isHealthy ? "Plant Looks Healthy" : "Potential Issue Detected") : "Awaiting Photo"}
+                {getDiagnosisTitle()}
               </CardTitle>
               <CardDescription>
                 {diagnosisLoading ? "AI is analyzing the photo..." : diagnosis ? diagnosis.diagnosis : "The AI diagnosis will appear here after a photo is taken."}

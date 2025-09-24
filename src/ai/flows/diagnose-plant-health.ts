@@ -21,8 +21,9 @@ const DiagnosePlantHealthInputSchema = z.object({
 export type DiagnosePlantHealthInput = z.infer<typeof DiagnosePlantHealthInputSchema>;
 
 const DiagnosePlantHealthOutputSchema = z.object({
-  isHealthy: z.boolean().describe('Whether the plant appears to be healthy.'),
-  diagnosis: z.string().describe("A brief, one or two-sentence diagnosis of the plant's health, noting any visible signs of disease, pests, or nutrient deficiencies."),
+  isPlant: z.boolean().describe('Whether the image appears to contain a plant or not.'),
+  isHealthy: z.boolean().describe('If the image is a plant, this indicates if it appears to be healthy.'),
+  diagnosis: z.string().describe("A brief, one or two-sentence diagnosis of the plant's health, noting any visible signs of disease, pests, or nutrient deficiencies. If it is not a plant, explain what is in the image instead."),
 });
 export type DiagnosePlantHealthOutput = z.infer<typeof DiagnosePlantHealthOutputSchema>;
 
@@ -34,11 +35,14 @@ const prompt = ai.definePrompt({
   name: 'diagnosePlantHealthPrompt',
   input: {schema: DiagnosePlantHealthInputSchema},
   output: {schema: DiagnosePlantHealthOutputSchema},
-  prompt: `You are an expert botanist. Analyze the provided image of a plant and provide a brief, one or two-sentence diagnosis of its health. 
+  prompt: `You are an expert botanist. Analyze the provided image.
 
-  - Determine if the plant is generally healthy.
-  - Note any visible signs of disease, pests, or nutrient deficiencies.
-  - Keep the diagnosis concise and easy for a farmer to understand.
+  1. First, determine if the image contains a plant. Set the 'isPlant' field accordingly.
+  2. If it is a plant, provide a brief, one or two-sentence diagnosis of its health.
+     - Determine if the plant is generally healthy and set the 'isHealthy' field.
+     - Note any visible signs of disease, pests, or nutrient deficiencies.
+     - Keep the diagnosis concise and easy for a farmer to understand.
+  3. If it is NOT a plant, set 'isPlant' to false, 'isHealthy' to false, and use the 'diagnosis' field to briefly describe what is in the image instead.
 
   Photo: {{media url=photoDataUri}}`,
 });
@@ -54,3 +58,4 @@ const diagnosePlantHealthFlow = ai.defineFlow(
     return output!;
   }
 );
+
