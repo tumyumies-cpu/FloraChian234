@@ -61,12 +61,12 @@ const visibilityRules: Record<string, string[]> = {
 
 
 export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = false }: InteractiveTimelineProps) {
-  const [events, setEvents] useState(initialEvents);
+  const [events, setEvents] = useState(initialEvents);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const { updateTimelineEvent } = useDbContext();
+  const { updateTimelineEvent, reloadDb } = useDbContext();
 
   useEffect(() => {
     setEvents(initialEvents);
@@ -75,7 +75,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     }
   }, [initialEvents, role]);
 
-  const handleUpdate = (eventId: number, data: any) => {
+  const handleUpdate = async (eventId: number, data: any) => {
     setLoading(true);
     try {
         const description = formatTimelineDescription(eventId, data);
@@ -85,6 +85,10 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
             formData: data,
         }
         updateTimelineEvent(batchId, eventId, eventData, isProduct);
+        
+        // Force a reload of the DB context to reflect changes immediately
+        reloadDb(); 
+
         setEditingEventId(null);
         toast({
             title: "Update Successful!",
@@ -107,6 +111,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     try {
         const eventData = { description: `${title} confirmed by ${role}.` };
         updateTimelineEvent(batchId, eventId, eventData, isProduct);
+        reloadDb();
         setEditingEventId(null);
         toast({
             title: "Update Successful!",
@@ -136,7 +141,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     if (editingEventId !== event.id) return null;
 
     const handleSubmit = async (data: any) => {
-      handleUpdate(event.id, data);
+      await handleUpdate(event.id, data);
     }
 
     switch (event.id) {
@@ -258,9 +263,9 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                     <Button
                       size="sm"
                       onClick={() => handleButtonClick(event)}
-                      disabled={loading && (editingEventId === event.id || isSimpleConfirmation(event))}
+                      disabled={loading}
                     >
-                      {loading && (editingEventId === event.id || isSimpleConfirmation(event)) ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
+                      {loading && editingEventId === event.id ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <config.icon className="mr-2 h-4 w-4" />}
                       {event.cta}
                     </Button>
                   )}

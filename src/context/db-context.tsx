@@ -15,9 +15,11 @@ interface DbContextType {
     addBatch: (data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }) => BatchData;
     addProduct: (productName: string, batchIds: string[], brandName: string) => AssembledProduct;
     updateTimelineEvent: (id: string, eventId: number, data: Partial<TimelineEvent>, isProduct: boolean) => void;
+    removeBatchFromProduct: (productId: string, batchId: string) => void;
     addUser: (email: string, role: string) => void;
     updateUser: (userId: number, newRole: string) => void;
     deleteUser: (userId: number) => void;
+    reloadDb: () => void;
 }
 
 const DbContext = createContext<DbContextType | undefined>(undefined);
@@ -26,16 +28,19 @@ export function DbProvider({ children }: { children: ReactNode }) {
     const [db, setDb] = useState<Database | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const reloadDb = useCallback(() => {
+        setDb(getDb());
+    }, []);
+
     useEffect(() => {
-        // This ensures localStorage is only accessed on the client-side
         setDb(getDb());
         setLoading(false);
     }, []);
 
     const updateDb = useCallback((newDb: Database) => {
         writeDb(newDb);
-        setDb(getDb()); // Re-read from storage to ensure state is in sync
-    }, []);
+        reloadDb();
+    }, [reloadDb]);
 
     const getBatchById = useCallback((id: string) => {
         if (!db) return null;
@@ -48,10 +53,13 @@ export function DbProvider({ children }: { children: ReactNode }) {
     }, [db]);
     
     const verifyId = useCallback((id: string) => {
-        if (!db) return false;
+        const currentDb = getDb(); // Read fresh data for verification
         const isProduct = id.toUpperCase().startsWith('PROD-');
-        return isProduct ? !!getProductById(id) : !!getBatchById(id);
-    }, [db, getProductById, getBatchById]);
+        if (isProduct) {
+            return !!currentDb.products.find(p => p.productId.toUpperCase() === id.toUpperCase());
+        }
+        return !!currentDb.batches.find(b => b.batchId.toUpperCase() === id.toUpperCase());
+    }, []);
     
     const addBatch = (data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }) => {
         const currentDb = getDb();
@@ -141,6 +149,15 @@ export function DbProvider({ children }: { children: ReactNode }) {
         updateDb(currentDb);
     };
 
+    const removeBatchFromProduct = (productId: string, batchId: string) => {
+        const currentDb = getDb();
+        const productIndex = currentDb.products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
+        if (productIndex === -1) throw new Error("Product not found");
+
+        currentDb.products[productIndex].componentBatches = currentDb.products[productIndex].componentBatches.filter(b => b !== batchId);
+        updateDb(currentDb);
+    };
+
     const addUser = (email: string, role: string) => {
         const currentDb = getDb();
         if (currentDb.users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
@@ -166,7 +183,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
         currentDb.users = currentDb.users.filter(u => u.id !== userId);
         if (currentDb.users.length === initialLength) throw new Error("User not found.");
         updateDb(currentDb);
-};
+    };
 
     const value = {
         db,
@@ -177,9 +194,11 @@ export function DbProvider({ children }: { children: ReactNode }) {
         addBatch,
         addProduct,
         updateTimelineEvent,
+        removeBatchFromProduct,
         addUser,
         updateUser,
         deleteUser,
+        reloadDb,
     };
 
     return <DbContext.Provider value={value}>{children}</DbContext.Provider>;
