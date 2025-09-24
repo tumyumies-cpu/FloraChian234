@@ -29,14 +29,19 @@ const DiagnosePlantHealthOutputSchema = z.object({
     description: z.string().describe("A brief, one or two-sentence description of the identified plant. If it's not a plant, briefly describe what is in the image instead."),
   }),
   healthAssessment: z.object({
-    isHealthy: z.boolean().describe('If the image is a plant, this indicates if it appears to be healthy.'),
+    healthStatus: z.enum(['Healthy', 'Moderate Concern', 'Unhealthy']).describe("A classification of the plant's health. 'Unhealthy' if issues are critical."),
+    healthScore: z.number().min(0).max(100).describe("A score from 0-100 representing the plant's health. 100 is perfect health."),
     diagnosis: z.string().describe("A detailed diagnosis of the plant's health, noting any visible signs of disease, pests, or nutrient deficiencies."),
     potentialCauses: z.array(z.string()).describe("A list of potential causes for any identified health issues."),
     recommendations: z.array(z.string()).describe("A list of actionable recommendations or precautions for the farmer to take based on the diagnosis."),
   }),
-  careGuide: z.object({
-    title: z.string().describe("The title for the care guide section, e.g., 'Care Guide for [Plant Name]'."),
-    guide: z.string().describe("General cultivation and care information for the identified plant species. Provide key details about soil, water, light, and nutrients. Keep it concise but informative."),
+  farmingGuide: z.object({
+    suggestedFertilizers: z.array(z.string()).describe("A list of suggested fertilizers or soil amendments based on the diagnosis."),
+    careGuide: z.string().describe("General cultivation and care information for the identified plant species. Provide key details about soil, water, light, and nutrients."),
+  }),
+  marketValue: z.object({
+      estimatedPrice: z.string().describe("An estimated market price for the harvested product (e.g., '$5-7 per kg') based on the visual quality. State 'N/A' if not a plant."),
+      priceRationale: z.string().describe("A brief explanation for the estimated price, considering the plant's health and appearance.")
   }),
 });
 export type DiagnosePlantHealthOutput = z.infer<typeof DiagnosePlantHealthOutputSchema>;
@@ -53,22 +58,27 @@ const prompt = ai.definePrompt({
 
   Analyze the provided image and respond with a detailed JSON object.
 
-  1.  **Initial Assessment**: First, determine if the image actually contains a plant. Set the 'isPlant' field to true or false.
+  1.  **Initial Assessment**: Determine if the image contains a plant. Set 'isPlant' to true or false.
 
   2.  **If it IS a plant**:
-      a.  **Identification**: Identify the plant's common and scientific (Latin) name. Provide a brief one-sentence description.
+      a.  **Identification**: Identify the common and Latin name, and a brief description.
       b.  **Health Assessment**:
-          i.  Examine the plant for any signs of disease, pests, or nutrient deficiencies (e.g., discoloration, spots, wilting, insects).
-          ii. Set the 'isHealthy' field to true or false.
-          iii. **Diagnosis**: Write a detailed diagnosis. If healthy, state that and praise the farmer's care. If unhealthy, clearly describe the issue.
-          iv. **Potential Causes**: List the most likely causes for the problem (e.g., "Overwatering," "Fungal infection (Powdery Mildew)," "Aphid infestation").
-          v.  **Recommendations**: Provide a list of clear, actionable recommendations. Include both immediate treatments (e.g., "Spray with a neem oil solution") and preventative measures (e.g., "Improve air circulation around the plants").
-      c.  **Care Guide**: Provide a general, concise care and cultivation guide for the identified plant species, including basics on soil, water, and light.
+          i.  Examine the plant for any signs of disease, pests, or deficiencies.
+          ii. **Health Status & Score**: Assign a 'healthStatus' ('Healthy', 'Moderate Concern', 'Unhealthy') and a 'healthScore' (0-100). A plant with minor, treatable issues might be 'Moderate Concern'. A plant with severe, widespread, or untreatable issues should be 'Unhealthy'.
+          iii. **Diagnosis**: Write a detailed diagnosis.
+          iv. **Potential Causes**: List likely causes for any issues.
+          v.  **Recommendations**: Provide clear, actionable recommendations.
+      c.  **Farming Guide**:
+          i. **Fertilizers**: Suggest specific fertilizers or soil treatments based on the diagnosis.
+          ii. **Care Guide**: Provide a general, concise care guide for the plant.
+      d. **Market Value**:
+         i. Provide an 'estimatedPrice' for the harvest based on its visual quality (e.g., per kg or per lb).
+         ii. Briefly explain the 'priceRationale', citing quality, health, and appearance.
 
   3.  **If it is NOT a plant**:
       a.  Set 'isPlant' to false.
-      b.  In the 'identification.description' field, briefly describe what is in the image.
-      c.  Fill all other fields with appropriate "N/A" or empty values.
+      b.  In 'identification.description', briefly describe the image.
+      c.  Fill all other fields with appropriate "N/A" or empty/zero values.
 
   Photo: {{media url=photoDataUri}}`,
 });
