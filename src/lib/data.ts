@@ -55,6 +55,8 @@ export interface AssembledProduct {
   assembledDate: string;
   componentBatches: string[]; // Array of batchIds
   timeline: TimelineEvent[];
+  imageUrl: string;
+  imageHint: string;
 }
 
 export interface User {

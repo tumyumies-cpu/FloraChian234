@@ -13,7 +13,7 @@ interface DbContextType {
     getProductById: (id: string) => AssembledProduct | null;
     verifyId: (id: string) => boolean;
     addBatch: (data: CreateBatchValues & { photo: string; diagnosis: { isHealthy: boolean, diagnosis: string } | null }) => BatchData;
-    addProduct: (productName: string, batchIds: string[], brandName: string) => AssembledProduct;
+    addProduct: (productName: string, batchIds: string[], brandName: string, photo: string) => AssembledProduct;
     updateTimelineEvent: (id: string, eventId: number, data: Partial<TimelineEvent>, isProduct: boolean) => void;
     removeBatchFromProduct: (productId: string, batchId: string) => void;
     addUser: (email: string, role: string) => void;
@@ -92,7 +92,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
         return newBatch;
     };
     
-    const addProduct = (productName: string, batchIds: string[], brandName: string) => {
+    const addProduct = (productName: string, batchIds: string[], brandName: string, photo: string) => {
         const currentDb = getDb();
         const lastIdNum = currentDb.products.reduce((max, p) => {
             const num = parseInt(p.productId.split('-')[1]);
@@ -106,6 +106,8 @@ export function DbProvider({ children }: { children: ReactNode }) {
             brandName,
             assembledDate: new Date().toISOString().split('T')[0],
             componentBatches: batchIds,
+            imageUrl: photo,
+            imageHint: "final product bottle",
             timeline: [
                 { id: 99, title: 'Formulation & Manufacturing', status: 'complete', date: new Date().toLocaleDateString('en-CA'), description: `Combined from ${batchIds.length} ingredient batches to create ${productName}.`, consumerDescription: `Based on classical formulations, this product combines high-quality ingredients into a final blend.`, icon: 'combine', allowedRole: 'brand', cta: 'View Final Product' },
                 { id: 100, title: 'Manufacturing & Packaging', status: 'pending', icon: 'package', allowedRole: 'brand', cta: 'Add Manufacturing Data', consumerDescription: 'The product is manufactured and packaged in a GMP-certified facility, ensuring safety and quality.' },

@@ -81,6 +81,7 @@ export const AssembleProductSchema = z.object({
     productName: z.string().min(3, { message: "Product name must be at least 3 characters." }),
     batchIds: z.array(z.string()).min(1, { message: "You must select at least one batch." }),
     brandName: z.string().min(1),
+    photo: z.string().min(1, { message: "An image is required for the product."}),
 });
 
 export type AssembleProductValues = z.infer<typeof AssembleProductSchema>;

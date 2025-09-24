@@ -86,8 +86,8 @@ function ProvenancePageContent() {
     processingDetails: isProduct ? 'Multiple ingredients combined to create the final product.' : (data as BatchData).processingDetails,
   };
   
-  const imageUrl = isProduct ? 'https://picsum.photos/seed/product/1200/800' : (data as BatchData).imageUrl;
-  const imageHint = isProduct ? 'final product bottle' : (data as BatchData).imageHint;
+  const imageUrl = (data as AssembledProduct).imageUrl || (data as BatchData).imageUrl;
+  const imageHint = isProduct ? (data as AssembledProduct).imageHint : (data as BatchData).imageHint;
 
   const backLink = fromProduct 
     ? `/provenance/${fromProduct}?role=${role}` 
@@ -157,9 +157,11 @@ function ProvenancePageContent() {
             <Separator />
           
             {/* AI Story Section */}
-            <section>
-                <StoryGenerator {...storyGeneratorProps} />
-            </section>
+            {isConsumerView && (
+              <section>
+                  <StoryGenerator {...storyGeneratorProps} />
+              </section>
+            )}
           
             {/* Ingredient Summary Section (for products only) */}
             {isProduct && role !== 'distributor' && role !== 'retailer' && (
