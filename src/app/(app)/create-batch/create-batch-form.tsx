@@ -101,10 +101,11 @@ export function CreateBatchForm() {
           const result = await getGeocodedLocation(latitude, longitude);
 
           if (result.success && result.location) {
-             form.setValue("location", result.location, { shouldValidate: true });
+             const preciseLocation = `${result.location} (Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)})`;
+             form.setValue("location", preciseLocation, { shouldValidate: true });
              toast({
                 title: "Location Captured",
-                description: `Farm location set to: ${result.location}`,
+                description: `Farm location set to: ${preciseLocation}`,
              });
           } else {
              toast({
@@ -120,7 +121,7 @@ export function CreateBatchForm() {
           toast({
             variant: "destructive",
             title: "Location Error",
-            description: "Could not retrieve location. Please enable location services or enter it manually.",
+            description: "Could not retrieve location. Please enable location services.",
           });
           setLoadingLocation(false);
         }
@@ -151,6 +152,14 @@ export function CreateBatchForm() {
             description: 'Please wait for the AI diagnosis to complete.',
         });
         return;
+    }
+     if (!values.location) {
+      toast({
+        variant: 'destructive',
+        title: 'Location Required',
+        description: 'Please use the auto-locate button to set the farm location.',
+      });
+      return;
     }
 
     setLoading(true);
@@ -312,7 +321,7 @@ export function CreateBatchForm() {
                     <FormLabel>Farm Location</FormLabel>
                     <div className="flex items-center gap-2">
                       <FormControl>
-                        <Input placeholder="e.g., Sonoma County, California" {...field} />
+                        <Input placeholder="Click the button to get location" {...field} readOnly className="bg-muted"/>
                       </FormControl>
                       <Button type="button" variant="outline" size="icon" onClick={handleGetLocation} disabled={loadingLocation}>
                          {loadingLocation ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
