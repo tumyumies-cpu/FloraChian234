@@ -26,6 +26,7 @@ import { useDbContext } from "@/context/db-context";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 
 type DiagnosisState = DiagnosePlantHealthOutput | null;
 
