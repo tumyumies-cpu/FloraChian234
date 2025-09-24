@@ -30,7 +30,7 @@ export function MainHeader() {
 
   const handleLogout = () => {
     setAuthInfo(null);
-    router.push('/');
+    router.push('/login');
   }
 
   const getRoleLabel = (role: string | null) => {

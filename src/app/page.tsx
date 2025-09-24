@@ -1,159 +1,56 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Leaf, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useToast } from '@/hooks/use-toast';
-import { loginSchema, type LoginValues } from '@/lib/schemas';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useDbContext } from '@/context/db-context';
+import Image from 'next/image';
+import { ArrowRight, Leaf } from 'lucide-react';
 
-function LoginContent() {
-  const { setAuthInfo } = useAuth();
-  const { db } = useDbContext();
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
-
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (values: LoginValues) => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(async () => {
-      const users = db?.users || [];
-      const existingUser = users.find(u => u.email.toLowerCase() === values.email.toLowerCase());
-      
-      let role;
-      if (existingUser) {
-        role = existingUser.role;
-      } else {
-        // Default role logic for users NOT in the database
-        if (values.email.toLowerCase().endsWith('@florachain.com')) {
-          role = 'farmer';
-        } else {
-          role = 'consumer';
-        }
-      }
-      
-      setAuthInfo({ email: values.email, role });
-      toast({
-        title: "Login Successful",
-        description: `Welcome! Redirecting to your dashboard.`,
-      });
-      router.push(`/dashboard?role=${role}`);
-      setLoading(false);
-    }, 1000);
-  };
-
+export default function HomePage() {
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Enter your credentials to access the platform.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., user@company.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? <LoaderCircle className="animate-spin" /> : "Sign In"}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-      <p className="px-8 text-center text-sm text-muted-foreground mt-6">
-          Use `admin@florachain.com` for admin access or `farmer@florachain.com` for farmer access. Any other email will be treated as a consumer unless explicitly added by an admin.
-      </p>
-    </>
-  );
-}
+    <div className="relative min-h-screen w-full">
+      {/* Background Image */}
+      <Image
+        src="https://images.unsplash.com/photo-1498550744921-75f79806b8a7?q=80&w=2070&auto=format&fit=crop"
+        alt="Lush green landscape"
+        fill
+        className="object-cover -z-10"
+        priority
+      />
+      <div className="absolute inset-0 bg-black/60 -z-10" />
 
-function LoginFormSkeleton() {
-    return (
-        <>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-                    <CardDescription>Enter your credentials to access the platform.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-1/4" />
-                        <Skeleton className="h-10 w-full" />
-                    </div>
-                     <div className="space-y-2">
-                        <Skeleton className="h-4 w-1/4" />
-                        <Skeleton className="h-10 w-full" />
-                    </div>
-                    <Skeleton className="h-11 w-full" />
-                </CardContent>
-            </Card>
-            <Skeleton className="h-10 w-3/4 mx-auto mt-6" />
-        </>
-    );
-}
-
-export default function LoginPage() {
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="flex justify-center mb-6">
-            <Link href="/" className="flex items-center gap-2 text-primary">
-                <Leaf className="h-8 w-8" />
-                <span className="font-headline text-2xl font-semibold">FloraChain</span>
-            </Link>
+      {/* Header */}
+      <header className="absolute top-0 left-0 right-0 p-4">
+        <div className="container mx-auto flex items-center justify-between">
+           <Link href="/" className="flex items-center gap-2 text-white">
+              <Leaf className="h-7 w-7" />
+              <span className="font-headline text-xl font-semibold">FloraChain</span>
+           </Link>
+           <Button asChild variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-black">
+              <Link href="/login">Sign In</Link>
+           </Button>
         </div>
-        {hasMounted ? <LoginContent /> : <LoginFormSkeleton />}
-      </div>
+      </header>
+
+      {/* Hero Content */}
+      <main className="flex h-screen flex-col items-center justify-center text-center text-white">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl font-headline">
+            Traceability from Soil to Soul
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-white/80">
+            Experience unparalleled transparency in the herbal supply chain. Follow your product's complete journey from the farm to your hands, verified at every step.
+          </p>
+          <div className="mt-10">
+            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              <Link href="/login">
+                Track Your Product
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
