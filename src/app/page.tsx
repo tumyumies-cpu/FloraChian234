@@ -36,7 +36,7 @@ export default function HomePage() {
       <main className="flex h-screen flex-col items-center justify-center text-center text-white">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl font-headline">
-            Traceability from Soil to Soul
+            FloraChain, every herb tells its story — from soil to shelf.
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-white/80">
             Experience unparalleled transparency in the herbal supply chain. Follow your product's complete journey from the farm to your hands, verified at every step.
