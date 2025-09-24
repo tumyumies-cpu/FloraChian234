@@ -86,7 +86,9 @@ function ProvenancePageContent() {
     processingDetails: isProduct ? 'Multiple ingredients combined to create the final product.' : (data as BatchData).processingDetails,
   };
   
-  const imageUrl = (data as AssembledProduct).imageUrl || (data as BatchData).imageUrl;
+  const imageUrl = data.imageUrl && data.imageUrl.startsWith('data:') 
+    ? data.imageUrl 
+    : 'https://picsum.photos/seed/1/1200/800';
   const imageHint = isProduct ? (data as AssembledProduct).imageHint : (data as BatchData).imageHint;
 
   const backLink = fromProduct 
