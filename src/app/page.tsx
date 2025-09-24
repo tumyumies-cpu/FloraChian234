@@ -28,9 +28,14 @@ export default function HomePage() {
               <Leaf className="h-7 w-7" />
               <span className="font-headline text-xl font-semibold">FloraChain</span>
             </Link>
-            <Button asChild variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-black">
-              <Link href="/login">Sign In</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                <Link href="#about">About</Link>
+              </Button>
+              <Button asChild variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-black">
+                <Link href="/login">Sign In</Link>
+              </Button>
+            </div>
           </div>
         </header>
 
