@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CreateBatchSchema, type CreateBatchValues } from "@/lib/schemas";
-import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles, Languages, Leaf, AlertTriangle, CheckCircle, Info } from "lucide-react";
+import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles, Languages, Leaf, AlertTriangle, CheckCircle, Info, BadgeDollarSign } from "lucide-react";
 import { format, subDays } from "date-fns";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -80,6 +80,13 @@ export function CreateBatchForm() {
     try {
       const result = await diagnosePlantHealth({ photoDataUri: dataUrl, language });
       setDiagnosis(result);
+      if (result.healthAssessment.healthStatus === 'Unhealthy') {
+        toast({
+            variant: 'destructive',
+            title: 'Unhealthy Plant Detected',
+            description: 'Batch creation is blocked because the plant quality is too low.',
+        });
+      }
     } catch (error) {
       console.error("Diagnosis failed:", error);
       toast({
@@ -91,8 +98,9 @@ export function CreateBatchForm() {
       setDiagnosis({ 
           isPlant: false, 
           identification: { commonName: 'Error', latinName: 'Error', description: 'AI analysis could not be completed.' },
-          healthAssessment: { isHealthy: false, diagnosis: 'N/A', potentialCauses: [], recommendations: [] },
-          careGuide: { title: 'N/A', guide: 'N/A' },
+          healthAssessment: { healthStatus: 'Unhealthy', healthScore: 0, diagnosis: 'N/A', potentialCauses: [], recommendations: [] },
+          farmingGuide: { suggestedFertilizers: [], careGuide: 'N/A' },
+          marketValue: { estimatedPrice: 'N/A', priceRationale: 'N/A' },
       });
     } finally {
       setDiagnosisLoading(false);
@@ -157,6 +165,14 @@ export function CreateBatchForm() {
             variant: 'destructive',
             title: 'AI Diagnosis Required',
             description: 'Please wait for the AI diagnosis to complete.',
+        });
+        return;
+    }
+     if (diagnosis.healthAssessment.healthStatus === 'Unhealthy') {
+        toast({
+            variant: 'destructive',
+            title: 'Batch Creation Blocked',
+            description: 'Cannot create a batch for an unhealthy plant.',
         });
         return;
     }
@@ -246,13 +262,21 @@ export function CreateBatchForm() {
     );
   }
 
-  const getDiagnosisTitle = () => {
-    if (diagnosisLoading) return "Analyzing...";
-    if (!diagnosis) return "Awaiting Photo";
-    if (!diagnosis.isPlant) return "No Plant Detected";
-    if (diagnosis.healthAssessment.isHealthy) return "Plant Looks Healthy";
-    return "Potential Issue Detected";
-  }
+    const getDiagnosisTitleAndColor = () => {
+        if (diagnosisLoading) return { title: "Analyzing...", color: "bg-muted-foreground" };
+        if (!diagnosis) return { title: "Awaiting Photo", color: "bg-muted-foreground" };
+        if (!diagnosis.isPlant) return { title: "No Plant Detected", color: "bg-amber-500" };
+        switch (diagnosis.healthAssessment.healthStatus) {
+            case 'Healthy': return { title: "Plant is Healthy", color: "bg-green-500" };
+            case 'Moderate Concern': return { title: "Moderate Concern", color: "bg-yellow-500" };
+            case 'Unhealthy': return { title: "Unhealthy Plant", color: "bg-destructive" };
+            default: return { title: "Diagnosis Available", color: "bg-primary" };
+        }
+    }
+  const { title, color } = getDiagnosisTitleAndColor();
+
+  const isBatchCreationDisabled = loading || !photo || !diagnosis || diagnosisLoading || diagnosis.healthAssessment.healthStatus === 'Unhealthy';
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -287,24 +311,21 @@ export function CreateBatchForm() {
                         <SelectItem value="Spanish">Spanish</SelectItem>
                         <SelectItem value="French">French</SelectItem>
                         <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
+                        <SelectItem value="Telugu">Telugu</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
         </div>
         
-        <Card className={cn(
-          "transition-all",
-          !photo && "opacity-50 pointer-events-none"
-        )}>
+        <Card className={cn("transition-all", !photo && "opacity-50 pointer-events-none")}>
           <CardHeader className="flex-row items-start gap-4 space-y-0">
-            <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-white shrink-0 mt-1",
-              !diagnosis ? "bg-muted-foreground" : !diagnosis.isPlant ? "bg-amber-500" : diagnosis.healthAssessment.isHealthy ? "bg-green-500" : "bg-destructive"
-            )}>
+            <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-white shrink-0 mt-1", color)}>
               {diagnosisLoading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
             </div>
             <div>
-              <CardTitle className="text-lg">
-                {getDiagnosisTitle()}
+              <CardTitle className="text-lg flex items-center gap-2">
+                {title}
+                {diagnosis && diagnosis.isPlant && <Badge variant="secondary">{diagnosis.healthAssessment.healthScore}/100</Badge>}
               </CardTitle>
               <CardDescription>
                 {diagnosisLoading ? "AI is analyzing the photo..." : diagnosis ? diagnosis.identification.description : "The AI diagnosis will appear here after a photo is taken."}
@@ -318,15 +339,15 @@ export function CreateBatchForm() {
                     <AccordionTrigger>Diagnosis & Recommendations</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                        <div className="flex items-center gap-2">
-                        {diagnosis.healthAssessment.isHealthy ? 
+                        {diagnosis.healthAssessment.healthStatus === 'Healthy' ? 
                             <CheckCircle className="h-5 w-5 text-green-600" /> : 
                             <AlertTriangle className="h-5 w-5 text-destructive" />
                         }
-                        <h4 className="font-semibold">{diagnosis.healthAssessment.isHealthy ? 'Healthy' : 'Issues Found'}</h4>
+                        <h4 className="font-semibold">{diagnosis.healthAssessment.healthStatus}</h4>
                        </div>
                        <p className="text-sm text-muted-foreground">{diagnosis.healthAssessment.diagnosis}</p>
                        
-                       {!diagnosis.healthAssessment.isHealthy && (
+                       {diagnosis.healthAssessment.healthStatus !== 'Healthy' && (
                         <>
                           <div>
                             <h5 className="font-semibold mb-2">Potential Causes</h5>
@@ -344,14 +365,36 @@ export function CreateBatchForm() {
                        )}
                     </AccordionContent>
                   </AccordionItem>
-                  <AccordionItem value="care-guide">
-                    <AccordionTrigger>{diagnosis.careGuide.title}</AccordionTrigger>
+                   <AccordionItem value="farming-guide">
+                    <AccordionTrigger>Farming Guide</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                      <div>
+                        <h5 className="font-semibold mb-2">Suggested Fertilizers</h5>
+                        <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                            {diagnosis.farmingGuide.suggestedFertilizers.map((fert, i) => <li key={i}>{fert}</li>)}
+                            {diagnosis.farmingGuide.suggestedFertilizers.length === 0 && <li>No specific fertilizers recommended at this time.</li>}
+                        </ul>
+                      </div>
+                       <div>
+                        <h5 className="font-semibold mb-2">General Care Guide</h5>
+                        <div className="flex items-start gap-2">
+                            <Leaf className="h-5 w-5 text-primary mt-1" />
+                            <div>
+                            <h4 className="font-semibold">{diagnosis.identification.commonName} <Badge variant="outline" className="ml-2 italic">{diagnosis.identification.latinName}</Badge></h4>
+                            <p className="text-sm text-muted-foreground mt-2">{diagnosis.farmingGuide.careGuide}</p>
+                            </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="market-value">
+                    <AccordionTrigger>Market Value</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                       <div className="flex items-start gap-2">
-                        <Leaf className="h-5 w-5 text-primary mt-1" />
+                        <BadgeDollarSign className="h-5 w-5 text-primary mt-1" />
                         <div>
-                          <h4 className="font-semibold">{diagnosis.identification.commonName} <Badge variant="outline" className="ml-2 italic">{diagnosis.identification.latinName}</Badge></h4>
-                          <p className="text-sm text-muted-foreground mt-2">{diagnosis.careGuide.guide}</p>
+                           <h4 className="font-semibold">{diagnosis.marketValue.estimatedPrice}</h4>
+                           <p className="text-sm text-muted-foreground mt-1">{diagnosis.marketValue.priceRationale}</p>
                         </div>
                       </div>
                     </AccordionContent>
@@ -474,7 +517,7 @@ export function CreateBatchForm() {
               />
               
               <div className="flex justify-end pt-4">
-                <Button type="submit" disabled={loading || !photo || !diagnosis || diagnosisLoading} size="lg" className="w-full">
+                <Button type="submit" disabled={isBatchCreationDisabled} size="lg" className="w-full">
                   {loading ? (
                     <>
                       <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -485,6 +528,11 @@ export function CreateBatchForm() {
                   )}
                 </Button>
               </div>
+               {isBatchCreationDisabled && diagnosis && (
+                <p className="text-sm text-destructive text-center">
+                    Cannot create batch. Please ensure a photo is taken and the AI diagnosis is complete and not 'Unhealthy'.
+                </p>
+              )}
             </form>
           </Form>
         </CardContent>
