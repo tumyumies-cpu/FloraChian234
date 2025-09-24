@@ -58,16 +58,11 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
 
   useEffect(() => {
     if (newProductId) {
-      const url = `${window.location.origin}/provenance/${newProductId}`;
-      QRCode.toDataURL(url, { width: 250, margin: 2 }, (err, dataUrl) => {
-        if (err) {
-          console.error("Failed to generate QR code:", err);
-          return;
-        }
-        setQrCodeDataUrl(dataUrl);
-      });
+      const role = searchParams.get('role') || 'brand';
+      // Automatically redirect to the new product's journey page
+      router.push(`/provenance/${newProductId}?role=${role}`);
     }
-  }, [newProductId]);
+  }, [newProductId, router, searchParams]);
 
   const availableBatches = useMemo(() => (db?.batches || []).filter(batch => {
     const isReady = batch.timeline.find(e => e.id === 6 && e.status === 'pending');
@@ -100,7 +95,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
         setNewProductId(newProduct.productId);
         toast({
             title: "Product Assembled Successfully!",
-            description: `New product SKU ${newProduct.productId} has been created.`,
+            description: `New product SKU ${newProduct.productId} has been created. Redirecting...`,
         });
     } catch (error) {
         console.error("Failed to assemble product", error);
@@ -109,59 +104,10 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
             title: "Failed to Assemble Product",
             description: "An unknown error occurred.",
         });
-    } finally {
         setLoading(false);
     }
   }
 
-  const handleResetForm = () => {
-    form.reset();
-    setNewProductId(null);
-    setQrCodeDataUrl(null);
-  };
-
-  const handleViewProvenance = () => {
-    if (newProductId) {
-      const role = searchParams.get('role') || 'brand';
-      router.push(`/provenance/${newProductId}?role=${role}`);
-    }
-  };
-
-  if (newProductId && qrCodeDataUrl) {
-    return (
-      <Card className="max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2">
-            <QrCode className="h-6 w-6 text-primary" />
-            Product Formulated & QR Code Ready
-          </CardTitle>
-          <CardDescription>Product ID: {newProductId}</CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-            <div className="flex justify-center p-4 border rounded-lg bg-white">
-                <Image
-                src={qrCodeDataUrl}
-                alt={`QR Code for product ${newProductId}`}
-                width={250}
-                height={250}
-                data-ai-hint="qr code"
-                />
-            </div>
-            <p className="text-muted-foreground text-sm mt-4">
-                The new product, "{form.getValues('productName')}", has been created. Its QR code can now be used on packaging for consumer scanning.
-            </p>
-            <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
-                 <Button size="lg" onClick={handleViewProvenance}>
-                    View Product Journey
-                </Button>
-                <Button variant="outline" size="lg" onClick={handleResetForm}>
-                    <Recycle className="mr-2" /> Formulate Another Product
-                </Button>
-            </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
@@ -299,5 +245,3 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     </Card>
   );
 }
-
-    
