@@ -35,7 +35,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { authInfo } = useAuth();
-  const { addProduct } = useDbContext();
+  const { addProduct, db } = useDbContext();
   
   const brandName = useMemo(() => {
     if (!authInfo?.email) return 'DefaultBrand';
@@ -69,10 +69,10 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     }
   }, [newProductId]);
 
-  const availableBatches = useMemo(() => batches.filter(batch => {
+  const availableBatches = useMemo(() => (db?.batches || []).filter(batch => {
     const isReady = batch.timeline.find(e => e.id === 6 && e.status === 'pending');
     return isReady;
-  }), [batches]);
+  }), [db]);
 
   const filteredAndSortedBatches = useMemo(() => {
     let filtered = availableBatches.filter(batch =>
@@ -299,3 +299,5 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     </Card>
   );
 }
+
+    
