@@ -430,5 +430,23 @@
       "email": "contact@suryawellness.com",
       "role": "brand"
     }
+  ],
+  "farmerApplications": [
+    {
+      "id": 1,
+      "status": "pending",
+      "submittedAt": "2024-05-28T10:00:00Z",
+      "details": {
+        "name": "Anjali Sharma",
+        "email": "anjali.sharma@example.com",
+        "phone": "9876543210",
+        "farmName": "Himalayan Organics",
+        "farmLocation": "Manali, Himachal Pradesh",
+        "cropsGrown": "Ashwagandha, Shatavari, Brahmi",
+        "certifications": "India Organic, PGS-India Green",
+        "kycDocument": "kyc_asharma.pdf",
+        "farmOwnershipDocument": "farm_deed_asharma.pdf"
+      }
+    }
   ]
 }

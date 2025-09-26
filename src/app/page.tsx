@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Leaf, ShieldCheck, Globe, Users } from 'lucide-react';
+import { ArrowRight, Leaf, ShieldCheck, Globe, Users, Twitter, Facebook, Instagram, Linkedin } from 'lucide-react';
 
 export default function HomePage() {
   return (
@@ -97,6 +97,55 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="w-full bg-card border-t">
+        <div className="container mx-auto py-12 px-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="md:col-span-1">
+              <Link href="/" className="flex items-center gap-2 text-foreground">
+                <Leaf className="h-7 w-7 text-primary" />
+                <span className="font-headline text-xl font-semibold">FloraChain</span>
+              </Link>
+              <p className="mt-4 text-sm text-muted-foreground">Traceability from soil to soul.</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 md:col-span-3 gap-8">
+              <div>
+                <h4 className="font-headline font-semibold">Navigate</h4>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li><Link href="#about" className="text-muted-foreground hover:text-primary">About</Link></li>
+                  <li><Link href="/verify?role=consumer" className="text-muted-foreground hover:text-primary">Track a Product</Link></li>
+                  <li><Link href="/login" className="text-muted-foreground hover:text-primary">Member Sign In</Link></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-headline font-semibold">Partners</h4>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li><Link href="/register-farmer" className="text-muted-foreground hover:text-primary">Join as a Farmer</Link></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary">Brand Partnerships</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary">Distributors</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-headline font-semibold">Legal</h4>
+                <ul className="mt-4 space-y-2 text-sm">
+                  <li><a href="#" className="text-muted-foreground hover:text-primary">Privacy Policy</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-primary">Terms of Service</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="mt-8 pt-8 border-t flex flex-col sm:flex-row justify-between items-center">
+            <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} FloraChain. All rights reserved.</p>
+            <div className="flex gap-4 mt-4 sm:mt-0">
+              <a href="#" className="text-muted-foreground hover:text-primary"><Twitter className="h-5 w-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-primary"><Facebook className="h-5 w-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-primary"><Instagram className="h-5 w-5" /></a>
+              <a href="#" className="text-muted-foreground hover:text-primary"><Linkedin className="h-5 w-5" /></a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

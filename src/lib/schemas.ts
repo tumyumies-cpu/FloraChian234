@@ -1,6 +1,10 @@
 
 import { z } from 'zod';
 
+// Utility for file validation
+const MAX_FILE_SIZE = 5000000; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
+
 export const CreateBatchSchema = z.object({
   productName: z.string().min(2, { message: "Product name must be at least 2 characters." }),
   farmName: z.string().min(2, { message: "Farm name must be at least 2 characters." }),
@@ -92,3 +96,31 @@ export const loginSchema = z.object({
 });
 
 export type LoginValues = z.infer<typeof loginSchema>;
+
+
+export const FarmerApplicationSchema = z.object({
+    name: z.string().min(2, "Your name is required."),
+    email: z.string().email("Please enter a valid email."),
+    phone: z.string().min(10, "Please enter a valid phone number."),
+    farmName: z.string().min(2, "Farm name is required."),
+    farmLocation: z.string().min(5, "Farm location is required."),
+    cropsGrown: z.string().min(3, "Please list the crops you grow."),
+    certifications: z.string().optional(),
+    kycDocument: z.any()
+        .refine((files) => files?.length == 1, "KYC Document is required.")
+        .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+        .refine(
+        (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+        ".jpg, .jpeg, .png, .webp and .pdf files are accepted."
+        ),
+    farmOwnershipDocument: z.any()
+        .refine((files) => files?.length == 1, "Farm Ownership Document is required.")
+        .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+        .refine(
+        (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+        ".jpg, .jpeg, .png, .webp and .pdf files are accepted."
+        ),
+    agreement: z.boolean().refine(val => val === true, "You must agree to the terms and conditions."),
+});
+
+export type FarmerApplicationValues = z.infer<typeof FarmerApplicationSchema>;

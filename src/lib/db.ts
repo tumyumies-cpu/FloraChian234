@@ -5,14 +5,16 @@
  * On a serverless hosting platform, this will be read-only and in-memory.
  */
 
-import type { BatchData, TimelineEvent, AssembledProduct, User } from './data';
+import type { BatchData, TimelineEvent, AssembledProduct, User, FarmerApplication } from './data';
 import InitialDb from './database.json';
+import type { FarmerApplicationValues } from './schemas';
 
 // Type for the entire database structure
 export type Database = {
   batches: BatchData[];
   products: AssembledProduct[];
   users: User[];
+  farmerApplications: FarmerApplication[];
 };
 
 const DB_KEY = 'florachain_db';
@@ -23,7 +25,14 @@ export function getDb(): Database {
     try {
         const storedDb = localStorage.getItem(DB_KEY);
         if (storedDb) {
-            return JSON.parse(storedDb);
+            const parsedDb = JSON.parse(storedDb);
+            // Ensure all keys are present
+            return {
+                batches: parsedDb.batches || [],
+                products: parsedDb.products || [],
+                users: parsedDb.users || [],
+                farmerApplications: parsedDb.farmerApplications || [],
+            };
         }
     } catch (e) {
         console.error("Could not read from localStorage, using initial data.", e);

@@ -2,8 +2,8 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { getDb, writeDb, type Database } from '@/lib/db';
-import type { BatchData, AssembledProduct, User, TimelineEvent } from '@/lib/data';
-import type { CreateBatchValues } from '@/lib/schemas';
+import type { BatchData, AssembledProduct, User, TimelineEvent, FarmerApplication, ApplicationStatus } from '@/lib/data';
+import type { CreateBatchValues, FarmerApplicationValues } from '@/lib/schemas';
 import type { DiagnosePlantHealthOutput } from '@/ai/flows/diagnose-plant-health';
 
 
@@ -20,6 +20,8 @@ interface DbContextType {
     addUser: (email: string, role: string) => void;
     updateUser: (userId: number, newRole: string) => void;
     deleteUser: (userId: number) => void;
+    addFarmerApplication: (data: FarmerApplicationValues) => void;
+    updateFarmerApplicationStatus: (applicationId: number, status: ApplicationStatus) => void;
     reloadDb: () => void;
 }
 
@@ -200,6 +202,39 @@ export function DbProvider({ children }: { children: ReactNode }) {
         if (currentDb.users.length === initialLength) throw new Error("User not found.");
         updateDb(currentDb);
     };
+    
+    const addFarmerApplication = (data: Omit<FarmerApplicationValues, 'agreement'>) => {
+        const currentDb = getDb();
+        const lastId = currentDb.farmerApplications.reduce((max, app) => app.id > max ? app.id : max, 0);
+        const newApplication: FarmerApplication = {
+            id: lastId + 1,
+            status: 'pending',
+            submittedAt: new Date().toISOString(),
+            details: {
+                ...data,
+                // In a real app, you'd upload these files and store URLs. Here, we just store names.
+                kycDocument: (data.kycDocument as any)?.[0]?.name || 'N/A',
+                farmOwnershipDocument: (data.farmOwnershipDocument as any)?.[0]?.name || 'N/A',
+            },
+        };
+        currentDb.farmerApplications.push(newApplication);
+        updateDb(currentDb);
+    };
+
+    const updateFarmerApplicationStatus = (applicationId: number, status: ApplicationStatus) => {
+        const currentDb = getDb();
+        const appIndex = currentDb.farmerApplications.findIndex(app => app.id === applicationId);
+        if (appIndex === -1) throw new Error("Application not found.");
+        
+        const application = currentDb.farmerApplications[appIndex];
+        application.status = status;
+
+        if (status === 'approved') {
+            addUser(application.details.email, 'farmer');
+        }
+        
+        updateDb(currentDb);
+    };
 
     const value = {
         db,
@@ -214,6 +249,8 @@ export function DbProvider({ children }: { children: ReactNode }) {
         addUser,
         updateUser,
         deleteUser,
+        addFarmerApplication,
+        updateFarmerApplicationStatus,
         reloadDb,
     };
 

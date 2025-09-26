@@ -12,8 +12,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Link from 'next/link';
-import { ShieldCheck, Search, ListOrdered, BarChart, Package, PackageCheck, UserPlus, Edit, Trash2, LoaderCircle } from 'lucide-react';
-import type { TimelineEvent, BatchData, AssembledProduct, User } from '@/lib/data';
+import { ShieldCheck, Search, ListOrdered, BarChart, Package, PackageCheck, UserPlus, Edit, Trash2, LoaderCircle, Check, X, FileText } from 'lucide-react';
+import type { TimelineEvent, BatchData, AssembledProduct, User, FarmerApplication } from '@/lib/data';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -45,12 +45,14 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddUserOpen, setAddUserOpen] = useState(false);
     const { toast } = useToast();
-    const { addUser, updateUser, deleteUser, db } = useDbContext();
+    const { addUser, updateUser, deleteUser, updateFarmerApplicationStatus, db } = useDbContext();
     const users = db?.users || initialUsers;
+    const farmerApplications = db?.farmerApplications || [];
 
     const filteredBatches = useMemo(() => initialBatches.filter(b => b.batchId.toLowerCase().includes(searchTerm.toLowerCase()) || b.productName.toLowerCase().includes(searchTerm.toLowerCase())), [initialBatches, searchTerm]);
     const filteredProducts = useMemo(() => initialProducts.filter(p => p.productId.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase()) || p.brandName.toLowerCase().includes(searchTerm.toLowerCase())), [initialProducts, searchTerm]);
     const filteredUsers = useMemo(() => users.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()) || u.role.toLowerCase().includes(searchTerm.toLowerCase())), [users, searchTerm]);
+    const pendingApplications = useMemo(() => farmerApplications.filter(app => app.status === 'pending'), [farmerApplications]);
 
     const inProgressBatches = initialBatches.filter(b => b.timeline.some(e => e.status === 'pending')).length;
     const inProgressProducts = initialProducts.filter(p => p.timeline.some(e => e.status === 'pending')).length;
@@ -68,6 +70,18 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
             addUserForm.reset();
         } catch (error: any) {
             toast({ variant: "destructive", title: "Failed to Add User", description: error.message });
+        }
+    };
+    
+    const handleApplicationAction = (appId: number, status: 'approved' | 'rejected') => {
+        try {
+            updateFarmerApplicationStatus(appId, status);
+            toast({
+                title: `Application ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+                description: `The farmer application has been ${status}.`
+            });
+        } catch (error: any) {
+             toast({ variant: "destructive", title: "Action Failed", description: error.message });
         }
     };
 
@@ -130,7 +144,7 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-xs text-muted-foreground">Across all roles</p>
+            <p className="text-xs text-muted-foreground">{pendingApplications.length} pending applications</p>
           </CardContent>
         </Card>
          <Dialog open={isAddUserOpen} onOpenChange={setAddUserOpen}>
@@ -181,7 +195,67 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
           <Input placeholder="Search by ID, Product, Brand, User, or Role..." className="pl-9" onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <Card className="xl:col-span-2">
+            <CardHeader>
+                <CardTitle>Pending Farmer Applications</CardTitle>
+                <CardDescription>Review and approve new farmers to join the platform.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="border rounded-md max-h-[30rem] overflow-y-auto">
+                    <Table>
+                        <TableHeader className="sticky top-0 bg-card">
+                            <TableRow>
+                                <TableHead>Applicant</TableHead>
+                                <TableHead>Farm</TableHead>
+                                <TableHead>Location</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {pendingApplications.map(app => (
+                                <TableRow key={app.id}>
+                                    <TableCell>
+                                        <div className="font-medium">{app.details.name}</div>
+                                        <div className="text-xs text-muted-foreground">{app.details.email}</div>
+                                    </TableCell>
+                                    <TableCell>{app.details.farmName}</TableCell>
+                                    <TableCell>{app.details.farmLocation}</TableCell>
+                                    <TableCell className="text-right space-x-2">
+                                        <Dialog>
+                                            <DialogTrigger asChild><Button variant="ghost">Review</Button></DialogTrigger>
+                                            <DialogContent className="max-w-2xl">
+                                                <DialogHeader>
+                                                    <DialogTitle>Review Application: {app.details.name}</DialogTitle>
+                                                    <DialogDescription>{app.details.farmName} - {app.details.farmLocation}</DialogDescription>
+                                                </DialogHeader>
+                                                <div className="space-y-4 py-4 text-sm">
+                                                    <p><strong>Crops:</strong> {app.details.cropsGrown}</p>
+                                                    <p><strong>Certifications:</strong> {app.details.certifications || 'N/A'}</p>
+                                                    <p><strong>Contact:</strong> {app.details.email} / {app.details.phone}</p>
+                                                    <div className="flex gap-4">
+                                                        <a href="#" className="flex items-center gap-2 text-primary underline"><FileText className="h-4 w-4" /> KYC: {app.details.kycDocument}</a>
+                                                        <a href="#" className="flex items-center gap-2 text-primary underline"><FileText className="h-4 w-4" /> Ownership: {app.details.farmOwnershipDocument}</a>
+                                                    </div>
+                                                </div>
+                                                 <AlertDialogFooter>
+                                                    <Button variant="destructive" onClick={() => handleApplicationAction(app.id, 'rejected')}><X className="mr-2" />Reject</Button>
+                                                    <Button onClick={() => handleApplicationAction(app.id, 'approved')}><Check className="mr-2" />Approve</Button>
+                                                </AlertDialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                        <Button size="icon" variant="destructive" onClick={() => handleApplicationAction(app.id, 'rejected')}><X className="h-4 w-4"/></Button>
+                                        <Button size="icon" onClick={() => handleApplicationAction(app.id, 'approved')}><Check className="h-4 w-4"/></Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {pendingApplications.length === 0 && <TableRow><TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No pending applications.</TableCell></TableRow>}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
+
         <Card className="xl:col-span-1">
             <CardHeader>
                 <CardTitle>User Management</CardTitle>

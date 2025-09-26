@@ -1,6 +1,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine, Handshake, Warehouse, User as UserIcon, Shield, Download } from 'lucide-react';
+import type { FarmerApplicationValues } from './schemas';
 
 export type EventStatus = 'complete' | 'pending' | 'locked';
 export type UserRole = 'farmer' | 'processor' | 'supplier' | 'brand' | 'distributor' | 'retailer' | 'consumer' | 'admin';
@@ -63,4 +64,16 @@ export interface User {
     id: number;
     email: string;
     role: UserRole | string;
+}
+
+export type ApplicationStatus = 'pending' | 'approved' | 'rejected';
+
+export interface FarmerApplication {
+  id: number;
+  status: ApplicationStatus;
+  submittedAt: string;
+  details: Omit<FarmerApplicationValues, 'kycDocument' | 'farmOwnershipDocument' | 'agreement'> & {
+    kycDocument: string;
+    farmOwnershipDocument: string;
+  };
 }
