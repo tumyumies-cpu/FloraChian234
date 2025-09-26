@@ -1,19 +1,32 @@
 
 "use client";
 import { VerifyForm } from "./verify-form";
-import { Suspense, useState } from "react";
-import { useSearchParams } from 'next/navigation';
+import { Suspense, useState, useEffect } from "react";
+import { useSearchParams, useRouter } from 'next/navigation';
 import { QrScanner } from "@/components/qr-scanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScanLine } from "lucide-react";
+import { useAuth } from '@/context/auth-context';
 
 function VerifyContent() {
   const searchParams = useSearchParams();
-  const role = searchParams.get('role') || 'consumer';
+  const router = useRouter();
+  const { authInfo, loading: authLoading } = useAuth();
+  
+  const roleFromParams = searchParams.get('role');
+  const role = roleFromParams || authInfo?.role || 'consumer';
+
   const [scannedId, setScannedId] = useState<string | null>(null);
 
-  const isProductRole = ['consumer', 'retailer', 'distributor'].includes(role as string);
-  const idType = isProductRole ? "Product" : "Batch";
+  // If we are in the app layout but not a consumer, we need to be authenticated.
+  useEffect(() => {
+    if (!authLoading && role !== 'consumer' && !authInfo) {
+      router.push('/login');
+    }
+  }, [authInfo, authLoading, router, role]);
+
+
+  const idType = ['consumer', 'retailer', 'distributor'].includes(role as string) ? "Product" : "Batch";
 
   return (
     <div className="space-y-8">

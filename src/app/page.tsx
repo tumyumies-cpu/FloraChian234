@@ -49,7 +49,7 @@ export default function HomePage() {
             </p>
             <div className="mt-10">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Link href="/login">
+                <Link href="/verify?role=consumer">
                   Track Your Product
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>

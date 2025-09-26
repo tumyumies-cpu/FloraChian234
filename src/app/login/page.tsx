@@ -44,11 +44,13 @@ function LoginContent() {
         role = existingUser.role;
       } else {
         // Default role logic for users NOT in the database
-        if (values.email.toLowerCase().endsWith('@florachain.com')) {
-          role = 'farmer';
-        } else {
-          role = 'consumer';
-        }
+        toast({
+            variant: "destructive",
+            title: "Access Denied",
+            description: "The credentials you entered are not valid for a platform member.",
+        });
+        setLoading(false);
+        return;
       }
       
       setAuthInfo({ email: values.email, role });
@@ -65,8 +67,8 @@ function LoginContent() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Enter your credentials to access the platform.</CardDescription>
+          <CardTitle className="font-headline text-2xl">Platform Member Sign-In</CardTitle>
+          <CardDescription>Enter your credentials to access the supply chain portal.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -78,7 +80,7 @@ function LoginContent() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., user@company.com" {...field} />
+                      <Input placeholder="e.g., member@company.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -105,7 +107,7 @@ function LoginContent() {
         </CardContent>
       </Card>
       <p className="px-8 text-center text-sm text-muted-foreground mt-6">
-          Use `admin@florachain.com` for admin access or `farmer@florachain.com` for farmer access. Any other email will be treated as a consumer unless explicitly added by an admin.
+          This login is for authorized members only. If you are a consumer, please use the "Track Your Product" button on the home page.
       </p>
     </>
   );
@@ -116,8 +118,8 @@ function LoginFormSkeleton() {
         <>
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline text-2xl">Welcome Back</CardTitle>
-                    <CardDescription>Enter your credentials to access the platform.</CardDescription>
+                    <CardTitle className="font-headline text-2xl">Platform Member Sign-In</CardTitle>
+                    <CardDescription>Enter your credentials to access the supply chain portal.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-2">
