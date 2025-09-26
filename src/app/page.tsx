@@ -87,6 +87,22 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* About Section */}
+      <section id="about" className="w-full py-16 lg:py-24 bg-card text-foreground">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-center">
+            <div>
+              <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.about.title}</h2>
+              <p className="mt-4 text-lg text-muted-foreground">{c.about.p1}</p>
+              <p className="mt-4 text-muted-foreground">{c.about.p2}</p>
+            </div>
+            <div className="relative h-64 md:h-80 rounded-lg overflow-hidden">
+                <Image src="https://images.unsplash.com/photo-1524539201386-e366a538743c?q=80&w=1974&auto=format&fit=crop" alt={c.about.alt} fill className="object-cover" />
+            </div>
+          </div>
+        </div>
+      </section>
+
        {/* How It Works Section */}
       <section id="how-it-works" className="w-full py-16 lg:py-24 bg-background text-foreground">
         <div className="container mx-auto px-4 text-center">
@@ -247,5 +263,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
