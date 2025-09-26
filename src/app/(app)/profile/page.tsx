@@ -4,7 +4,7 @@
 import { Suspense, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { User, ShieldCheck, Edit, AtSign, Calendar, CheckCircle } from 'lucide-react';
+import { User, ShieldCheck, AtSign, Calendar, CheckCircle } from 'lucide-react';
 import type { UserRole } from '@/lib/data';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -21,13 +21,6 @@ function ProfileContent() {
   const role = (searchParams.get('role') || 'consumer') as UserRole;
   const roleLabel = getRoleLabel(role);
 
-  const [avatarKey, setAvatarKey] = useState(Date.now());
-
-  const handleEditAvatar = () => {
-    // Re-renders the avatar with a new random image by changing the key
-    setAvatarKey(Date.now());
-  };
-
   return (
     <div className="space-y-8">
       <div>
@@ -42,20 +35,10 @@ function ProfileContent() {
             <CardContent className="flex flex-col items-center p-6 text-center">
               <div className="relative group">
                 <Avatar className="h-24 w-24 border-4 border-primary/20">
-                  <AvatarImage key={avatarKey} src={`https://i.pravatar.cc/150?u=${role}&t=${avatarKey}`} alt={`${roleLabel} Avatar`} />
                   <AvatarFallback>
                     <User className="h-10 w-10" />
                   </AvatarFallback>
                 </Avatar>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-background group-hover:bg-accent"
-                  onClick={handleEditAvatar}
-                >
-                  <Edit className="h-4 w-4" />
-                  <span className="sr-only">Edit Avatar</span>
-                </Button>
               </div>
               <h2 className="mt-4 text-2xl font-headline font-semibold">{roleLabel}</h2>
               <p className="text-muted-foreground">{role}@florachain.com</p>
