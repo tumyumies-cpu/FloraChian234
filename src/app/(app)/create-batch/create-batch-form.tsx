@@ -312,6 +312,7 @@ export function CreateBatchForm() {
                         <SelectItem value="French">French</SelectItem>
                         <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
                         <SelectItem value="Telugu">Telugu</SelectItem>
+                        <SelectItem value="Tamil">Tamil</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
