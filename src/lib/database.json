@@ -177,9 +177,7 @@
         {
           "id": 2,
           "title": "Batch Received by Processor",
-          "status": "complete",
-          "date": "2024-05-12",
-          "description": "Batch Received by Processor confirmed by processor.",
+          "status": "pending",
           "icon": "warehouse",
           "allowedRole": "processor",
           "cta": "Confirm Receipt",
@@ -188,20 +186,16 @@
         {
           "id": 3,
           "title": "Local Processing & Dispatch",
-          "status": "complete",
-          "date": "2024-05-14",
-          "description": "Procurement:\n- Collection Center: CC-DDN-02\n\nProcessing:\n- Cleaning: Manual sorting\n- Drying: Shade-dried for 120 hours (Final Moisture: 10.5%)\n- Grinding: N/A\n\nQuality & Safety:\n- Inspection: High essential oil content noted.\n\nStorage & Dispatch:\n- Stored for 2 days in ventilated warehouse",
-          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.",
+          "status": "locked",
           "icon": "factory",
           "allowedRole": "processor",
-          "cta": "Add Processing Details"
+          "cta": "Add Processing Details",
+          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey."
         },
         {
           "id": 4,
           "title": "Supplier Receiving",
-          "status": "complete",
-          "date": "2024-05-18",
-          "description": "Supplier Receiving confirmed by supplier.",
+          "status": "locked",
           "icon": "warehouse",
           "allowedRole": "supplier",
           "cta": "Confirm Receipt",
@@ -210,18 +204,16 @@
         {
           "id": 5,
           "title": "Supplier Processing & Dispatch",
-          "status": "complete",
-          "date": "2024-05-20",
-          "description": "Acquisition:\n- Supplier ID: AYUR-SUPPLY-NORTH\n- Location: Delhi, DL Hub\n- Quantity: 400 kg\n- Internal Lot #: LOT-TL-451-24\n\nQuality & Compliance:\n- Inspection: Verified. Eugenol content within spec.\n- Certifications: USDA Organic, Non-GMO Project Verified",
-          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer.",
+          "status": "locked",
           "icon": "handshake",
           "allowedRole": "supplier",
-          "cta": "Add Dispatch Details"
+          "cta": "Add Dispatch Details",
+          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer."
         },
         {
           "id": 6,
           "title": "Ready for Formulation",
-          "status": "pending",
+          "status": "locked",
           "icon": "combine",
           "allowedRole": "brand",
           "cta": "Select for Product",
@@ -278,25 +270,29 @@
         {
           "id": 102,
           "title": "Retailer Receiving",
-          "status": "pending",
+          "status": "complete",
+          "date": "2024-04-22",
+          "description": "Retailer Receiving confirmed by retailer.",
+          "consumerDescription": "Product received by a verified retail partner.",
           "icon": "warehouse",
           "allowedRole": "retailer",
-          "cta": "Confirm Receipt",
-          "consumerDescription": "Product received by a verified retail partner."
+          "cta": "Confirm Receipt"
         },
         {
           "id": 103,
           "title": "In-Store Inventory",
-          "status": "locked",
+          "status": "complete",
+          "date": "2024-04-23",
+          "description": "Store Details:\n- Store ID: Whole Foods - Austin, TX\n- Available for Sale: 2024-04-23\n- Current Status: In Stock",
+          "consumerDescription": "Product is available for purchase at your trusted local or online store.",
           "icon": "store",
           "allowedRole": "retailer",
-          "cta": "Confirm Retail Arrival",
-          "consumerDescription": "Product is available for purchase at your trusted local or online store."
+          "cta": "Confirm Retail Arrival"
         },
         {
           "id": 104,
           "title": "Consumer Authenticity Scan",
-          "status": "locked",
+          "status": "pending",
           "icon": "scan",
           "allowedRole": "consumer",
           "cta": "View Product Story",
@@ -414,21 +410,6 @@
       "id": 8,
       "email": "admin@florachain.com",
       "role": "admin"
-    },
-    {
-      "id": 9,
-      "email": "sunita@satvikfarms.com",
-      "role": "farmer"
-    },
-    {
-      "id": 10,
-      "email": "info@dharmanaturals.com",
-      "role": "brand"
-    },
-    {
-      "id": 11,
-      "email": "contact@suryawellness.com",
-      "role": "brand"
     }
   ],
   "farmerApplications": [
@@ -446,6 +427,22 @@
         "certifications": "India Organic, PGS-India Green",
         "kycDocument": "kyc_asharma.pdf",
         "farmOwnershipDocument": "farm_deed_asharma.pdf"
+      }
+    },
+    {
+      "id": 2,
+      "status": "pending",
+      "submittedAt": "2024-05-29T11:00:00Z",
+      "details": {
+          "name": "Rajesh Kumar",
+          "email": "rajesh.kumar@example.com",
+          "phone": "8765432109",
+          "farmName": "Ganga Valley Herbs",
+          "farmLocation": "Rishikesh, Uttarakhand",
+          "cropsGrown": "Brahmi, Tulsi, Guduchi",
+          "certifications": "USDA Organic",
+          "kycDocument": "kyc_rkumar.pdf",
+          "farmOwnershipDocument": "lease_agreement_rkumar.pdf"
       }
     }
   ]
