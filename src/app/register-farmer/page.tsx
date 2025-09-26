@@ -127,7 +127,14 @@ export default function RegisterFarmerPage() {
 
     return (
         <div className="container mx-auto max-w-3xl py-12">
-            <div className="flex justify-between items-center mb-8">
+             <div className="flex justify-center mb-8">
+                <Link href="/" className="flex items-center gap-2 text-primary">
+                    <Leaf className="h-8 w-8" />
+                    <span className="font-headline text-2xl font-semibold">FloraChain</span>
+                </Link>
+            </div>
+
+            <div className="flex justify-between items-center mb-4">
                  <Button asChild variant="ghost">
                   <Link href="/">
                       <ArrowLeft className="mr-2 h-4 w-4" />
