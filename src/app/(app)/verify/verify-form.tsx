@@ -55,14 +55,14 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
     }
     setLoading(true);
 
-    const exists = verifyId(idToVerify);
+    const exists = verifyId(idToVerify, role);
     
     if (exists) {
       router.push(`/provenance/${idToVerify.toUpperCase()}?role=${role}`);
     } else {
       toast({
         title: `${idType} Not Found`,
-        description: `The ${idType} ID "${idToVerify}" could not be found. Please check the ID and try again.`,
+        description: `The ${idType} ID "${idToVerify}" could not be found or is not yet available for tracking in your region. Please check the ID and try again.`,
         variant: "destructive",
       });
       setLoading(false);

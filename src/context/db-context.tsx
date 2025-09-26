@@ -12,7 +12,7 @@ interface DbContextType {
     loading: boolean;
     getBatchById: (id: string) => BatchData | null;
     getProductById: (id: string) => AssembledProduct | null;
-    verifyId: (id: string) => boolean;
+    verifyId: (id: string, role: UserRole | string) => boolean;
     addBatch: (data: CreateBatchValues & { photo: string; diagnosis: DiagnosePlantHealthOutput | null }) => BatchData;
     addProduct: (productName: string, batchIds: string[], brandName: string, photo: string) => AssembledProduct;
     updateTimelineEvent: (id: string, eventId: number, data: Partial<TimelineEvent>, isProduct: boolean) => void;
@@ -53,13 +53,26 @@ export function DbProvider({ children }: { children: ReactNode }) {
         return db.products.find(p => p.productId.toUpperCase() === id.toUpperCase()) || null;
     }, [db]);
     
-    const verifyId = useCallback((id: string) => {
+    const verifyId = useCallback((id: string, role: UserRole | string) => {
         const currentDb = getDb(); // Read fresh data for verification
-        const isProduct = id.toUpperCase().startsWith('PROD-');
-        if (isProduct) {
-            return !!currentDb.products.find(p => p.productId.toUpperCase() === id.toUpperCase());
+        const upperId = id.toUpperCase();
+
+        if (upperId.startsWith('PROD-')) {
+            const product = currentDb.products.find(p => p.productId.toUpperCase() === upperId);
+            if (!product) return false;
+
+            // For consumers, only allow verification if the product has reached the retail stage.
+            if (role === 'consumer') {
+                const retailReceivingStep = product.timeline.find(e => e.id === 102);
+                return !!retailReceivingStep && retailReceivingStep.status !== 'locked';
+            }
+            return true;
         }
-        return !!currentDb.batches.find(b => b.batchId.toUpperCase() === id.toUpperCase());
+        
+        // Batches cannot be verified by consumers directly
+        if (role === 'consumer') return false;
+
+        return !!currentDb.batches.find(b => b.batchId.toUpperCase() === upperId);
     }, []);
     
     const addBatch = (data: CreateBatchValues & { photo: string; diagnosis: DiagnosePlantHealthOutput | null }) => {
