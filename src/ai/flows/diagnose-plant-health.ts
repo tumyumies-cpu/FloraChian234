@@ -17,7 +17,7 @@ const DiagnosePlantHealthInputSchema = z.object({
     .describe(
       "A photo of a plant, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
-  language: z.string().optional().describe("The language for the output, e.g., 'English', 'Spanish', 'Hindi', 'Telugu', 'Tamil'."),
+  language: z.string().optional().describe("The language for the output, e.g., 'English', 'Spanish', 'Hindi', 'Telugu', 'Tamil', 'French', 'Mandarin Chinese'."),
 });
 export type DiagnosePlantHealthInput = z.infer<typeof DiagnosePlantHealthInputSchema>;
 

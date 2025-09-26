@@ -14,8 +14,10 @@ import Link from 'next/link';
 import { useDbContext } from "@/context/db-context";
 import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useLanguage, content } from '@/context/language-context';
+import { LanguageSwitcher } from "@/components/language-switcher";
 
-function FileInputField({ field, label, id }: { field: any, label: string, id: string }) {
+function FileInputField({ field, label, id, placeholder }: { field: any, label: string, id: string, placeholder: string }) {
     const fileRef = field.ref;
     const fileName = field.value?.[0]?.name;
   
@@ -28,7 +30,7 @@ function FileInputField({ field, label, id }: { field: any, label: string, id: s
                         type="text" 
                         readOnly 
                         value={fileName || ""} 
-                        placeholder="Click to upload a document"
+                        placeholder={placeholder}
                         className="cursor-pointer"
                         onClick={() => document.getElementById(id)?.click()}
                     />
@@ -56,6 +58,8 @@ export default function RegisterFarmerPage() {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const { language } = useLanguage();
+    const c = content[language].register;
 
     const form = useForm<FarmerApplicationValues>({
         resolver: zodResolver(FarmerApplicationSchema),
@@ -86,14 +90,14 @@ export default function RegisterFarmerPage() {
             addFarmerApplication(applicationData);
             setSubmitted(true);
             toast({
-                title: "Application Submitted!",
-                description: "Thank you. Your application is under review.",
+                title: c.toast.successTitle,
+                description: c.toast.successDescription,
             });
         } catch (error: any) {
             toast({
                 variant: "destructive",
-                title: "Submission Failed",
-                description: error.message || "An unknown error occurred.",
+                title: c.toast.failureTitle,
+                description: error.message || c.toast.failureDescription,
             });
         } finally {
             setLoading(false);
@@ -108,12 +112,12 @@ export default function RegisterFarmerPage() {
                         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                            <CheckCircle className="h-6 w-6 text-green-600" />
                         </div>
-                        <CardTitle className="mt-4 font-headline">Application Received!</CardTitle>
-                        <CardDescription>Thank you for your interest in joining FloraChain. Our team will review your application and get back to you via email within 5-7 business days.</CardDescription>
+                        <CardTitle className="mt-4 font-headline">{c.submitted.title}</CardTitle>
+                        <CardDescription>{c.submitted.description}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Button asChild>
-                            <Link href="/">Return to Home</Link>
+                            <Link href="/">{c.submitted.homeButton}</Link>
                         </Button>
                     </CardContent>
                 </Card>
@@ -123,58 +127,59 @@ export default function RegisterFarmerPage() {
 
     return (
         <div className="container mx-auto max-w-3xl py-12">
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-between items-center mb-8">
                 <Link href="/" className="flex items-center gap-2 text-primary">
                     <Leaf className="h-8 w-8" />
                     <span className="font-headline text-2xl font-semibold">FloraChain</span>
                 </Link>
+                <LanguageSwitcher />
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Farmer Registration & Verification</CardTitle>
-                    <CardDescription>Complete the form below to apply to become a verified farmer on the FloraChain platform.</CardDescription>
+                    <CardTitle className="font-headline">{c.form.title}</CardTitle>
+                    <CardDescription>{c.form.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                            <h3 className="text-lg font-medium border-b pb-2">Your Information</h3>
+                            <h3 className="text-lg font-medium border-b pb-2">{c.form.yourInfo.title}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="name" render={({ field }) => (
-                                    <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input placeholder="Your full name" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>{c.form.yourInfo.name.label}</FormLabel><FormControl><Input placeholder={c.form.yourInfo.name.placeholder} {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="email" render={({ field }) => (
-                                    <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input placeholder="you@example.com" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>{c.form.yourInfo.email.label}</FormLabel><FormControl><Input placeholder={c.form.yourInfo.email.placeholder} {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
                             <FormField control={form.control} name="phone" render={({ field }) => (
-                                <FormItem><FormLabel>Phone Number</FormLabel><FormControl><Input placeholder="Your phone number" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{c.form.yourInfo.phone.label}</FormLabel><FormControl><Input placeholder={c.form.yourInfo.phone.placeholder} {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                             
-                            <h3 className="text-lg font-medium border-b pb-2 pt-4">Farm Details</h3>
+                            <h3 className="text-lg font-medium border-b pb-2 pt-4">{c.form.farmDetails.title}</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={form.control} name="farmName" render={({ field }) => (
-                                    <FormItem><FormLabel>Farm Name</FormLabel><FormControl><Input placeholder="e.g., Sunrise Organics" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>{c.form.farmDetails.farmName.label}</FormLabel><FormControl><Input placeholder={c.form.farmDetails.farmName.placeholder} {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="farmLocation" render={({ field }) => (
-                                    <FormItem><FormLabel>Farm Location (City, State)</FormLabel><FormControl><Input placeholder="e.g., Erode, Tamil Nadu" {...field} /></FormControl><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>{c.form.farmDetails.farmLocation.label}</FormLabel><FormControl><Input placeholder={c.form.farmDetails.farmLocation.placeholder} {...field} /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
                              <FormField control={form.control} name="cropsGrown" render={({ field }) => (
-                                <FormItem><FormLabel>Primary Ayurvedic Crops Grown</FormLabel><FormControl><Input placeholder="e.g., Ashwagandha, Turmeric, Tulsi" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{c.form.farmDetails.crops.label}</FormLabel><FormControl><Input placeholder={c.form.farmDetails.crops.placeholder} {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="certifications" render={({ field }) => (
-                                <FormItem><FormLabel>Certifications (Optional)</FormLabel><FormControl><Input placeholder="e.g., USDA Organic, India Organic" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{c.form.farmDetails.certs.label}</FormLabel><FormControl><Input placeholder={c.form.farmDetails.certs.placeholder} {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
 
-                            <h3 className="text-lg font-medium border-b pb-2 pt-4">Document Upload</h3>
-                            <p className="text-sm text-muted-foreground -mt-4">Please upload documents for KYC and farm ownership verification. Max file size: 5MB. Accepted formats: JPG, PNG, PDF.</p>
+                            <h3 className="text-lg font-medium border-b pb-2 pt-4">{c.form.docs.title}</h3>
+                            <p className="text-sm text-muted-foreground -mt-4">{c.form.docs.description}</p>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                <FormField control={form.control} name="kycDocument" render={({ field }) => (
-                                    <FileInputField field={{...kycFileRef, value: field.value}} label="KYC Document" id="kycDocument" />
+                                    <FileInputField field={{...kycFileRef, value: field.value}} label={c.form.docs.kyc.label} id="kycDocument" placeholder={c.form.docs.kyc.placeholder} />
                                 )}/>
                                 <FormField control={form.control} name="farmOwnershipDocument" render={({ field }) => (
-                                    <FileInputField field={{...farmDocFileRef, value: field.value}} label="Farm Ownership/Lease Document" id="farmOwnershipDocument" />
+                                    <FileInputField field={{...farmDocFileRef, value: field.value}} label={c.form.docs.ownership.label} id="farmOwnershipDocument" placeholder={c.form.docs.ownership.placeholder} />
                                 )}/>
                             </div>
 
@@ -185,7 +190,7 @@ export default function RegisterFarmerPage() {
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
                                         <FormLabel>
-                                            I agree to the <a href="#" className="text-primary underline">terms and conditions</a> of the FloraChain platform.
+                                            {c.form.agreement.label} <a href="#" className="text-primary underline">{c.form.agreement.link}</a>.
                                         </FormLabel>
                                     </div>
                                     <FormMessage/>
@@ -195,9 +200,9 @@ export default function RegisterFarmerPage() {
                             <div className="flex justify-end pt-4">
                                 <Button type="submit" disabled={loading} size="lg">
                                 {loading ? (
-                                    <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" />Submitting...</>
+                                    <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" />{c.form.submitButtonLoading}</>
                                 ) : (
-                                   <><Send className="mr-2" />Submit Application</>
+                                   <><Send className="mr-2" />{c.form.submitButton}</>
                                 )}
                                 </Button>
                             </div>

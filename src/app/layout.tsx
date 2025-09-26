@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import './globals.css';
@@ -5,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { AuthProvider } from '@/context/auth-context';
 import { ThemeProvider } from '@/components/theme-provider';
 import { DbProvider } from '@/context/db-context';
+import { LanguageProvider } from '@/context/language-context';
 
 export const metadata: Metadata = {
   title: 'FloraChain Provenance',
@@ -30,11 +32,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <DbProvider>
-              {children}
-            </DbProvider>
-          </AuthProvider>
+          <LanguageProvider>
+            <AuthProvider>
+              <DbProvider>
+                {children}
+              </DbProvider>
+            </AuthProvider>
+          </LanguageProvider>
           <Toaster />
         </ThemeProvider>
       </body>

@@ -12,20 +12,24 @@ import { usePathname } from 'next/navigation';
 import { Leaf, LayoutDashboard, PlusCircle, ScanLine, History, Combine, Package } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/auth-context';
+import { useLanguage, content } from '@/context/language-context';
 
-const menuItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer', 'admin'] },
-  { href: '/create-batch', label: 'Create Batch', icon: PlusCircle, roles: ['farmer'] },
-  { href: '/past-batches', label: 'Past Batches', icon: History, roles: ['farmer', 'processor', 'supplier', 'admin'] },
-  { href: '/assemble-product', label: 'Assemble Product', icon: Combine, roles: ['brand', 'admin'] },
-  { href: '/past-products', label: 'Past Products', icon: Package, roles: ['brand', 'distributor', 'retailer', 'admin'] },
-  { href: '/verify', label: 'Verify/Update', icon: ScanLine, roles: ['consumer', 'processor', 'supplier', 'distributor', 'retailer'] },
+const getMenuItems = (c: any) => [
+  { href: '/dashboard', label: c.dashboard, icon: LayoutDashboard, roles: ['farmer', 'processor', 'supplier', 'brand', 'distributor', 'retailer', 'consumer', 'admin'] },
+  { href: '/create-batch', label: c.createBatch, icon: PlusCircle, roles: ['farmer'] },
+  { href: '/past-batches', label: c.pastBatches, icon: History, roles: ['farmer', 'processor', 'supplier', 'admin'] },
+  { href: '/assemble-product', label: c.assembleProduct, icon: Combine, roles: ['brand', 'admin'] },
+  { href: '/past-products', label: c.pastProducts, icon: Package, roles: ['brand', 'distributor', 'retailer', 'admin'] },
+  { href: '/verify', label: c.verify, icon: ScanLine, roles: ['consumer', 'processor', 'supplier', 'distributor', 'retailer'] },
 ];
 
 export function SidebarNav() {
   const pathname = usePathname();
   const { authInfo, loading } = useAuth();
+  const { language } = useLanguage();
   const role = authInfo?.role;
+
+  const menuItems = getMenuItems(content[language].sidebar);
 
   const getHref = (path: string) => {
     return role ? `${path}?role=${role}` : path;

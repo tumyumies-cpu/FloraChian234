@@ -27,6 +27,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { useLanguage, content } from '@/context/language-context';
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 type DiagnosisState = DiagnosePlantHealthOutput | null;
 
@@ -39,11 +41,13 @@ export function CreateBatchForm() {
   const [diagnosisLoading, setDiagnosisLoading] = useState(false);
   const [threeDaysAgo, setThreeDaysAgo] = useState<Date | null>(null);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
-  const [language, setLanguage] = useState('English');
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { addBatch } = useDbContext();
+  const { language, setLanguage, content } = useLanguage();
+  const c = content[language].createBatch;
+
 
   useEffect(() => {
     // This will only run on the client, after initial hydration
@@ -83,16 +87,16 @@ export function CreateBatchForm() {
       if (result.healthAssessment.healthStatus === 'Unhealthy') {
         toast({
             variant: 'destructive',
-            title: 'Unhealthy Plant Detected',
-            description: 'Batch creation is blocked because the plant quality is too low.',
+            title: c.toast.unhealthyTitle,
+            description: c.toast.unhealthyDescription,
         });
       }
     } catch (error) {
       console.error("Diagnosis failed:", error);
       toast({
         variant: 'destructive',
-        title: 'AI Diagnosis Failed',
-        description: 'Could not analyze the plant health. Please try again or proceed manually.',
+        title: c.toast.diagnosisFailedTitle,
+        description: c.toast.diagnosisFailedDescription,
       });
       // Allow proceeding without diagnosis by creating a mock 'error' diagnosis object
       setDiagnosis({ 
@@ -105,7 +109,7 @@ export function CreateBatchForm() {
     } finally {
       setDiagnosisLoading(false);
     }
-  }, [toast, language]);
+  }, [toast, language, c]);
 
   const handleGetLocation = () => {
     setLoadingLocation(true);
@@ -119,14 +123,14 @@ export function CreateBatchForm() {
              const preciseLocation = `${result.location} (Lat: ${latitude.toFixed(4)}, Lon: ${longitude.toFixed(4)})`;
              form.setValue("location", preciseLocation, { shouldValidate: true });
              toast({
-                title: "Location Captured",
-                description: `Farm location set to: ${preciseLocation}`,
+                title: c.toast.locationCapturedTitle,
+                description: `${c.toast.locationCapturedDescription}: ${preciseLocation}`,
              });
           } else {
              toast({
                 variant: "destructive",
-                title: "Location Error",
-                description: result.message || "Could not retrieve location.",
+                title: c.toast.locationErrorTitle,
+                description: result.message || c.toast.locationErrorDescription,
              });
           }
           setLoadingLocation(false);
@@ -135,8 +139,8 @@ export function CreateBatchForm() {
           console.error("Geolocation error:", error);
           toast({
             variant: "destructive",
-            title: "Location Error",
-            description: "Could not retrieve location. Please enable location services.",
+            title: c.toast.locationErrorTitle,
+            description: c.toast.locationPermissionError,
           });
           setLoadingLocation(false);
         }
@@ -144,8 +148,8 @@ export function CreateBatchForm() {
     } else {
       toast({
         variant: "destructive",
-        title: "Location Not Supported",
-        description: "Geolocation is not supported by your browser.",
+        title: c.toast.locationNotSupportedTitle,
+        description: c.toast.locationNotSupportedDescription,
       });
       setLoadingLocation(false);
     }
@@ -155,32 +159,32 @@ export function CreateBatchForm() {
     if (!photo) {
       toast({
         variant: 'destructive',
-        title: 'Photo Required',
-        description: 'Please take or upload a photo of the harvest.',
+        title: c.toast.photoRequiredTitle,
+        description: c.toast.photoRequiredDescription,
       });
       return;
     }
     if (!diagnosis) {
         toast({
             variant: 'destructive',
-            title: 'AI Diagnosis Required',
-            description: 'Please wait for the AI diagnosis to complete.',
+            title: c.toast.diagnosisRequiredTitle,
+            description: c.toast.diagnosisRequiredDescription,
         });
         return;
     }
      if (diagnosis.healthAssessment.healthStatus === 'Unhealthy') {
         toast({
             variant: 'destructive',
-            title: 'Batch Creation Blocked',
-            description: 'Cannot create a batch for an unhealthy plant.',
+            title: c.toast.batchCreationBlockedTitle,
+            description: c.toast.batchCreationBlockedDescription,
         });
         return;
     }
      if (!values.location) {
       toast({
         variant: 'destructive',
-        title: 'Location Required',
-        description: 'Please use the auto-locate button to set the farm location.',
+        title: c.toast.locationRequiredTitle,
+        description: c.toast.locationRequiredDescription,
       });
       return;
     }
@@ -190,15 +194,15 @@ export function CreateBatchForm() {
         const newBatch = addBatch({ ...values, photo, diagnosis });
         setNewBatchId(newBatch.batchId);
         toast({
-            title: "Batch Created Successfully!",
-            description: `Batch ID ${newBatch.batchId} is now being tracked.`,
+            title: c.toast.batchCreatedSuccessTitle,
+            description: `${c.toast.batchCreatedSuccessDescription} ${newBatch.batchId}.`,
         });
     } catch (error) {
         console.error("Failed to create batch:", error);
         toast({
             variant: "destructive",
-            title: "Failed to Create Batch",
-            description: "An unexpected error occurred.",
+            title: c.toast.batchCreationFailureTitle,
+            description: c.toast.batchCreationFailureDescription,
         });
     } finally {
         setLoading(false);
@@ -232,9 +236,9 @@ export function CreateBatchForm() {
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2">
             <QrCode className="h-6 w-6 text-primary" />
-            Batch Created & QR Code Ready
+            {c.qr.title}
           </CardTitle>
-          <CardDescription>Batch ID: {newBatchId}</CardDescription>
+          <CardDescription>{c.qr.batchIdLabel}: {newBatchId}</CardDescription>
         </CardHeader>
         <CardContent className="text-center">
           <div className="flex justify-center p-4 border rounded-lg bg-white">
@@ -247,14 +251,14 @@ export function CreateBatchForm() {
             />
           </div>
           <p className="text-muted-foreground text-sm mt-4">
-            This QR code now contains the Batch ID and can be attached to the physical batch for scanning at the next stage of the supply chain.
+            {c.qr.description}
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={handleViewProvenance}>
-              View Product Journey
+              {c.qr.viewJourneyButton}
             </Button>
             <Button variant="outline" size="lg" onClick={handleResetForm}>
-              Create Another Batch
+              {c.qr.createAnotherButton}
             </Button>
           </div>
         </CardContent>
@@ -263,14 +267,14 @@ export function CreateBatchForm() {
   }
 
     const getDiagnosisTitleAndColor = () => {
-        if (diagnosisLoading) return { title: "Analyzing...", color: "bg-muted-foreground" };
-        if (!diagnosis) return { title: "Awaiting Photo", color: "bg-muted-foreground" };
-        if (!diagnosis.isPlant) return { title: "No Plant Detected", color: "bg-amber-500" };
+        if (diagnosisLoading) return { title: c.diagnosis.analyzing, color: "bg-muted-foreground" };
+        if (!diagnosis) return { title: c.diagnosis.awaitingPhoto, color: "bg-muted-foreground" };
+        if (!diagnosis.isPlant) return { title: c.diagnosis.noPlant, color: "bg-amber-500" };
         switch (diagnosis.healthAssessment.healthStatus) {
-            case 'Healthy': return { title: "Plant is Healthy", color: "bg-green-500" };
-            case 'Moderate Concern': return { title: "Moderate Concern", color: "bg-yellow-500" };
-            case 'Unhealthy': return { title: "Unhealthy Plant", color: "bg-destructive" };
-            default: return { title: "Diagnosis Available", color: "bg-primary" };
+            case 'Healthy': return { title: c.diagnosis.healthy, color: "bg-green-500" };
+            case 'Moderate Concern': return { title: c.diagnosis.moderate, color: "bg-yellow-500" };
+            case 'Unhealthy': return { title: c.diagnosis.unhealthy, color: "bg-destructive" };
+            default: return { title: c.diagnosis.available, color: "bg-primary" };
         }
     }
   const { title, color } = getDiagnosisTitleAndColor();
@@ -282,39 +286,23 @@ export function CreateBatchForm() {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
       <div className="space-y-4">
         <div>
-          <h2 className="text-2xl font-headline font-bold">1. Harvest Photo</h2>
+          <h2 className="text-2xl font-headline font-bold">1. {c.step1.title}</h2>
           <p className="text-muted-foreground">
-            Take a real-time photo of the harvest for AI analysis.
+            {c.step1.description}
           </p>
         </div>
         <CameraCapture onCapture={handlePhotoCapture} />
         
         <div className="space-y-4">
             <div>
-              <h2 className="text-2xl font-headline font-bold mt-8">2. AI Health Diagnosis</h2>
+              <h2 className="text-2xl font-headline font-bold mt-8">2. {c.step2.title}</h2>
               <p className="text-muted-foreground">
-                Select a language and get a detailed analysis of the plant's health.
+                {c.step2.description}
               </p>
             </div>
             <div className="max-w-xs">
-                <Label htmlFor="language-select">Report Language</Label>
-                <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger id="language-select" className="mt-2">
-                        <div className="flex items-center gap-2">
-                          <Languages className="h-4 w-4" />
-                          <SelectValue placeholder="Select language" />
-                        </div>
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="English">English</SelectItem>
-                        <SelectItem value="Hindi">Hindi</SelectItem>
-                        <SelectItem value="Spanish">Spanish</SelectItem>
-                        <SelectItem value="French">French</SelectItem>
-                        <SelectItem value="Mandarin Chinese">Mandarin Chinese</SelectItem>
-                        <SelectItem value="Telugu">Telugu</SelectItem>
-                        <SelectItem value="Tamil">Tamil</SelectItem>
-                    </SelectContent>
-                </Select>
+                <Label htmlFor="language-select">{c.step2.languageLabel}</Label>
+                <LanguageSwitcher />
             </div>
         </div>
         
@@ -329,7 +317,7 @@ export function CreateBatchForm() {
                 {diagnosis && diagnosis.isPlant && <Badge variant="secondary">{diagnosis.healthAssessment.healthScore}/100</Badge>}
               </CardTitle>
               <CardDescription>
-                {diagnosisLoading ? "AI is analyzing the photo..." : diagnosis ? diagnosis.identification.description : "The AI diagnosis will appear here after a photo is taken."}
+                {diagnosisLoading ? c.diagnosis.loadingText : diagnosis ? diagnosis.identification.description : c.diagnosis.placeholder}
               </CardDescription>
             </div>
           </CardHeader>
@@ -337,7 +325,7 @@ export function CreateBatchForm() {
             <CardContent>
                 <Accordion type="single" collapsible className="w-full" defaultValue="diagnosis">
                   <AccordionItem value="diagnosis">
-                    <AccordionTrigger>Diagnosis & Recommendations</AccordionTrigger>
+                    <AccordionTrigger>{c.diagnosis.recommendations.title}</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                        <div className="flex items-center gap-2">
                         {diagnosis.healthAssessment.healthStatus === 'Healthy' ? 
@@ -351,13 +339,13 @@ export function CreateBatchForm() {
                        {diagnosis.healthAssessment.healthStatus !== 'Healthy' && (
                         <>
                           <div>
-                            <h5 className="font-semibold mb-2">Potential Causes</h5>
+                            <h5 className="font-semibold mb-2">{c.diagnosis.recommendations.causesTitle}</h5>
                             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                 {diagnosis.healthAssessment.potentialCauses.map((cause, i) => <li key={i}>{cause}</li>)}
                             </ul>
                           </div>
                           <div>
-                            <h5 className="font-semibold mb-2">Recommendations</h5>
+                            <h5 className="font-semibold mb-2">{c.diagnosis.recommendations.recsTitle}</h5>
                             <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                 {diagnosis.healthAssessment.recommendations.map((rec, i) => <li key={i}>{rec}</li>)}
                             </ul>
@@ -367,17 +355,17 @@ export function CreateBatchForm() {
                     </AccordionContent>
                   </AccordionItem>
                    <AccordionItem value="farming-guide">
-                    <AccordionTrigger>Farming Guide</AccordionTrigger>
+                    <AccordionTrigger>{c.diagnosis.farmingGuide.title}</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                       <div>
-                        <h5 className="font-semibold mb-2">Suggested Fertilizers</h5>
+                        <h5 className="font-semibold mb-2">{c.diagnosis.farmingGuide.fertilizersTitle}</h5>
                         <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                             {diagnosis.farmingGuide.suggestedFertilizers.map((fert, i) => <li key={i}>{fert}</li>)}
-                            {diagnosis.farmingGuide.suggestedFertilizers.length === 0 && <li>No specific fertilizers recommended at this time.</li>}
+                            {diagnosis.farmingGuide.suggestedFertilizers.length === 0 && <li>{c.diagnosis.farmingGuide.noFertilizers}</li>}
                         </ul>
                       </div>
                        <div>
-                        <h5 className="font-semibold mb-2">General Care Guide</h5>
+                        <h5 className="font-semibold mb-2">{c.diagnosis.farmingGuide.careGuideTitle}</h5>
                         <div className="flex items-start gap-2">
                             <Leaf className="h-5 w-5 text-primary mt-1" />
                             <div>
@@ -389,7 +377,7 @@ export function CreateBatchForm() {
                     </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="market-value">
-                    <AccordionTrigger>Market Value</AccordionTrigger>
+                    <AccordionTrigger>{c.diagnosis.marketValue.title}</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                       <div className="flex items-start gap-2">
                         <BadgeDollarSign className="h-5 w-5 text-primary mt-1" />
@@ -408,8 +396,8 @@ export function CreateBatchForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">3. Batch Details</CardTitle>
-          <CardDescription>Fill out the form to register the new harvest.</CardDescription>
+          <CardTitle className="font-headline">3. {c.step3.title}</CardTitle>
+          <CardDescription>{c.step3.description}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -419,9 +407,9 @@ export function CreateBatchForm() {
                 name="productName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product Name</FormLabel>
+                    <FormLabel>{c.form.productName.label}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Organic Basil" {...field} />
+                      <Input placeholder={c.form.productName.placeholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -432,9 +420,9 @@ export function CreateBatchForm() {
                 name="farmName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Farm Name</FormLabel>
+                    <FormLabel>{c.form.farmName.label}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., Verdant Valley Farms" {...field} />
+                      <Input placeholder={c.form.farmName.placeholder} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -445,10 +433,10 @@ export function CreateBatchForm() {
                 name="location"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Farm Location</FormLabel>
+                    <FormLabel>{c.form.location.label}</FormLabel>
                     <div className="flex items-center gap-2">
                       <FormControl>
-                        <Input placeholder="Click the button to get location" {...field} readOnly className="bg-muted"/>
+                        <Input placeholder={c.form.location.placeholder} {...field} readOnly className="bg-muted"/>
                       </FormControl>
                       <Button type="button" variant="outline" size="icon" onClick={handleGetLocation} disabled={loadingLocation}>
                          {loadingLocation ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
@@ -463,7 +451,7 @@ export function CreateBatchForm() {
                 name="harvestDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Harvest Date</FormLabel>
+                    <FormLabel>{c.form.harvestDate.label}</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -477,7 +465,7 @@ export function CreateBatchForm() {
                             {field.value ? (
                               format(field.value, "PPP")
                             ) : (
-                              <span>Pick a date</span>
+                              <span>{c.form.harvestDate.placeholder}</span>
                             )}
                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -504,10 +492,10 @@ export function CreateBatchForm() {
                 name="processingDetails"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Initial Notes & Details</FormLabel>
+                    <FormLabel>{c.form.notes.label}</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Describe the harvest conditions, batch quality, or any other relevant details."
+                        placeholder={c.form.notes.placeholder}
                         rows={3}
                         {...field}
                       />
@@ -522,16 +510,16 @@ export function CreateBatchForm() {
                   {loading ? (
                     <>
                       <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                      Generating Batch...
+                      {c.form.submitButtonLoading}
                     </>
                   ) : (
-                    "Create Batch & Get QR Code"
+                    c.form.submitButton
                   )}
                 </Button>
               </div>
                {isBatchCreationDisabled && diagnosis && (
                 <p className="text-sm text-destructive text-center">
-                    Cannot create batch. Please ensure a photo is taken and the AI diagnosis is complete and not 'Unhealthy'.
+                    {c.form.submitError}
                 </p>
               )}
             </form>
