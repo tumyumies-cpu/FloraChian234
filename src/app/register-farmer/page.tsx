@@ -9,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { FarmerApplicationSchema, type FarmerApplicationValues } from "@/lib/schemas";
-import { LoaderCircle, Send, FileText, CheckCircle, Leaf } from "lucide-react";
+import { LoaderCircle, Send, FileText, CheckCircle, Leaf, ArrowLeft } from "lucide-react";
 import Link from 'next/link';
 import { useDbContext } from "@/context/db-context";
 import { useState } from "react";
@@ -128,10 +128,12 @@ export default function RegisterFarmerPage() {
     return (
         <div className="container mx-auto max-w-3xl py-12">
             <div className="flex justify-between items-center mb-8">
-                <Link href="/" className="flex items-center gap-2 text-primary">
-                    <Leaf className="h-8 w-8" />
-                    <span className="font-headline text-2xl font-semibold">FloraChain</span>
-                </Link>
+                 <Button asChild variant="ghost">
+                  <Link href="/">
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back
+                  </Link>
+              </Button>
                 <LanguageSwitcher />
             </div>
 
