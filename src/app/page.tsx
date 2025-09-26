@@ -188,24 +188,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="w-full py-16 lg:py-24 bg-card">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.testimonials.title}</h2>
-           <div className="mt-12 max-w-lg mx-auto">
-             <Card>
-               <CardContent className="p-6">
-                <blockquote className="text-lg italic text-foreground">
-                  "{c.testimonials.quote}"
-                </blockquote>
-                <p className="mt-4 font-semibold text-right">- {c.testimonials.author}</p>
-               </CardContent>
-             </Card>
-           </div>
-        </div>
-      </section>
-
-
       {/* Footer */}
       <footer className="w-full bg-background border-t">
         <div className="container mx-auto py-12 px-4">
