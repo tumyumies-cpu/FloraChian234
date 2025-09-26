@@ -2,22 +2,22 @@
 {
   "batches": [
     {
-      "batchId": "HB-ASH-001",
-      "productName": "Ashwagandha Root",
-      "farmName": "Satvik Organic Farms",
-      "location": "Rajasthan, India (Lat: 27.02, Lon: 74.21)",
-      "harvestDate": "2024-03-15",
-      "processingDetails": "Harvested during the peak season. Roots are healthy and potent.",
-      "imageUrl": "https://picsum.photos/seed/ashwagandha/1200/800",
-      "imageHint": "ashwagandha root",
+      "batchId": "HB-MOR-001",
+      "productName": "Moringa Leaf",
+      "farmName": "GreenLeaf Organics",
+      "location": "Coimbatore, Tamil Nadu (Lat: 11.01, Lon: 76.95)",
+      "harvestDate": "2024-05-15",
+      "processingDetails": "Premium quality moringa leaves, shade-dried to preserve nutrients.",
+      "imageUrl": "https://picsum.photos/seed/moringa/1200/800",
+      "imageHint": "moringa leaves",
       "timeline": [
         {
           "id": 1,
           "title": "Cultivation & Harvest",
           "status": "complete",
-          "date": "2024-03-15",
-          "description": "Hand-picked from Satvik Organic Farms. Initial notes: Harvested during the peak season. Roots are healthy and potent.. AI diagnosis: The plant appears to be in good health with no visible signs of stress or disease.",
-          "consumerDescription": "Sourced from Satvik Organic Farms in Rajasthan, India, this ingredient was harvested on March 15, 2024 using certified organic methods.",
+          "date": "2024-05-15",
+          "description": "Hand-picked from GreenLeaf Organics. Initial notes: Premium quality moringa leaves, shade-dried. AI diagnosis: Healthy, vibrant leaves with no signs of pests.",
+          "consumerDescription": "Sourced from GreenLeaf Organics in Coimbatore, Tamil Nadu, harvested on May 15, 2024.",
           "icon": "sprout",
           "allowedRole": "farmer",
           "cta": "Update Harvest Info"
@@ -26,19 +26,89 @@
           "id": 2,
           "title": "Batch Received by Processor",
           "status": "complete",
-          "date": "2024-03-17",
-          "description": "Batch Received by Processor confirmed by processor.",
+          "date": "2024-05-17",
+          "description": "Batch received and verified by local processing unit.",
+          "consumerDescription": "The freshly harvested batch has been received at a local processing facility.",
           "icon": "warehouse",
           "allowedRole": "processor",
+          "cta": "Confirm Receipt"
+        },
+        {
+          "id": 3,
+          "title": "Local Processing & Dispatch",
+          "status": "pending",
+          "icon": "factory",
+          "allowedRole": "processor",
+          "cta": "Add Processing Details",
+          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey."
+        },
+        {
+          "id": 4,
+          "title": "Supplier Receiving",
+          "status": "locked",
+          "icon": "warehouse",
+          "allowedRole": "supplier",
           "cta": "Confirm Receipt",
-          "consumerDescription": "The freshly harvested batch has been received at a local processing facility."
+          "consumerDescription": "Batch acquired by a verified supplier, ensuring quality and traceability."
+        },
+        {
+          "id": 5,
+          "title": "Supplier Processing & Dispatch",
+          "status": "locked",
+          "icon": "handshake",
+          "allowedRole": "supplier",
+          "cta": "Add Dispatch Details",
+          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer."
+        },
+        {
+          "id": 6,
+          "title": "Ready for Formulation",
+          "status": "locked",
+          "icon": "combine",
+          "allowedRole": "brand",
+          "cta": "Select for Product",
+          "consumerDescription": "The ingredient is now ready to be used in a final product formulation."
+        }
+      ]
+    },
+    {
+      "batchId": "HB-AML-002",
+      "productName": "Amla Fruit",
+      "farmName": "Bio-Veda Growers",
+      "location": "Pratapgarh, Uttar Pradesh (Lat: 25.9, Lon: 81.97)",
+      "harvestDate": "2024-04-20",
+      "processingDetails": "Organic amla fruits, rich in Vitamin C.",
+      "imageUrl": "https://picsum.photos/seed/amla/1200/800",
+      "imageHint": "amla fruit",
+      "timeline": [
+        {
+          "id": 1,
+          "title": "Cultivation & Harvest",
+          "status": "complete",
+          "date": "2024-04-20",
+          "description": "Harvested from certified organic farm Bio-Veda Growers. AI Diagnosis: Fruits are of excellent quality.",
+          "consumerDescription": "Sourced from Bio-Veda Growers in Pratapgarh, harvested on April 20, 2024.",
+          "icon": "sprout",
+          "allowedRole": "farmer",
+          "cta": "Update Harvest Info"
+        },
+        {
+          "id": 2,
+          "title": "Batch Received by Processor",
+          "status": "complete",
+          "date": "2024-04-22",
+          "description": "Confirmed receipt by processing partner.",
+          "consumerDescription": "The freshly harvested batch has been received at a local processing facility.",
+          "icon": "warehouse",
+          "allowedRole": "processor",
+          "cta": "Confirm Receipt"
         },
         {
           "id": 3,
           "title": "Local Processing & Dispatch",
           "status": "complete",
-          "date": "2024-03-20",
-          "description": "Procurement:\n- Collection Center: CC-JAI-04\n\nProcessing:\n- Cleaning: Air-dried cleaning\n- Drying: Solar-dried at 30°C for 96 hours (Final Moisture: 7.5%)\n- Grinding: N/A\n\nQuality & Safety:\n- Inspection: Excellent color and aroma. No foreign matter detected.\n\nStorage & Dispatch:\n- Stored for 5 days in Climate-controlled warehouse",
+          "date": "2024-04-25",
+          "description": "De-seeded and sun-dried. Final moisture content at 10%. Dispatched to supplier.",
           "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.",
           "icon": "factory",
           "allowedRole": "processor",
@@ -48,19 +118,19 @@
           "id": 4,
           "title": "Supplier Receiving",
           "status": "complete",
-          "date": "2024-03-25",
-          "description": "Supplier Receiving confirmed by supplier.",
+          "date": "2024-04-30",
+          "description": "Batch received at supplier warehouse.",
+          "consumerDescription": "Batch acquired by a verified supplier, ensuring quality and traceability.",
           "icon": "warehouse",
           "allowedRole": "supplier",
-          "cta": "Confirm Receipt",
-          "consumerDescription": "Batch acquired by a verified supplier, ensuring quality and traceability."
+          "cta": "Confirm Receipt"
         },
         {
           "id": 5,
           "title": "Supplier Processing & Dispatch",
           "status": "complete",
-          "date": "2024-03-28",
-          "description": "Acquisition:\n- Supplier ID: AYUR-SUPPLY-WEST\n- Location: Mumbai, MH Distribution Hub\n- Quantity: 800 kg\n- Internal Lot #: LOT-A-881-24\n\nQuality & Compliance:\n- Inspection: Certificate of Analysis verified. Meets all quality parameters.\n- Certifications: USDA Organic, India Organic",
+          "date": "2024-05-02",
+          "description": "Internal Lot: SPL-AMLA-512. COA verified. Ready for brand formulation.",
           "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer.",
           "icon": "handshake",
           "allowedRole": "supplier",
@@ -78,98 +148,22 @@
       ]
     },
     {
-      "batchId": "HB-TRM-002",
-      "productName": "Turmeric Rhizome",
-      "farmName": "Deccan Herbal Growers",
-      "location": "Erode, Tamil Nadu (Lat: 11.34, Lon: 77.71)",
-      "harvestDate": "2024-04-01",
-      "processingDetails": "Fresh harvest of bright, curcumin-rich turmeric.",
-      "imageUrl": "https://picsum.photos/seed/turmeric/1200/800",
-      "imageHint": "turmeric root",
+      "batchId": "HB-GIN-003",
+      "productName": "Ginger Rhizome",
+      "farmName": "Himalayan Roots",
+      "location": "Kangra, Himachal Pradesh (Lat: 32.1, Lon: 76.27)",
+      "harvestDate": "2024-05-25",
+      "processingDetails": "Freshly harvested ginger, known for its pungent aroma.",
+      "imageUrl": "https://picsum.photos/seed/ginger/1200/800",
+      "imageHint": "ginger root",
       "timeline": [
         {
           "id": 1,
           "title": "Cultivation & Harvest",
           "status": "complete",
-          "date": "2024-04-01",
-          "description": "Hand-picked from Deccan Herbal Growers. Initial notes: Fresh harvest of bright, curcumin-rich turmeric.. AI diagnosis: The plant appears to be in good health with no visible signs of stress or disease.",
-          "consumerDescription": "Sourced from Deccan Herbal Growers in Erode, Tamil Nadu, this ingredient was harvested on April 1, 2024 using certified organic methods.",
-          "icon": "sprout",
-          "allowedRole": "farmer",
-          "cta": "Update Harvest Info"
-        },
-        {
-          "id": 2,
-          "title": "Batch Received by Processor",
-          "status": "complete",
-          "date": "2024-04-03",
-          "description": "Batch Received by Processor confirmed by processor.",
-          "icon": "warehouse",
-          "allowedRole": "processor",
-          "cta": "Confirm Receipt",
-          "consumerDescription": "The freshly harvested batch has been received at a local processing facility."
-        },
-        {
-          "id": 3,
-          "title": "Local Processing & Dispatch",
-          "status": "complete",
-          "date": "2024-04-06",
-          "description": "Procurement:\n- Collection Center: CC-ERD-01\n\nProcessing:\n- Cleaning: Mechanical washing\n- Drying: Mechanical drying at 60°C for 8 hours (Final Moisture: 9.0%)\n- Grinding: N/A\n\nQuality & Safety:\n- Inspection: High curcumin content confirmed by lab.\n\nStorage & Dispatch:\n- Stored for 3 days in dry warehouse",
-          "consumerDescription": "The raw herb is carefully cleaned, dried, and prepared for the next stage of its journey.",
-          "icon": "factory",
-          "allowedRole": "processor",
-          "cta": "Add Processing Details"
-        },
-        {
-          "id": 4,
-          "title": "Supplier Receiving",
-          "status": "complete",
-          "date": "2024-04-10",
-          "description": "Supplier Receiving confirmed by supplier.",
-          "icon": "warehouse",
-          "allowedRole": "supplier",
-          "cta": "Confirm Receipt",
-          "consumerDescription": "Batch acquired by a verified supplier, ensuring quality and traceability."
-        },
-        {
-          "id": 5,
-          "title": "Supplier Processing & Dispatch",
-          "status": "complete",
-          "date": "2024-04-12",
-          "description": "Acquisition:\n- Supplier ID: AYUR-SUPPLY-SOUTH\n- Location: Chennai, TN Hub\n- Quantity: 1200 kg\n- Internal Lot #: LOT-T-112-24\n\nQuality & Compliance:\n- Inspection: Verified curcumin content > 5%.\n- Certifications: Fair Trade, India Organic",
-          "consumerDescription": "The ingredient is inspected, certified, and prepared for shipment to the manufacturer.",
-          "icon": "handshake",
-          "allowedRole": "supplier",
-          "cta": "Add Dispatch Details"
-        },
-        {
-          "id": 6,
-          "title": "Ready for Formulation",
-          "status": "pending",
-          "icon": "combine",
-          "allowedRole": "brand",
-          "cta": "Select for Product",
-          "consumerDescription": "The ingredient is now ready to be used in a final product formulation."
-        }
-      ]
-    },
-    {
-      "batchId": "HB-TLS-003",
-      "productName": "Holy Basil (Tulsi)",
-      "farmName": "Himalayan Herb Co-op",
-      "location": "Uttarakhand, India (Lat: 30.06, Lon: 79.01)",
-      "harvestDate": "2024-05-10",
-      "processingDetails": "Prime leaves harvested, very aromatic.",
-      "imageUrl": "https://picsum.photos/seed/tulsi/1200/800",
-      "imageHint": "tulsi leaves",
-      "timeline": [
-        {
-          "id": 1,
-          "title": "Cultivation & Harvest",
-          "status": "complete",
-          "date": "2024-05-10",
-          "description": "Hand-picked from Himalayan Herb Co-op. Initial notes: Prime leaves harvested, very aromatic.. AI diagnosis: The plant appears to be in good health with no visible signs of stress or disease.",
-          "consumerDescription": "Sourced from Himalayan Herb Co-op in Uttarakhand, India, this ingredient was harvested on May 10, 2024 using certified organic methods.",
+          "date": "2024-05-25",
+          "description": "Harvested from Himalayan Roots. AI Scan: Healthy rhizomes, good size.",
+          "consumerDescription": "Sourced from Himalayan Roots in Kangra, Himachal Pradesh, harvested on May 25, 2024.",
           "icon": "sprout",
           "allowedRole": "farmer",
           "cta": "Update Harvest Info"
@@ -224,22 +218,22 @@
   ],
   "products": [
     {
-      "productId": "PROD-1001",
-      "productName": "Serene Spirit Ashwagandha Tincture",
-      "brandName": "Dharma Naturals",
-      "assembledDate": "2024-04-05",
+      "productId": "PROD-1003",
+      "productName": "Vitality Boost Tincture",
+      "brandName": "Zenith Herbals",
+      "assembledDate": "2024-05-10",
       "componentBatches": [
-        "HB-ASH-001"
+        "HB-AML-002"
       ],
-      "imageUrl": "https://picsum.photos/seed/tincture/1200/800",
+      "imageUrl": "https://picsum.photos/seed/vitality/1200/800",
       "imageHint": "herbal tincture bottle",
       "timeline": [
         {
           "id": 99,
           "title": "Formulation & Manufacturing",
           "status": "complete",
-          "date": "2024-04-05",
-          "description": "Combined from 1 ingredient batches to create Serene Spirit Ashwagandha Tincture.",
+          "date": "2024-05-10",
+          "description": "Formulated with Amla fruit extract for high antioxidant content.",
           "consumerDescription": "Based on classical formulations, this product combines high-quality ingredients into a final blend.",
           "icon": "combine",
           "allowedRole": "brand",
@@ -249,8 +243,8 @@
           "id": 100,
           "title": "Manufacturing & Packaging",
           "status": "complete",
-          "date": "2024-04-08",
-          "description": "Formulation & Processing:\n- Recipe ID: R-ADAPT-01\n- Extraction Method: Hydro-alcoholic extraction\n- Equipment: GMP-certified stainless steel vats\n- Packaging Details: Packaged in 100% post-consumer recycled amber glass bottles.\n\nQuality Control:\n- IPSS Tests: Passed\n- Heavy Metals: Passed - Below detectable limits\n- Microbial Safety: Passed\n\nFinal Batch Details:\n- Finished Product Batch ID: FP-ARB-24-001\n- Expiry Date: 2026-04-08\n- GMP Compliance: Fully compliant.",
+          "date": "2024-05-12",
+          "description": "Final Batch ID: FP-VBT-24-001. Packaged in UV-protective bottles.",
           "consumerDescription": "The product is manufactured and packaged in a GMP-certified facility, ensuring safety and quality.",
           "icon": "package",
           "allowedRole": "brand",
@@ -260,8 +254,8 @@
           "id": 101,
           "title": "Distribution",
           "status": "complete",
-          "date": "2024-04-15",
-          "description": "Warehouse & Stock:\n- Warehouse ID: WH-DAL-01\n- Stock Entry Date: 2024-04-15\n\nTransportation:\n- Mode: Climate-controlled truck\n- Cold Chain: Maintained at 15-25°C\n\nDistributor:\n- ID: DIST-US-CENTRAL",
+          "date": "2024-05-18",
+          "description": "Shipped via refrigerated transport to maintain freshness. Distributor: HealthWay Logistics.",
           "consumerDescription": "Dispatched to verified distributors, ensuring the product is handled carefully in transit.",
           "icon": "truck",
           "allowedRole": "distributor",
@@ -271,8 +265,8 @@
           "id": 102,
           "title": "Retailer Receiving",
           "status": "complete",
-          "date": "2024-04-22",
-          "description": "Retailer Receiving confirmed by retailer.",
+          "date": "2024-05-22",
+          "description": "Product received at 'The Organic Store' warehouse.",
           "consumerDescription": "Product received by a verified retail partner.",
           "icon": "warehouse",
           "allowedRole": "retailer",
@@ -281,78 +275,7 @@
         {
           "id": 103,
           "title": "In-Store Inventory",
-          "status": "complete",
-          "date": "2024-04-23",
-          "description": "Store Details:\n- Store ID: Whole Foods - Austin, TX\n- Available for Sale: 2024-04-23\n- Current Status: In Stock",
-          "consumerDescription": "Product is available for purchase at your trusted local or online store.",
-          "icon": "store",
-          "allowedRole": "retailer",
-          "cta": "Confirm Retail Arrival"
-        },
-        {
-          "id": 104,
-          "title": "Consumer Authenticity Scan",
           "status": "pending",
-          "icon": "scan",
-          "allowedRole": "consumer",
-          "cta": "View Product Story",
-          "consumerDescription": "You have scanned a verified, authentic product. Thank you for choosing FloraChain."
-        }
-      ]
-    },
-    {
-      "productId": "PROD-1002",
-      "productName": "Golden Glow Turmeric Capsules",
-      "brandName": "Surya Wellness",
-      "assembledDate": "2024-04-20",
-      "componentBatches": [
-        "HB-TRM-002"
-      ],
-      "imageUrl": "https://picsum.photos/seed/capsules/1200/800",
-      "imageHint": "herbal capsules bottle",
-      "timeline": [
-        {
-          "id": 99,
-          "title": "Formulation & Manufacturing",
-          "status": "complete",
-          "date": "2024-04-20",
-          "description": "Combined from 1 ingredient batch to create Golden Glow Turmeric Capsules.",
-          "consumerDescription": "Based on classical formulations, this product combines high-quality ingredients into a final blend.",
-          "icon": "combine",
-          "allowedRole": "brand",
-          "cta": "View Final Product"
-        },
-        {
-          "id": 100,
-          "title": "Manufacturing & Packaging",
-          "status": "pending",
-          "icon": "package",
-          "allowedRole": "brand",
-          "cta": "Add Manufacturing Data",
-          "consumerDescription": "The product is manufactured and packaged in a GMP-certified facility, ensuring safety and quality."
-        },
-        {
-          "id": 101,
-          "title": "Distribution",
-          "status": "locked",
-          "icon": "truck",
-          "allowedRole": "distributor",
-          "cta": "Add Shipping Manifest",
-          "consumerDescription": "Dispatched to verified distributors, ensuring the product is handled carefully in transit."
-        },
-        {
-          "id": 102,
-          "title": "Retailer Receiving",
-          "status": "locked",
-          "icon": "warehouse",
-          "allowedRole": "retailer",
-          "cta": "Confirm Receipt",
-          "consumerDescription": "Product received by a verified retail partner."
-        },
-        {
-          "id": 103,
-          "title": "In-Store Inventory",
-          "status": "locked",
           "icon": "store",
           "allowedRole": "retailer",
           "cta": "Confirm Retail Arrival",
