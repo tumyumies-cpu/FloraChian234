@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Leaf, LoaderCircle, ArrowLeft } from 'lucide-react';
+import { Leaf, LoaderCircle, ArrowLeft, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,11 +39,7 @@ function LoginContent() {
       const users = db?.users || [];
       const existingUser = users.find(u => u.email.toLowerCase() === values.email.toLowerCase());
       
-      let role;
-      if (existingUser) {
-        role = existingUser.role;
-      } else {
-        // Default role logic for users NOT in the database
+      if (!existingUser) {
         toast({
             variant: "destructive",
             title: "Access Denied",
@@ -53,14 +49,19 @@ function LoginContent() {
         return;
       }
       
-      setAuthInfo({ email: values.email, role });
+      setAuthInfo({ email: values.email, role: existingUser.role });
       toast({
         title: "Login Successful",
         description: `Welcome! Redirecting to your dashboard.`,
       });
-      router.push(`/dashboard?role=${role}`);
+      router.push(`/dashboard?role=${existingUser.role}`);
       setLoading(false);
     }, 1000);
+  };
+
+  const handleDemoLogin = (email: string) => {
+    form.setValue("email", email);
+    form.setValue("password", "password"); // Use a static password for demo
   };
 
   return (
@@ -106,6 +107,35 @@ function LoginContent() {
           </Form>
         </CardContent>
       </Card>
+
+      {db?.users && (
+        <Card className="mt-6">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+                <Users className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg font-headline">Demo Credentials</CardTitle>
+            </div>
+            <CardDescription>Click any user to auto-fill login details.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <div className="space-y-2">
+                {db.users.map(user => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleDemoLogin(user.email)}
+                    className="w-full text-left p-2 rounded-md hover:bg-muted transition-colors"
+                  >
+                    <p className="text-sm font-medium">{user.email}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Role: <span className="capitalize font-semibold">{user.role}</span> | Password: password
+                    </p>
+                  </button>
+                ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <p className="px-8 text-center text-sm text-muted-foreground mt-6">
           This login is for authorized members only. If you are a consumer, please use the "Track Your Product" button on the home page.
       </p>
