@@ -97,9 +97,55 @@ function ProvenancePageContent() {
   
   const isConsumerView = role === 'consumer';
 
+  if (isConsumerView) {
+    return (
+       <div className="min-h-screen">
+         <main className="container mx-auto py-8 sm:py-12 max-w-4xl">
+            <div className="space-y-12">
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                    <div className="space-y-4">
+                      <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+                          <ShieldCheck className="h-5 w-5" />
+                          <span>Verified Authentic</span>
+                      </div>
+                      <h1 className="mt-2 text-4xl md:text-5xl font-headline font-extrabold tracking-tight">{data.productName}</h1>
+                      <p className="text-lg text-muted-foreground">ID: <span className="font-mono text-foreground text-base">{isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}</span></p>
+                    </div>
+                     <Card className="overflow-hidden shadow-lg rounded-lg">
+                        <Image
+                            src={imageUrl}
+                            alt={`Image of ${data.productName}`}
+                            width={1200}
+                            height={800}
+                            className="object-cover w-full h-full"
+                            data-ai-hint={imageHint}
+                            priority
+                        />
+                    </Card>
+                </section>
+                
+                 <section>
+                    <StoryGenerator {...storyGeneratorProps} />
+                </section>
+
+                <section className="space-y-6">
+                    <h2 className="text-3xl font-headline font-bold text-center">The Journey of Your Product</h2>
+                    <InteractiveTimeline 
+                      initialEvents={data.timeline} 
+                      role={role} 
+                      batchId={isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}
+                      isProduct={isProduct}
+                    />
+                </section>
+            </div>
+         </main>
+       </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
-      <main className={`container mx-auto py-8 sm:py-12 ${isConsumerView ? 'max-w-4xl' : 'max-w-5xl'}`}>
+      <main className="container mx-auto py-8 sm:py-12 max-w-5xl">
         <div className="space-y-8">
             <div className="mb-4">
               <Button asChild variant="ghost">
@@ -111,17 +157,7 @@ function ProvenancePageContent() {
             </div>
             
             {/* Header Section */}
-            <section className={isConsumerView ? 'text-center' : 'grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center'}>
-                {isConsumerView ? (
-                    <>
-                        <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
-                            <ShieldCheck className="h-5 w-5" />
-                            <span>Verified Authentic</span>
-                        </div>
-                        <h1 className="mt-4 text-4xl md:text-5xl font-headline font-extrabold tracking-tight">{data.productName}</h1>
-                        <p className="mt-2 text-lg text-muted-foreground">ID: <span className="font-mono text-foreground text-base">{isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}</span></p>
-                    </>
-                ) : (
+            <section className='grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center'>
                     <div className="space-y-4">
                       <p className="font-semibold text-primary">PROVENANCE REPORT</p>
                       <h1 className="text-4xl md:text-5xl font-headline font-extrabold tracking-tight">{data.productName}</h1>
@@ -140,7 +176,6 @@ function ProvenancePageContent() {
                         </div>
                       )}
                     </div>
-                )}
                 <Card className="overflow-hidden shadow-lg">
                     <Image
                         src={imageUrl}
@@ -149,19 +184,9 @@ function ProvenancePageContent() {
                         height={800}
                         className="object-cover w-full h-full"
                         data-ai-hint={imageHint}
-                        priority={isConsumerView}
                     />
                 </Card>
             </section>
-
-            <Separator />
-          
-            {/* AI Story Section */}
-            {isConsumerView && (
-              <section>
-                  <StoryGenerator {...storyGeneratorProps} />
-              </section>
-            )}
           
             {/* Ingredient Summary Section (for products only) */}
             {isProduct && role !== 'distributor' && role !== 'retailer' && (
@@ -176,7 +201,7 @@ function ProvenancePageContent() {
 
             {/* Timeline Section */}
             <section className="space-y-6">
-                <h2 className="text-3xl font-headline font-bold text-center">The Journey of Your Product</h2>
+                <h2 className="text-3xl font-headline font-bold text-center pt-8">Product Journey Log</h2>
                 <InteractiveTimeline 
                   initialEvents={data.timeline} 
                   role={role} 
@@ -199,3 +224,5 @@ export default function ProvenancePage() {
         </DbProvider>
     );
 }
+
+    
