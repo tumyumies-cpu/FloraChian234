@@ -99,36 +99,38 @@ function ProvenancePageContent() {
 
   if (isConsumerView) {
     return (
-       <div className="min-h-screen">
+       <div className="min-h-screen bg-background">
+         <section className="relative h-[60vh] min-h-[400px] w-full text-white">
+            <Image
+                src={imageUrl}
+                alt={`Image of ${data.productName}`}
+                fill
+                className="object-cover"
+                data-ai-hint={imageHint}
+                priority
+            />
+            <div className="absolute inset-0 bg-black/50" />
+            <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12">
+                <div className="max-w-4xl mx-auto w-full">
+                    <div className="inline-flex items-center gap-2 rounded-full bg-primary/80 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-primary-foreground">
+                        <ShieldCheck className="h-5 w-5" />
+                        <span>Verified Authentic</span>
+                    </div>
+                    <h1 className="mt-4 text-4xl md:text-6xl font-headline font-extrabold tracking-tight drop-shadow-md">{data.productName}</h1>
+                    <p className="mt-2 text-lg text-white/80 drop-shadow-sm">ID: <span className="font-mono text-white text-base">{isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}</span></p>
+                </div>
+            </div>
+         </section>
+
          <main className="container mx-auto py-8 sm:py-12 max-w-4xl">
             <div className="space-y-12">
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
-                          <ShieldCheck className="h-5 w-5" />
-                          <span>Verified Authentic</span>
-                      </div>
-                      <h1 className="mt-2 text-4xl md:text-5xl font-headline font-extrabold tracking-tight">{data.productName}</h1>
-                      <p className="text-lg text-muted-foreground">ID: <span className="font-mono text-foreground text-base">{isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}</span></p>
-                    </div>
-                     <Card className="overflow-hidden shadow-lg rounded-lg">
-                        <Image
-                            src={imageUrl}
-                            alt={`Image of ${data.productName}`}
-                            width={1200}
-                            height={800}
-                            className="object-cover w-full h-full"
-                            data-ai-hint={imageHint}
-                            priority
-                        />
-                    </Card>
-                </section>
-                
-                 <section>
+                <section>
                     <StoryGenerator {...storyGeneratorProps} />
                 </section>
 
-                <section className="space-y-6">
+                <Separator />
+
+                <section className="space-y-8">
                     <h2 className="text-3xl font-headline font-bold text-center">The Journey of Your Product</h2>
                     <InteractiveTimeline 
                       initialEvents={data.timeline} 
