@@ -213,10 +213,10 @@ export default function HomePage() {
                     <CardTitle className="font-headline text-xl">{product.description}</CardTitle>
                   </CardHeader>
                   <CardContent className="flex-grow flex flex-col">
-                    <p className="text-2xl font-bold text-primary mb-4">$29.99</p>
+                    <p className="text-2xl font-bold text-primary mb-4">₹2499</p>
                     <div className="mt-auto">
                         <Button className="w-full" asChild>
-                         <Link href={`/provenance/PROD-1001?role=consumer`}>View Details & Provenance</Link>
+                         <Link href={`/provenance/PROD-1001?role=consumer`}>Shop Now</Link>
                         </Button>
                     </div>
                   </CardContent>
