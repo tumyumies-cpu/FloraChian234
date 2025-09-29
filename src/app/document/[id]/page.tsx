@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -57,7 +58,8 @@ function PrintableReport() {
     useEffect(() => {
         if (!loading && typeof window !== 'undefined') {
             // A short delay helps ensure all content is rendered before printing
-            setTimeout(() => window.print(), 500);
+            const printTimeout = setTimeout(() => window.print(), 500);
+            return () => clearTimeout(printTimeout);
         }
     }, [loading]);
     
@@ -139,6 +141,7 @@ function PrintableReport() {
                                     alt={`QR Code for ${id}`}
                                     width={150}
                                     height={150}
+                                    data-ai-hint="qr code"
                                 />
                             </div>
                         )}
@@ -153,7 +156,9 @@ function PrintableReport() {
 export default function DocumentPage() {
   return (
     <DbProvider>
-      <PrintableReport />
+      <Suspense fallback={<div>Loading Report...</div>}>
+        <PrintableReport />
+      </Suspense>
     </DbProvider>
   );
 }

@@ -73,7 +73,8 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   useEffect(() => {
     setEvents(initialEvents);
     if (role === 'consumer') {
-        setEvents(prevEvents => prevEvents.filter(e => e.id !== 104));
+        // Hide events that are purely for internal supply chain roles
+        setEvents(prevEvents => prevEvents.filter(e => e.id !== 104 && e.id !== 6));
     }
   }, [initialEvents, role]);
 
@@ -236,11 +237,11 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   };
 
   const getDocumentIdForEvent = (event: TimelineEvent) => {
-    // For a product timeline, manufacturing events and beyond belong to the product itself.
+    // For a product timeline, events from manufacturing onwards belong to the product itself.
     if (isProduct && event.id >= 99) {
       return batchId; // Use the product ID
     }
-    // For events related to harvesting, processing, etc., link to the first component batch.
+    // For earlier events (harvest, processing), link to the first component batch.
     if (isProduct && componentBatches.length > 0) {
       return componentBatches[0];
     }
