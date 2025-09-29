@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Leaf, Printer } from 'lucide-react';
+import { Leaf, Printer, AlertTriangle } from 'lucide-react';
 import { useDbContext, DbProvider } from '@/context/db-context';
 
 function PrintableReport() {
@@ -36,26 +36,23 @@ function PrintableReport() {
             const isProduct = id.startsWith('PROD-');
             const fetchedData = isProduct ? db.products.find(p => p.productId.toUpperCase() === id.toUpperCase()) : db.batches.find(b => b.batchId.toUpperCase() === id.toUpperCase());
 
-            if (!fetchedData) {
-                setIsDataFound(false);
-                return;
+            if (fetchedData) {
+                const timeline = isProduct ? (fetchedData as AssembledProduct).timeline : (fetchedData as BatchData).timeline;
+                const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
+
+                if (stageEvent) {
+                    setData(fetchedData as BatchData | AssembledProduct);
+                    setStage(stageEvent);
+                    QRCode.toDataURL(id, { width: 150, margin: 2 }).then(setQrCodeDataUrl);
+                    setIsDataFound(true);
+                } else {
+                    setIsDataFound(false); // Stage not found
+                }
+            } else {
+                setIsDataFound(false); // ID not found
             }
-            
-            const timeline = isProduct ? (fetchedData as AssembledProduct).timeline : (fetchedData as BatchData).timeline;
-            const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
-
-            if (!stageEvent) {
-                setIsDataFound(false);
-                return;
-            }
-
-            setData(fetchedData as BatchData | AssembledProduct);
-            setStage(stageEvent);
-            QRCode.toDataURL(id, { width: 150, margin: 2 }).then(setQrCodeDataUrl);
-            setIsDataFound(true);
-
         } else {
-            setIsDataFound(false);
+            setIsDataFound(false); // Missing params or db
         }
     }, [id, stageId, db, dbLoading]);
     
@@ -67,17 +64,40 @@ function PrintableReport() {
         }
     }, [isDataFound]);
     
-    if (isDataFound === false) {
-        notFound();
-    }
-    
-    if (dbLoading || isDataFound === null || !data || !stage) {
+    if (dbLoading || isDataFound === null) {
         return (
-            <div className="p-8 max-w-2xl mx-auto">
-                <Skeleton className="h-8 w-48 mb-4" />
-                <Skeleton className="h-96 w-full" />
+            <div className="p-8 max-w-3xl mx-auto">
+                 <header className="flex justify-between items-center mb-8 print:hidden">
+                     <div className="flex items-center gap-2 text-primary">
+                        <Leaf className="h-7 w-7 text-slate-800" />
+                        <span className="font-headline text-xl font-semibold text-slate-800">FloraChain Report</span>
+                    </div>
+                </header>
+                <main className="p-8 border border-slate-200 rounded-lg">
+                    <Skeleton className="h-8 w-48 mb-4" />
+                    <Skeleton className="h-6 w-full mb-2" />
+                    <Skeleton className="h-4 w-32 mb-6" />
+                    <Skeleton className="h-96 w-full" />
+                </main>
             </div>
         );
+    }
+    
+    if (isDataFound === false) {
+        return (
+            <div className="flex min-h-screen flex-col items-center justify-center bg-background text-center p-4">
+                <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
+                <h1 className="text-2xl font-bold font-headline">Report Not Found</h1>
+                <p className="text-muted-foreground mt-2">
+                    The document you are looking for does not exist or is invalid. Please check the ID and try again.
+                </p>
+                <Button onClick={() => window.history.back()} className="mt-6">Go Back</Button>
+            </div>
+        );
+    }
+
+    if (!data || !stage) {
+        return null; // Should be handled by the states above, but as a safeguard.
     }
 
     const StageIcon = iconMap[stage.icon];
@@ -170,4 +190,3 @@ export default function DocumentPage() {
     </DbProvider>
   );
 }
-

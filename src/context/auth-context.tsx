@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authInfo, setAuthInfoState] = useState<AuthInfo | null>(null);
-  const [loading, setLoading] = useState(true); // <-- Add loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     try {
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.warn("Could not access localStorage. Auth persistence will be disabled.");
     } finally {
-      setLoading(false); // <-- Set loading to false after checking localStorage
+      setLoading(false); 
     }
   }, []);
 
@@ -46,11 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
        console.warn("Could not access localStorage. Auth persistence will be disabled.");
     }
   };
-
-  // Do not render children until loading is complete
-  if (loading) {
-    return null; 
-  }
 
   return (
     <AuthContext.Provider value={{ authInfo, setAuthInfo, loading }}>
