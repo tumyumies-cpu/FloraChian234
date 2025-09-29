@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Leaf, ShieldCheck, Globe, Users, Twitter, Facebook, Instagram, Linkedin, Sprout, Factory, Truck, Scan, BarChart, DollarSign, Award, MapPin, Fingerprint, QrCode } from 'lucide-react';
+import { ArrowRight, Leaf, ShieldCheck, Globe, Users, Twitter, Facebook, Instagram, Linkedin, Sprout, Factory, Truck, Scan, BarChart, DollarSign, Award, MapPin, Fingerprint, QrCode, Gem, BrainCircuit, Shield, SunSnow } from 'lucide-react';
 import { useLanguage, content } from '@/context/language-context';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,13 +16,6 @@ export default function HomePage() {
   
   const heroImages = PlaceHolderImages.filter(img => img.id.startsWith('hero-'));
   const featuredProducts = PlaceHolderImages.filter(img => img.id.startsWith('product-'));
-
-  const howItWorksSteps = [
-    { text: c.howItWorks.step1, icon: Sprout },
-    { text: c.howItWorks.step2, icon: Factory },
-    { text: c.howItWorks.step3, icon: Truck },
-    { text: c.howItWorks.step4, icon: Scan },
-  ];
 
   const techPillars = [
     {
@@ -42,6 +35,39 @@ export default function HomePage() {
     },
   ];
 
+  const keyInnovations = [
+    {
+        title: 'Biodiversity Credit Marketplace',
+        description: 'Tokenized green credits are awarded for verified sustainable and regenerative harvesting practices, creating a new revenue stream for ethical farmers.',
+        icon: Award
+    },
+    {
+        title: 'Impact NFTs for Consumers',
+        description: 'Each purchase can mint a unique Impact NFT, visually representing the product\'s journey, the farmer\'s story, and the positive environmental impact.',
+        icon: Gem
+    },
+    {
+        title: 'Zero-Knowledge Compliance Proofs',
+        description: 'Verify authenticity and regulatory compliance on the blockchain without ever exposing sensitive farmer or proprietary company data, ensuring privacy.',
+        icon: Shield
+    },
+    {
+        title: 'Digital Twin & Predictive Simulation',
+        description: 'A real-time virtual model of the supply chain predicts disruptions, simulates demand spikes, and optimizes inventory, reducing waste.',
+        icon: BrainCircuit
+    },
+    {
+        title: 'Climate-Adaptive Smart Contracts',
+        description: 'Contracts automatically adjust harvest schedules and farmer payments based on live, localized weather data, building resilience against climate change.',
+        icon: SunSnow
+    },
+    {
+        title: 'Dynamic Incentives',
+        description: 'Reward farmers in real-time for meeting quality benchmarks, water conservation, and other sustainable goals, driving positive behavior.',
+        icon: DollarSign
+    }
+  ];
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
@@ -54,9 +80,9 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <div className="hidden md:flex gap-1">
                 <Button asChild variant="ghost">
-                    <Link href="#about">{c.nav.about}</Link>
+                    <Link href="#innovations">Innovations</Link>
                 </Button>
-                 <Button asChild variant="ghost">
+                <Button asChild variant="ghost">
                     <Link href="#how-it-works">How It Works</Link>
                 </Button>
                 <Button asChild variant="ghost">
@@ -112,11 +138,37 @@ export default function HomePage() {
         </div>
       </section>
       
-      {/* How FloraChain Works (for Judges) */}
+       {/* Key Innovations Section */}
+      <section id="innovations" className="w-full py-16 lg:py-24 bg-card">
+        <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">Key Innovations</h2>
+                <p className="mt-4 text-lg text-muted-foreground">Discover the next-generation technology that makes FloraChain unique and sets a new standard for trust and sustainability in the supply chain.</p>
+            </div>
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {keyInnovations.map((pillar, index) => (
+                    <Card key={index} className="flex flex-col">
+                        <CardHeader className="items-start">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary mb-4">
+                                <pillar.icon className="h-6 w-6" />
+                            </div>
+                            <CardTitle className="font-headline text-xl">{pillar.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground">{pillar.description}</p>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
+      </section>
+
+
+       {/* How FloraChain Works (for Judges) */}
        <section id="how-it-works" className="w-full py-16 lg:py-24 bg-background text-foreground">
         <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">How FloraChain Ensures Trust</h2>
+                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">Our Core Technology</h2>
                 <p className="mt-4 text-lg text-muted-foreground">Our platform is built on three core technological pillars that provide an immutable, end-to-end provenance ledger.</p>
             </div>
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -134,17 +186,6 @@ export default function HomePage() {
               </Card>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* About Section */}
-      <section id="about" className="w-full py-16 lg:py-24 bg-card text-foreground">
-        <div className="container mx-auto px-4 text-center">
-            <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.about.title}</h2>
-              <p className="mt-4 text-lg text-muted-foreground">{c.about.p1}</p>
-              <p className="mt-4 text-muted-foreground">{c.about.p2}</p>
-            </div>
         </div>
       </section>
       
@@ -220,7 +261,7 @@ export default function HomePage() {
               <div>
                 <h4 className="font-headline font-semibold">{c.footer.navigate.title}</h4>
                 <ul className="mt-4 space-y-2 text-sm">
-                  <li><Link href="#about" className="text-muted-foreground hover:text-primary">{c.footer.navigate.about}</Link></li>
+                  <li><Link href="#innovations" className="text-muted-foreground hover:text-primary">Innovations</Link></li>
                   <li><Link href="/verify?role=consumer" className="text-muted-foreground hover:text-primary">{c.footer.navigate.track}</Link></li>
                   <li><Link href="/login" className="text-muted-foreground hover:text-primary">{c.footer.navigate.signIn}</Link></li>
                 </ul>
@@ -257,5 +298,7 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
 
     
