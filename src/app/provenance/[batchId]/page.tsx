@@ -6,7 +6,7 @@ import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShieldCheck, MapPin, Award, User, CheckCircle, Leaf, FileText } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Award, User, CheckCircle, Leaf, FileText, Globe } from 'lucide-react';
 import { InteractiveTimeline } from '@/components/interactive-timeline';
 import type { BatchData, AssembledProduct, UserRole } from '@/lib/data';
 import { ComponentBatchSummary } from '@/components/component-batch-summary';
@@ -14,8 +14,6 @@ import { useSearchParams, useParams, notFound } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDbContext, DbProvider } from '@/context/db-context';
-import { Badge } from '@/components/ui/badge';
-
 
 function ProvenancePageContent() {
   const params = useParams();
@@ -100,8 +98,16 @@ function ProvenancePageContent() {
 
   if (isConsumerView && isProduct && 'brandName' in data) {
     const product = data as AssembledProduct;
-    // For consumers viewing a product, we show details of the FIRST ingredient batch as a representative example.
     const firstBatch = db?.batches.find(b => b.batchId === product.componentBatches[0]);
+    
+    let lat = 0, lon = 0;
+    if (firstBatch?.location) {
+        const match = firstBatch.location.match(/Lat: ([-]?\d+\.\d+), Lon: ([-]?\d+\.\d+)/);
+        if (match) {
+            lat = parseFloat(match[1]);
+            lon = parseFloat(match[2]);
+        }
+    }
 
     return (
        <div className="min-h-screen bg-background">
@@ -147,17 +153,38 @@ function ProvenancePageContent() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <p className="font-semibold text-lg">{firstBatch.farmName}</p>
-                      <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                        <MapPin className="h-4 w-4" />
-                        <span>{firstBatch.location}</span>
-                      </div>
                       <p className="text-sm text-muted-foreground pt-2">
                         {`Nestled in the heart of ${firstBatch.location.split(',')[1]}, ${firstBatch.farmName} is a community-run farm dedicated to preserving traditional and sustainable Ayurvedic farming practices.`}
                       </p>
                     </CardContent>
                   </Card>
-
+                  
                   <Card>
+                    <CardHeader className="flex-row items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                        <Globe className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <CardTitle className="font-headline">Farm Location</CardTitle>
+                        <CardDescription>{firstBatch.location}</CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                       {lat && lon ? (
+                         <div className="aspect-video rounded-md overflow-hidden border">
+                            <iframe 
+                                width="100%" 
+                                height="100%"
+                                loading="lazy" 
+                                allowFullScreen
+                                src={`https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.1},${lat-0.1},${lon+0.1},${lat+0.1}&layer=mapnik&marker=${lat},${lon}`}>
+                            </iframe>
+                         </div>
+                       ) : <p className="text-sm text-muted-foreground">Location data not available for map.</p>}
+                    </CardContent>
+                  </Card>
+
+                  <Card className="md:col-span-2">
                     <CardHeader className="flex-row items-start gap-4">
                       <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
                         <Award className="h-6 w-6" />

@@ -19,25 +19,21 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       return;
     }
     
-    // If not authenticated, redirect to login page.
-    // Allow access to /verify for consumers without login.
-    const isPublicVerify = pathname === '/verify' && searchParams.get('role') === 'consumer';
-    
-    if (!authInfo && !isPublicVerify) {
+    const isPublicPath = 
+      (pathname === '/verify' && searchParams.get('role') === 'consumer');
+      
+    if (!authInfo && !isPublicPath) {
       router.push('/login');
     }
 
   }, [authInfo, loading, router, pathname, searchParams]);
 
-  // While loading, or if not authenticated and about to be redirected,
-  // we can show a loader or nothing to prevent a flash of content.
   if (loading || !authInfo) {
-    // This check ensures public verify page still renders without full app layout
     const isPublicVerify = pathname === '/verify' && searchParams.get('role') === 'consumer';
     if (isPublicVerify) {
        return <main className="p-4 sm:p-6 lg:p-8 flex-1 print:p-0">{children}</main>;
     }
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (
