@@ -1,15 +1,45 @@
 {
   "placeholderImages": [
     {
-      "id": "farm-product-1",
-      "description": "A close-up of fresh green leaves",
-      "imageUrl": "https://picsum.photos/seed/101/800/600",
-      "imageHint": "fresh leaves"
+      "id": "hero-main",
+      "description": "A close-up of a mortar and pestle with fresh herbs",
+      "imageUrl": "https://images.unsplash.com/photo-1719452838833-0b644a36bf46?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxoZXJicyUyMG1vcnRhcnxlbnwwfHx8fDE3NTkxNjg1NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "herbs mortar"
+    },
+    {
+      "id": "hero-secondary-1",
+      "description": "Ayurvedic powders in bowls",
+      "imageUrl": "https://images.unsplash.com/photo-1758525732480-8df43412b54c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxheXVydmVkaWMlMjBwb3dkZXJ8ZW58MHx8fHwxNzU5MDY5ODQzfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ayurvedic powder"
+    },
+    {
+      "id": "hero-secondary-2",
+      "description": "Bottles of herbal extracts",
+      "imageUrl": "https://images.unsplash.com/photo-1565033624234-3fcd6717568a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aGVyYmFsJTIwZXh0cmFjdHN8ZW58MHx8fHwxNzU5MTY4NTUxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "herbal extracts"
+    },
+    {
+      "id": "product-1",
+      "description": "Ayurvedic Resilience Blend",
+      "imageUrl": "https://images.unsplash.com/photo-1734607402896-73dc3ed1f2c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxoZXJiYWwlMjBzdXBwbGVtZW50fGVufDB8fHx8MTc1OTE2ODU1MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "herbal supplement"
+    },
+    {
+      "id": "product-2",
+      "description": "Organic Ashwagandha Root Powder",
+      "imageUrl": "https://images.unsplash.com/photo-1729708273852-b63222c8b35d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxhc2h3YWdhbmRoYSUyMHBvd2RlcnxlbnwwfHx8fDE3NTkxNjMzMTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ashwagandha powder"
+    },
+    {
+      "id": "product-3",
+      "description": "Soothing Herbal Tea",
+      "imageUrl": "https://images.unsplash.com/photo-1514733670139-4d87a1941d55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxoZXJiYWwlMjB0ZWF8ZW58MHx8fHwxNzU5MTI3OTg1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "herbal tea"
     },
     {
       "id": "qr-code-placeholder",
       "description": "A placeholder QR code",
-      "imageUrl": "https://picsum.photos/seed/102/300/300",
+      "imageUrl": "https://images.unsplash.com/photo-1605098293544-25f4c32344c8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxxciUyMGNvZGV8ZW58MHx8fHwxNzU5MTA0MzMzfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "qr code"
     }
   ]

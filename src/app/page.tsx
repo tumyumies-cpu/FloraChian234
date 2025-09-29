@@ -4,14 +4,18 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Leaf, ShieldCheck, Globe, Users, Twitter, Facebook, Instagram, Linkedin, Sprout, Factory, Truck, Scan, BarChart, DollarSign, Award } from 'lucide-react';
+import { ArrowRight, Leaf, ShieldCheck, Globe, Users, Twitter, Facebook, Instagram, Linkedin, Sprout, Factory, Truck, Scan, BarChart, DollarSign, Award, MapPin, Fingerprint, QrCode } from 'lucide-react';
 import { useLanguage, content } from '@/context/language-context';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 export default function HomePage() {
   const { language } = useLanguage();
   const c = content[language].home;
+  
+  const heroImages = PlaceHolderImages.filter(img => img.id.startsWith('hero-'));
+  const featuredProducts = PlaceHolderImages.filter(img => img.id.startsWith('product-'));
 
   const howItWorksSteps = [
     { text: c.howItWorks.step1, icon: Sprout },
@@ -20,69 +24,115 @@ export default function HomePage() {
     { text: c.howItWorks.step4, icon: Scan },
   ];
 
-  const keyFeatures = [
-    { title: c.keyFeatures.feature1, icon: ShieldCheck },
-    { title: c.keyFeatures.feature2, icon: BarChart },
-    { title: c.keyFeatures.feature3, icon: DollarSign },
-    { title: c.keyFeatures.feature4, icon: Award },
-    { title: c.keyFeatures.feature5, icon: Globe },
-  ];
-  
-  const stakeholders = [
-    { title: c.stakeholders.farmerTitle, description: c.stakeholders.farmerDesc, link: "#" },
-    { title: c.stakeholders.brandTitle, description: c.stakeholders.brandDesc, link: "#" },
-    { title: c.stakeholders.consumerTitle, description: c.stakeholders.consumerDesc, link: "#" },
+  const techPillars = [
+    {
+      title: 'Geo-Tagging & Smart Contracts',
+      description: 'Harvest events are geo-tagged at the source. Smart contracts automatically verify the location is within an approved zone, ensuring origin authenticity.',
+      icon: MapPin,
+    },
+    {
+      title: 'Immutable Ledger',
+      description: 'Every step, from harvest to processing to lab testing, is recorded on a permissioned blockchain, creating a tamper-proof, end-to-end provenance record.',
+      icon: Fingerprint,
+    },
+    {
+      title: 'Consumer Smart Labels',
+      description: 'A unique QR code on each product links consumers to an interactive dashboard showing the full journey, including maps, certificates, and farmer profiles.',
+      icon: QrCode,
+    },
   ];
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative w-full">
-        <div className="relative h-[85vh] sm:h-[90vh] w-full">
-          <Image
-            src="https://images.unsplash.com/photo-1498550744921-75f79806b8a7?q=80&w=2070&auto=format&fit=crop"
-            alt={c.hero.alt}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-black/60" />
-        </div>
-
-        <header className="absolute top-0 left-0 right-0 p-4 z-10">
-          <div className="container mx-auto flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2 text-white">
-              <Leaf className="h-7 w-7" />
-              <span className="font-headline text-xl font-semibold">FloraChain</span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <LanguageSwitcher variant="ghost" />
-              <Button asChild variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
-                <Link href="#about">{c.nav.about}</Link>
-              </Button>
-              <Button asChild variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-black">
-                <Link href="/login">{c.nav.signIn}</Link>
-              </Button>
+      {/* Header */}
+      <header className="sticky top-0 left-0 right-0 p-4 z-20 bg-background/80 backdrop-blur-sm border-b">
+        <div className="container mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2 text-primary">
+            <Leaf className="h-7 w-7" />
+            <span className="font-headline text-xl font-semibold">FloraChain</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <div className="hidden md:flex gap-1">
+                <Button asChild variant="ghost">
+                    <Link href="#about">{c.nav.about}</Link>
+                </Button>
+                 <Button asChild variant="ghost">
+                    <Link href="#how-it-works">How It Works</Link>
+                </Button>
+                <Button asChild variant="ghost">
+                    <Link href="#shop">Shop</Link>
+                </Button>
             </div>
+            <LanguageSwitcher variant="ghost" />
+            <Button asChild variant="outline">
+              <Link href="/login">{c.nav.signIn}</Link>
+            </Button>
           </div>
-        </header>
+        </div>
+      </header>
 
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white z-0">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl font-headline">
-              {c.hero.title} <span className="text-accent">{c.hero.titleHighlight}</span>
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-white/80">
-              {c.hero.subtitle}
-            </p>
-            <div className="mt-10">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Link href="/verify?role=consumer">
-                  {c.hero.trackButton}
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
+      {/* Hero Section */}
+      <section className="w-full bg-card">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-16 lg:py-24">
+            <div className="text-left">
+                <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl font-headline">
+                {c.hero.title} <span className="text-primary">{c.hero.titleHighlight}</span>
+                </h1>
+                <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
+                {c.hero.subtitle}
+                </p>
+                <div className="mt-10 flex flex-col sm:flex-row gap-4">
+                    <Button asChild size="lg">
+                        <Link href="#shop">
+                        Shop Now
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                        </Link>
+                    </Button>
+                    <Button asChild size="lg" variant="secondary">
+                        <Link href="/verify?role=consumer">
+                        {c.hero.trackButton}
+                        </Link>
+                    </Button>
+                </div>
             </div>
+            <div className="hidden md:grid grid-cols-2 gap-4">
+                {heroImages.map((image, index) => (
+                    <div key={image.id} className={`rounded-xl overflow-hidden shadow-lg ${index === 0 ? 'row-span-2' : ''}`}>
+                        <Image
+                            src={image.imageUrl}
+                            alt={image.description}
+                            width={index === 0 ? 400 : 200}
+                            height={index === 0 ? 800 : 400}
+                            className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+                            data-ai-hint={image.imageHint}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+      </section>
+      
+      {/* How FloraChain Works (for Judges) */}
+       <section id="how-it-works" className="w-full py-16 lg:py-24 bg-background text-foreground">
+        <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto">
+                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">How FloraChain Ensures Trust</h2>
+                <p className="mt-4 text-lg text-muted-foreground">Our platform is built on three core technological pillars that provide an immutable, end-to-end provenance ledger.</p>
+            </div>
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+            {techPillars.map((pillar, index) => (
+               <Card key={index} className="text-center">
+                  <CardHeader className="items-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-4">
+                        <pillar.icon className="h-8 w-8" />
+                    </div>
+                    <CardTitle className="font-headline">{pillar.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">{pillar.description}</p>
+                  </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
@@ -97,71 +147,38 @@ export default function HomePage() {
             </div>
         </div>
       </section>
-
-       {/* How It Works Section */}
-      <section id="how-it-works" className="w-full py-16 lg:py-24 bg-background text-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.howItWorks.title}</h2>
-          <p className="mt-4 max-w-3xl mx-auto text-lg text-muted-foreground">{c.howItWorks.subtitle}</p>
-          <div className="relative mt-12">
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2 hidden md:block"></div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 relative">
-              {howItWorksSteps.map((step, index) => {
-                const StepIcon = step.icon;
-                return (
-                  <div key={index} className="flex flex-col items-center text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary border-4 border-background z-10">
-                      <StepIcon className="h-8 w-8" />
-                    </div>
-                    <h3 className="mt-4 text-lg font-headline font-semibold">{step.text}</h3>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
       
-       {/* Key Features Section */}
-      <section id="features" className="w-full py-16 lg:py-24 bg-card">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.keyFeatures.title}</h2>
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {keyFeatures.map((feature, index) => {
-              const FeatureIcon = feature.icon;
-              return (
-                <Card key={index} className="text-left p-6">
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <FeatureIcon className="h-6 w-6" />
-                    </div>
-                    <h3 className="text-xl font-headline font-semibold">{feature.title}</h3>
-                  </div>
-                </Card>
-              )
-            })}
+      {/* Shop Section */}
+      <section id="shop" className="w-full py-16 lg:py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto">
+            <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">Shop Our Verifiably Sourced Products</h2>
+            <p className="mt-4 text-lg text-muted-foreground">Each product is linked to its complete provenance record. Experience true transparency.</p>
           </div>
-        </div>
-      </section>
-
-      {/* For Each Stakeholder Section */}
-      <section id="stakeholders" className="w-full py-16 lg:py-24 bg-background">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.stakeholders.title}</h2>
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-            {stakeholders.map((stakeholder, index) => (
-               <Card key={index} className="flex flex-col">
-                  <CardHeader>
-                    <CardTitle className="font-headline">{stakeholder.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="flex-grow">
-                    <p className="text-muted-foreground">{stakeholder.description}</p>
-                  </CardContent>
-                  <div className="p-6 pt-0">
-                    <Button variant="outline" className="w-full" asChild>
-                      <a href={stakeholder.link}>{c.stakeholders.learnMore}</a>
-                    </Button>
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredProducts.map((product) => (
+               <Card key={product.id} className="flex flex-col overflow-hidden">
+                  <div className="aspect-square overflow-hidden">
+                    <Image
+                        src={product.imageUrl}
+                        alt={product.description}
+                        width={400}
+                        height={400}
+                        className="object-cover w-full h-full hover:scale-105 transition-transform duration-300"
+                        data-ai-hint={product.imageHint}
+                    />
                   </div>
+                  <CardHeader>
+                    <CardTitle className="font-headline text-xl">{product.description}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-grow flex flex-col">
+                    <p className="text-2xl font-bold text-primary mb-4">$29.99</p>
+                    <div className="mt-auto">
+                        <Button className="w-full" asChild>
+                         <Link href={`/provenance/PROD-1001?role=consumer`}>View Details & Provenance</Link>
+                        </Button>
+                    </div>
+                  </CardContent>
               </Card>
             ))}
           </div>
@@ -240,3 +257,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
