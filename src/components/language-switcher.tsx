@@ -26,7 +26,7 @@ export function LanguageSwitcher({ variant = 'select' }: LanguageSwitcherProps) 
       return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="text-white hover:bg-white/10 hover:text-white">
+                <Button variant="ghost" className="text-foreground/80 hover:text-foreground">
                     <Languages className="mr-2 h-4 w-4" />
                     {languages.find(l => l.value === language)?.label}
                 </Button>
