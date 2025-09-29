@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState } from 'react';
@@ -40,7 +39,7 @@ function PrintableReport() {
             }
             setData(fetchedData as BatchData | AssembledProduct);
 
-            const timeline = 'productId' in fetchedData ? fetchedData.timeline : (fetchedData as BatchData).timeline;
+            const timeline = isProduct ? (fetchedData as AssembledProduct).timeline : (fetchedData as BatchData).timeline;
             const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
 
             if (stageEvent) {
@@ -50,6 +49,8 @@ function PrintableReport() {
             QRCode.toDataURL(id, { width: 150, margin: 2 }).then(setQrCodeDataUrl);
             
             setLoading(false);
+        } else {
+            notFound();
         }
     }, [id, stageId, getBatchById, getProductById]);
     
@@ -70,6 +71,8 @@ function PrintableReport() {
 
     const StageIcon = iconMap[stage.icon];
     const isProduct = id.startsWith('PROD-');
+    const productName = 'productId' in data ? data.productName : (data as BatchData).productName;
+
 
     return (
         <div className="bg-white text-black min-h-screen">
@@ -89,7 +92,7 @@ function PrintableReport() {
                     <div className="flex justify-between items-start gap-4">
                         <div>
                             <p className="font-semibold text-slate-500 uppercase tracking-wider text-sm">Provenance Report</p>
-                            <h1 className="text-3xl font-headline font-bold text-slate-800 mt-1">{data.productName}</h1>
+                            <h1 className="text-3xl font-headline font-bold text-slate-800 mt-1">{productName}</h1>
                             <p className="text-slate-600 mt-1">ID: <span className="font-mono text-sm">{id}</span></p>
                         </div>
                         <div className="flex items-center gap-2 text-slate-800">
