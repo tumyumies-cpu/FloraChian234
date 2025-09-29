@@ -237,11 +237,12 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
   };
 
   const getDocumentIdForEvent = (event: TimelineEvent) => {
-    // For a product timeline, events from manufacturing onwards belong to the product itself.
+    // For a product timeline, events that happen to the product itself use the product ID.
     if (isProduct && event.id >= 99) {
       return batchId; // Use the product ID
     }
-    // For earlier events (harvest, processing), link to the first component batch.
+    // For earlier events (harvest, processing), they belong to the ingredient batch.
+    // We'll link to the first component batch for simplicity.
     if (isProduct && componentBatches.length > 0) {
       return componentBatches[0];
     }
@@ -326,3 +327,4 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     </div>
   );
 }
+
