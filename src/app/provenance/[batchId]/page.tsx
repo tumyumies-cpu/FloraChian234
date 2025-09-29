@@ -27,6 +27,11 @@ function ProvenancePageContent() {
 
   const [data, setData] = useState<BatchData | AssembledProduct | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (dbLoading || !db) return;
@@ -47,7 +52,7 @@ function ProvenancePageContent() {
     setLoading(false);
   }, [batchId, db, dbLoading]);
 
-  if (loading || dbLoading || !data) {
+  if (!hasMounted || loading || dbLoading || !data) {
     return (
       <div className="container mx-auto max-w-5xl py-8 sm:py-12 space-y-8">
         <Skeleton className="h-8 w-24" />
