@@ -19,7 +19,7 @@ import { useDbContext } from '@/context/db-context';
 
 function LoginContent() {
   const { setAuthInfo } = useAuth();
-  const { db } = useDbContext();
+  const { db, loading: dbLoading } = useDbContext();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -63,6 +63,10 @@ function LoginContent() {
     form.setValue("email", email);
     form.setValue("password", "password"); // Use a static password for demo
   };
+
+  if (dbLoading) {
+    return <LoginFormSkeleton />
+  }
 
   return (
     <>

@@ -2,14 +2,24 @@
 "use client";
 import { AssembleProductForm } from "./assemble-product-form";
 import { Suspense, useEffect, useState } from "react";
-import type { BatchData } from "@/lib/data";
 import { useDbContext } from "@/context/db-context";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function AssembleProductContent() {
   const { db, loading } = useDbContext();
-  
-  if (loading || !db) {
-    return <div>Loading batches...</div>;
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted || loading || !db) {
+    return (
+        <div className="space-y-8">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-64 w-full" />
+        </div>
+    );
   }
   
   return <AssembleProductForm batches={db.batches} />;

@@ -38,7 +38,7 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scannedId]);
 
-  const isProductRole = ['consumer', 'retailer', 'distributor'].includes(role as string);
+  const isProductRole = ['consumer', 'retailer', 'distributor'].includes(role);
   const idType = isProductRole ? "Product" : "Batch";
   const placeholder = isProductRole ? "e.g., PROD-1001" : "e.g., HB-481516";
   const description = `You can typically find the ${idType} ID printed near the QR code on the product packaging.`;
