@@ -56,6 +56,7 @@ function PrintableReport() {
     
     useEffect(() => {
         if (!loading && typeof window !== 'undefined') {
+            // A short delay helps ensure all content is rendered before printing
             setTimeout(() => window.print(), 500);
         }
     }, [loading]);
