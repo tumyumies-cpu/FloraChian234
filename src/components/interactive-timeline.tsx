@@ -7,7 +7,7 @@ import type { TimelineEvent, UserRole } from '@/lib/data';
 import { iconMap } from '@/lib/data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from './ui/button';
-import { Check, Lock, Edit, EyeOff, LoaderCircle, Download } from 'lucide-react';
+import { Check, Lock, Edit, EyeOff, LoaderCircle, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { formatTimelineDescription } from '@/app/actions';
@@ -207,8 +207,10 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     const description = getDescriptionForRole(event);
     if (!description) return false;
     
-    if (role === 'consumer') return true;
-
+    // For consumer role, if there's a consumer description, it's viewable.
+    if (role === 'consumer' && event.consumerDescription) return true;
+    
+    // For other roles, apply the visibility rules.
     const allowedRoles = visibilityRules[role] || [];
     return event.allowedRole && allowedRoles.includes(event.allowedRole);
   }
@@ -285,12 +287,12 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                             )}
                         </CardContent>
                     )}
-                     {role !== 'consumer' && showDescription && (
+                     {showDescription && (
                         <CardFooter>
                            <Button asChild variant="secondary" size="sm">
                                 <Link href={`/document/${batchId}?stage=${event.id}`} target="_blank">
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Download Report
+                                    <FileText className="mr-2 h-4 w-4" />
+                                    {role === 'consumer' ? 'View Certificate' : 'Download Report'}
                                 </Link>
                            </Button>
                         </CardFooter>

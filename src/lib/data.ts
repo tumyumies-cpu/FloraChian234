@@ -1,12 +1,12 @@
 
 import type { LucideIcon } from 'lucide-react';
-import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine, Handshake, Warehouse, User as UserIcon, Shield, Download } from 'lucide-react';
+import { Sprout, Factory, FlaskConical, Package, Truck, Store, Scan, Combine, Handshake, Warehouse, User as UserIcon, Shield, FileText } from 'lucide-react';
 import type { FarmerApplicationValues } from './schemas';
 
 export type EventStatus = 'complete' | 'pending' | 'locked';
 export type UserRole = 'farmer' | 'processor' | 'supplier' | 'brand' | 'distributor' | 'retailer' | 'consumer' | 'admin';
 
-export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine' | 'handshake' | 'warehouse' | 'user' | 'shield' | 'download';
+export type IconName = 'sprout' | 'factory' | 'flask' | 'package' | 'truck' | 'store' | 'scan' | 'combine' | 'handshake' | 'warehouse' | 'user' | 'shield' | 'file-text';
 
 export const iconMap: Record<IconName, LucideIcon> = {
   sprout: Sprout,
@@ -21,7 +21,7 @@ export const iconMap: Record<IconName, LucideIcon> = {
   warehouse: Warehouse,
   user: UserIcon,
   shield: Shield,
-  download: Download
+  'file-text': FileText
 };
 
 export interface TimelineEvent {

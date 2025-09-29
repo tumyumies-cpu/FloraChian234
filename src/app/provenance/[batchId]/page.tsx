@@ -1,12 +1,12 @@
 
 "use client";
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, MapPin, Award, User, CheckCircle, Leaf, FileText } from 'lucide-react';
 import { InteractiveTimeline } from '@/components/interactive-timeline';
 import type { BatchData, AssembledProduct, UserRole } from '@/lib/data';
 import { ComponentBatchSummary } from '@/components/component-batch-summary';
@@ -14,6 +14,7 @@ import { useSearchParams, useParams, notFound } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDbContext, DbProvider } from '@/context/db-context';
+import { Badge } from '@/components/ui/badge';
 
 
 function ProvenancePageContent() {
@@ -97,7 +98,11 @@ function ProvenancePageContent() {
   
   const isConsumerView = role === 'consumer';
 
-  if (isConsumerView) {
+  if (isConsumerView && isProduct && 'brandName' in data) {
+    const product = data as AssembledProduct;
+    // For consumers viewing a product, we show details of the FIRST ingredient batch as a representative example.
+    const firstBatch = db?.batches.find(b => b.batchId === product.componentBatches[0]);
+
     return (
        <div className="min-h-screen bg-background">
          <section className="relative h-[60vh] min-h-[400px] w-full text-white">
@@ -117,7 +122,7 @@ function ProvenancePageContent() {
                         <span>Verified Authentic</span>
                     </div>
                     <h1 className="mt-4 text-4xl md:text-6xl font-headline font-extrabold tracking-tight drop-shadow-md">{data.productName}</h1>
-                    <p className="mt-2 text-lg text-white/80 drop-shadow-sm">ID: <span className="font-mono text-white text-base">{isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}</span></p>
+                    <p className="mt-2 text-lg text-white/80 drop-shadow-sm">by {product.brandName} | ID: <span className="font-mono text-white text-base">{product.productId}</span></p>
                 </div>
             </div>
          </section>
@@ -127,6 +132,60 @@ function ProvenancePageContent() {
                 <section>
                     <StoryGenerator {...storyGeneratorProps} />
                 </section>
+                
+                {firstBatch && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <Card>
+                    <CardHeader className="flex-row items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                        <User className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <CardTitle className="font-headline">Meet the Farmer</CardTitle>
+                        <CardDescription>The source of this product's key ingredient.</CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <p className="font-semibold text-lg">{firstBatch.farmName}</p>
+                      <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                        <MapPin className="h-4 w-4" />
+                        <span>{firstBatch.location}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground pt-2">
+                        {`Nestled in the heart of ${firstBatch.location.split(',')[1]}, ${firstBatch.farmName} is a community-run farm dedicated to preserving traditional and sustainable Ayurvedic farming practices.`}
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="flex-row items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary shrink-0">
+                        <Award className="h-6 w-6" />
+                      </div>
+                       <div>
+                        <CardTitle className="font-headline">Sustainability & Quality</CardTitle>
+                        <CardDescription>Verified ethical and quality standards.</CardDescription>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
+                        <p className="text-sm">Harvested from a Geo-Fenced Approved Zone.</p>
+                      </div>
+                       <div className="flex items-center gap-3">
+                        <Leaf className="h-5 w-5 text-green-600 shrink-0" />
+                        <p className="text-sm">USDA Organic & Fair-Trade Certified.</p>
+                      </div>
+                       <div className="flex items-center gap-3">
+                        <FileText className="h-5 w-5 text-primary shrink-0" />
+                        <Link href={`/document/${firstBatch.batchId}?stage=1`} target="_blank" className="text-sm text-primary underline hover:no-underline">
+                          View Harvest Certificate
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+                )}
 
                 <Separator />
 
