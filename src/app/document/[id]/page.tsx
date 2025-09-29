@@ -1,9 +1,8 @@
 
-
 "use client";
 
 import { useEffect, useState, Suspense } from 'react';
-import { useParams, useSearchParams, notFound } from 'next/navigation';
+import { useParams, useSearchParams, notFound, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import QRCode from 'qrcode';
 import type { BatchData, AssembledProduct, TimelineEvent } from '@/lib/data';
@@ -18,7 +17,7 @@ import { useDbContext, DbProvider } from '@/context/db-context';
 function PrintableReport() {
     const params = useParams();
     const searchParams = useSearchParams();
-    const { getBatchById, getProductById } = useDbContext();
+    const { db, loading: dbLoading } = useDbContext();
     
     const id = params.id as string;
     const stageId = searchParams.get('stage');
@@ -26,44 +25,53 @@ function PrintableReport() {
     const [data, setData] = useState<BatchData | AssembledProduct | null>(null);
     const [stage, setStage] = useState<TimelineEvent | null>(null);
     const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [isDataFound, setIsDataFound] = useState<boolean | null>(null);
 
     useEffect(() => {
-        if (id && stageId) {
-            setLoading(true);
+        if (dbLoading) {
+            return; // Wait for the DB to be loaded
+        }
+        
+        if (id && stageId && db) {
             const isProduct = id.startsWith('PROD-');
-            const fetchedData = isProduct ? getProductById(id) : getBatchById(id);
+            const fetchedData = isProduct ? db.products.find(p => p.productId.toUpperCase() === id.toUpperCase()) : db.batches.find(b => b.batchId.toUpperCase() === id.toUpperCase());
 
             if (!fetchedData) {
-                notFound();
+                setIsDataFound(false);
                 return;
             }
-            setData(fetchedData as BatchData | AssembledProduct);
-
+            
             const timeline = isProduct ? (fetchedData as AssembledProduct).timeline : (fetchedData as BatchData).timeline;
             const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
 
-            if (stageEvent) {
-                setStage(stageEvent);
+            if (!stageEvent) {
+                setIsDataFound(false);
+                return;
             }
 
+            setData(fetchedData as BatchData | AssembledProduct);
+            setStage(stageEvent);
             QRCode.toDataURL(id, { width: 150, margin: 2 }).then(setQrCodeDataUrl);
-            
-            setLoading(false);
+            setIsDataFound(true);
+
         } else {
-            notFound();
+            setIsDataFound(false);
         }
-    }, [id, stageId, getBatchById, getProductById]);
+    }, [id, stageId, db, dbLoading]);
     
     useEffect(() => {
-        if (!loading && typeof window !== 'undefined') {
-            // A short delay helps ensure all content is rendered before printing
+        // Only trigger print if data has been successfully found and rendered.
+        if (isDataFound && typeof window !== 'undefined') {
             const printTimeout = setTimeout(() => window.print(), 500);
             return () => clearTimeout(printTimeout);
         }
-    }, [loading]);
+    }, [isDataFound]);
     
-    if (loading || !data || !stage) {
+    if (isDataFound === false) {
+        notFound();
+    }
+    
+    if (dbLoading || isDataFound === null || !data || !stage) {
         return (
             <div className="p-8 max-w-2xl mx-auto">
                 <Skeleton className="h-8 w-48 mb-4" />
@@ -162,3 +170,4 @@ export default function DocumentPage() {
     </DbProvider>
   );
 }
+
