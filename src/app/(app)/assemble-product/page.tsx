@@ -1,19 +1,14 @@
 
 "use client";
 import { AssembleProductForm } from "./assemble-product-form";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { useDbContext } from "@/context/db-context";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function AssembleProductContent() {
   const { db, loading } = useDbContext();
-  const [hasMounted, setHasMounted] = useState(false);
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  if (!hasMounted || loading || !db) {
+  if (loading || !db) {
     return (
         <div className="space-y-8">
             <Skeleton className="h-48 w-full" />

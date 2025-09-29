@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import Link from 'next/link';
-import { ShieldCheck, Search, ListOrdered, BarChart, Package, PackageCheck, UserPlus, Edit, Trash2, LoaderCircle, Check, X, FileText } from 'lucide-react';
+import { ShieldCheck, Search, ListOrdered, Package, UserPlus, Edit, Trash2, LoaderCircle, Check, X, FileText } from 'lucide-react';
 import type { TimelineEvent, BatchData, AssembledProduct, User, FarmerApplication } from '@/lib/data';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,23 +39,25 @@ interface AdminDashboardProps {
     initialBatches: BatchData[];
     initialProducts: AssembledProduct[];
     initialUsers: User[];
+    initialFarmerApplications: FarmerApplication[];
 }
 
-export function AdminDashboard({ initialBatches, initialProducts, initialUsers }: AdminDashboardProps) {
+export function AdminDashboard({ initialBatches, initialProducts, initialUsers, initialFarmerApplications }: AdminDashboardProps) {
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddUserOpen, setAddUserOpen] = useState(false);
     const { toast } = useToast();
     const { addUser, updateUser, deleteUser, updateFarmerApplicationStatus, db } = useDbContext();
+    
     const users = db?.users || initialUsers;
-    const farmerApplications = db?.farmerApplications || [];
+    const farmerApplications = db?.farmerApplications || initialFarmerApplications;
 
-    const filteredBatches = useMemo(() => initialBatches.filter(b => b.batchId.toLowerCase().includes(searchTerm.toLowerCase()) || b.productName.toLowerCase().includes(searchTerm.toLowerCase())), [initialBatches, searchTerm]);
-    const filteredProducts = useMemo(() => initialProducts.filter(p => p.productId.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase()) || p.brandName.toLowerCase().includes(searchTerm.toLowerCase())), [initialProducts, searchTerm]);
-    const filteredUsers = useMemo(() => users.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()) || u.role.toLowerCase().includes(searchTerm.toLowerCase())), [users, searchTerm]);
-    const pendingApplications = useMemo(() => farmerApplications.filter(app => app.status === 'pending'), [farmerApplications]);
+    const filteredBatches = useMemo(() => (db?.batches || initialBatches).filter(b => b.batchId.toLowerCase().includes(searchTerm.toLowerCase()) || b.productName.toLowerCase().includes(searchTerm.toLowerCase())), [db?.batches, initialBatches, searchTerm]);
+    const filteredProducts = useMemo(() => (db?.products || initialProducts).filter(p => p.productId.toLowerCase().includes(searchTerm.toLowerCase()) || p.productName.toLowerCase().includes(searchTerm.toLowerCase()) || p.brandName.toLowerCase().includes(searchTerm.toLowerCase())), [db?.products, initialProducts, searchTerm]);
+    const filteredUsers = useMemo(() => (users).filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()) || u.role.toLowerCase().includes(searchTerm.toLowerCase())), [users, searchTerm]);
+    const pendingApplications = useMemo(() => (farmerApplications).filter(app => app.status === 'pending'), [farmerApplications]);
 
-    const inProgressBatches = initialBatches.filter(b => b.timeline.some(e => e.status === 'pending')).length;
-    const inProgressProducts = initialProducts.filter(p => p.timeline.some(e => e.status === 'pending')).length;
+    const inProgressBatches = (db?.batches || initialBatches).filter(b => b.timeline.some(e => e.status === 'pending')).length;
+    const inProgressProducts = (db?.products || initialProducts).filter(p => p.timeline.some(e => e.status === 'pending')).length;
 
     const addUserForm = useForm<AddUserValues>({
         resolver: zodResolver(addUserSchema),
@@ -123,7 +125,7 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
             <ListOrdered className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{initialBatches.length}</div>
+            <div className="text-2xl font-bold">{(db?.batches || initialBatches).length}</div>
             <p className="text-xs text-muted-foreground">{inProgressBatches} in-progress</p>
           </CardContent>
         </Card>
@@ -133,7 +135,7 @@ export function AdminDashboard({ initialBatches, initialProducts, initialUsers }
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{initialProducts.length}</div>
+            <div className="text-2xl font-bold">{(db?.products || initialProducts).length}</div>
             <p className="text-xs text-muted-foreground">{inProgressProducts} in-progress</p>
           </CardContent>
         </Card>

@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import type { UserRole, BatchData, AssembledProduct } from '@/lib/data';
+import type { UserRole } from '@/lib/data';
 import { FarmerDashboard } from '@/components/dashboards/farmer-dashboard';
 import { RetailerDashboard } from '@/components/dashboards/retailer-dashboard';
 import { ConsumerDashboard } from '@/components/dashboards/consumer-dashboard';
@@ -35,7 +35,7 @@ function DashboardContent() {
     return <DashboardSkeleton />;
   }
 
-  const { batches, products, users } = db;
+  const { batches, products, users, farmerApplications } = db;
   
   // Data processing specific to roles
   const processorData = {
@@ -71,7 +71,7 @@ function DashboardContent() {
       case 'retailer':
         return <RetailerDashboard />;
       case 'admin':
-        return <AdminDashboard initialBatches={batches} initialProducts={products} initialUsers={users} />;
+        return <AdminDashboard initialBatches={batches} initialProducts={products} initialUsers={users} initialFarmerApplications={farmerApplications} />;
       case 'consumer':
       default:
         return <ConsumerDashboard />;

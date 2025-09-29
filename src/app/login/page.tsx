@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
@@ -173,12 +173,6 @@ function LoginFormSkeleton() {
 }
 
 export default function LoginPage() {
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-background p-4">
        <Button asChild variant="ghost" className="absolute top-4 left-4">
@@ -194,7 +188,9 @@ export default function LoginPage() {
                 <span className="font-headline text-2xl font-semibold">FloraChain</span>
             </Link>
         </div>
-        {hasMounted ? <LoginContent /> : <LoginFormSkeleton />}
+        <Suspense fallback={<LoginFormSkeleton />}>
+            <LoginContent />
+        </Suspense>
       </div>
     </div>
   );

@@ -2,53 +2,15 @@
 'use client';
 /**
  * @fileoverview This file simulates a simple JSON file-based database for the application.
- * On a serverless hosting platform, this will be read-only and in-memory.
+ * This version uses an in-memory approach, resetting on page load.
  */
 
-import type { BatchData, TimelineEvent, AssembledProduct, User, FarmerApplication } from './data';
+import type { Database } from './data';
 import InitialDb from './database.json';
-import type { FarmerApplicationValues } from './schemas';
 
-// Type for the entire database structure
-export type Database = {
-  batches: BatchData[];
-  products: AssembledProduct[];
-  users: User[];
-  farmerApplications: FarmerApplication[];
-};
-
-const DB_KEY = 'florachain_db';
-
-// Function to read the entire database.
-// It reads from localStorage or initializes it from the JSON file.
-export function getDb(): Database {
-    try {
-        const storedDb = localStorage.getItem(DB_KEY);
-        if (storedDb) {
-            const parsedDb = JSON.parse(storedDb);
-            // Ensure all keys are present
-            return {
-                batches: parsedDb.batches || [],
-                products: parsedDb.products || [],
-                users: parsedDb.users || [],
-                farmerApplications: parsedDb.farmerApplications || [],
-            };
-        }
-    } catch (e) {
-        console.error("Could not read from localStorage, using initial data.", e);
-    }
-    // If nothing in localStorage, initialize it
-    const db = InitialDb as Database;
-    writeDb(db);
-    return db;
-}
-
-
-// Writes the entire database object to localStorage.
-export function writeDb(db: Database): void {
-  try {
-      localStorage.setItem(DB_KEY, JSON.stringify(db));
-  } catch (e) {
-      console.error("Could not write to localStorage", e);
-  }
+// Function to read the initial database from the imported JSON file.
+// This is now the single source of truth on app start.
+export function getInitialDb(): Database {
+    // We perform a deep copy to prevent mutations of the original JSON object import.
+    return JSON.parse(JSON.stringify(InitialDb));
 }

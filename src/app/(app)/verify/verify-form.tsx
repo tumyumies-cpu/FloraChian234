@@ -22,20 +22,14 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const [hasMounted, setHasMounted] = useState(false);
-  const { verifyId } = useDbContext();
+  const { db, loading: dbLoading } = useDbContext();
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-  
   useEffect(() => {
     if (scannedId) {
       setId(scannedId);
-      // Automatically submit the form when a QR code is scanned
       handleVerify(scannedId);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scannedId]);
 
   const isProductRole = ['consumer', 'retailer', 'distributor'].includes(role);
@@ -43,20 +37,27 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
   const placeholder = isProductRole ? "e.g., PROD-1001" : "e.g., HB-481516";
   const description = `You can typically find the ${idType} ID printed near the QR code on the product packaging.`;
 
-
   const handleVerify = async (idToVerify: string) => {
-    if (!idToVerify) {
-      toast({
-        title: "Error",
-        description: `Please enter a ${idType} ID.`,
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!idToVerify || !db) return;
     setLoading(true);
 
-    const exists = verifyId(idToVerify, role);
-    
+    const upperId = idToVerify.toUpperCase();
+    let exists = false;
+
+    if (upperId.startsWith('PROD-')) {
+      const product = db.products.find(p => p.productId.toUpperCase() === upperId);
+      if (product) {
+        if (role === 'consumer') {
+          const retailStep = product.timeline.find(e => e.id === 102);
+          exists = !!retailStep && retailStep.status !== 'locked';
+        } else {
+          exists = true;
+        }
+      }
+    } else {
+      exists = !!db.batches.find(b => b.batchId.toUpperCase() === upperId);
+    }
+
     if (exists) {
       router.push(`/provenance/${idToVerify.toUpperCase()}?role=${role}`);
     } else {
@@ -68,24 +69,24 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
       setLoading(false);
     }
   };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      handleVerify(id);
-  }
 
-  if (!hasMounted) {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleVerify(id);
+  };
+
+  if (dbLoading) {
     return (
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-8 w-48" />
-                <Skeleton className="h-4 w-full" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <Skeleton className="h-12 flex-grow" />
-                <Skeleton className="h-11 w-full" />
-            </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Skeleton className="h-12 flex-grow" />
+          <Skeleton className="h-11 w-full" />
+        </CardContent>
+      </Card>
     );
   }
 
@@ -98,9 +99,7 @@ export function VerifyForm({ role, scannedId }: VerifyFormProps) {
             </div>
             <div>
                 <CardTitle className="font-headline">Or Enter ID Manually</CardTitle>
-                <CardDescription>
-                {description}
-                </CardDescription>
+                <CardDescription>{description}</CardDescription>
             </div>
         </div>
       </CardHeader>

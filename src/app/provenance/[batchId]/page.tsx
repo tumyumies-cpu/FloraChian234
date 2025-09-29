@@ -1,5 +1,4 @@
 
-
 "use client";
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +6,7 @@ import { StoryGenerator } from '@/components/story-generator';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShieldCheck, MapPin, Award, User, CheckCircle, Leaf, FileText, Globe } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Award, User, CheckCircle, Leaf, FileText, Globe } from 'lucide-react';
 import { InteractiveTimeline } from '@/components/interactive-timeline';
 import type { BatchData, AssembledProduct, UserRole } from '@/lib/data';
 import { ComponentBatchSummary } from '@/components/component-batch-summary';
@@ -26,17 +25,10 @@ function ProvenancePageContent() {
   const fromProduct = searchParams.get('fromProduct');
 
   const [data, setData] = useState<BatchData | AssembledProduct | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
 
   useEffect(() => {
     if (dbLoading || !db) return;
 
-    setLoading(true);
     let foundData: BatchData | AssembledProduct | null = null;
     if (batchId.startsWith('PROD-')) {
         foundData = db.products.find(p => p.productId.toUpperCase() === batchId.toUpperCase()) || null;
@@ -49,10 +41,9 @@ function ProvenancePageContent() {
     } else {
       setData(foundData);
     }
-    setLoading(false);
   }, [batchId, db, dbLoading]);
 
-  if (!hasMounted || loading || dbLoading || !data) {
+  if (dbLoading || !data) {
     return (
       <div className="container mx-auto max-w-5xl py-8 sm:py-12 space-y-8">
         <Skeleton className="h-8 w-24" />
@@ -320,5 +311,3 @@ export default function ProvenancePage() {
         </DbProvider>
     );
 }
-
-    

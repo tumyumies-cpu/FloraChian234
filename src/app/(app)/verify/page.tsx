@@ -26,8 +26,6 @@ function VerifyContent() {
   }, [authInfo, authLoading, router, role]);
 
 
-  const idType = ['consumer', 'retailer', 'distributor'].includes(role as string) ? "Product" : "Batch";
-
   return (
     <div className="space-y-8">
       <div>

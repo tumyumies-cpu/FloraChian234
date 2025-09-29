@@ -22,16 +22,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // This effect runs once on mount to check for persisted auth info
+    // It helps maintain the session across page refreshes.
+    let isMounted = true;
     try {
       const storedAuthInfo = localStorage.getItem('authInfo');
-      if (storedAuthInfo) {
+      if (isMounted && storedAuthInfo) {
         setAuthInfoState(JSON.parse(storedAuthInfo));
       }
     } catch (error) {
       console.warn("Could not access localStorage. Auth persistence will be disabled.");
     } finally {
-      setLoading(false); 
+      if (isMounted) {
+        setLoading(false); 
+      }
     }
+    return () => { isMounted = false; };
   }, []);
 
   const setAuthInfo = (newAuthInfo: AuthInfo | null) => {
@@ -47,6 +53,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // We now render children immediately, and the loading state is used by consumers
+  // to decide whether to show a loader or content. This prevents unmounting issues.
   return (
     <AuthContext.Provider value={{ authInfo, setAuthInfo, loading }}>
       {children}

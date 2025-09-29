@@ -1,18 +1,16 @@
 
 'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { getDb, writeDb, type Database } from '@/lib/db';
+import { getInitialDb, type Database } from '@/lib/db';
 import type { BatchData, AssembledProduct, User, TimelineEvent, FarmerApplication, ApplicationStatus } from '@/lib/data';
 import type { CreateBatchValues, FarmerApplicationValues } from '@/lib/schemas';
 import type { DiagnosePlantHealthOutput } from '@/ai/flows/diagnose-plant-health';
-
 
 interface DbContextType {
     db: Database | null;
     loading: boolean;
     getBatchById: (id: string) => BatchData | null;
     getProductById: (id: string) => AssembledProduct | null;
-    verifyId: (id: string, role: UserRole | string) => boolean;
     addBatch: (data: CreateBatchValues & { photo: string; diagnosis: DiagnosePlantHealthOutput | null }) => BatchData;
     addProduct: (productName: string, batchIds: string[], brandName: string, photo: string) => AssembledProduct;
     updateTimelineEvent: (id: string, eventId: number, data: Partial<TimelineEvent>, isProduct: boolean) => void;
@@ -22,7 +20,7 @@ interface DbContextType {
     deleteUser: (userId: number) => void;
     addFarmerApplication: (data: FarmerApplicationValues) => void;
     updateFarmerApplicationStatus: (applicationId: number, status: ApplicationStatus) => void;
-    reloadDb: () => void;
+    reloadDb: () => void; // Kept for potential future use, but not essential with in-memory model
 }
 
 const DbContext = createContext<DbContextType | undefined>(undefined);
@@ -31,19 +29,19 @@ export function DbProvider({ children }: { children: ReactNode }) {
     const [db, setDb] = useState<Database | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const reloadDb = useCallback(() => {
-        setDb(getDb());
-    }, []);
-
-    useEffect(() => {
-        setDb(getDb());
+    const initializeDb = useCallback(() => {
+        setDb(getInitialDb());
         setLoading(false);
     }, []);
 
-    const updateDb = useCallback((newDb: Database) => {
-        writeDb(newDb);
-        reloadDb();
-    }, [reloadDb]);
+    useEffect(() => {
+        initializeDb();
+    }, [initializeDb]);
+
+    const updateDb = (newDbState: Database) => {
+        // This now just updates the React state
+        setDb(newDbState);
+    };
 
     const getBatchById = useCallback((id: string) => {
         if (!db) return null;
@@ -55,32 +53,11 @@ export function DbProvider({ children }: { children: ReactNode }) {
         return db.products.find(p => p.productId.toUpperCase() === id.toUpperCase()) || null;
     }, [db]);
     
-    const verifyId = useCallback((id: string, role: UserRole | string) => {
-        const currentDb = getDb(); // Read fresh data for verification
-        const upperId = id.toUpperCase();
-
-        if (upperId.startsWith('PROD-')) {
-            const product = currentDb.products.find(p => p.productId.toUpperCase() === upperId);
-            if (!product) return false;
-
-            // For consumers, only allow verification if the product has reached the retail stage.
-            if (role === 'consumer') {
-                const retailReceivingStep = product.timeline.find(e => e.id === 102);
-                return !!retailReceivingStep && retailReceivingStep.status !== 'locked';
-            }
-            return true;
-        }
-        
-        // Batches cannot be verified by consumers directly
-        if (role === 'consumer') return false;
-
-        return !!currentDb.batches.find(b => b.batchId.toUpperCase() === upperId);
-    }, []);
-    
     const addBatch = (data: CreateBatchValues & { photo: string; diagnosis: DiagnosePlantHealthOutput | null }) => {
-        const currentDb = getDb();
-        const lastIdNum = currentDb.batches.reduce((max, b) => {
-            const num = parseInt(b.batchId.split('-')[1]);
+        if (!db) throw new Error("Database not initialized");
+
+        const lastIdNum = db.batches.reduce((max, b) => {
+            const num = parseInt(b.batchId.split('-')[1], 10);
             return num > max ? num : max;
         }, 481515);
         const newBatchId = `HB-${lastIdNum + 1}`;
@@ -103,15 +80,16 @@ export function DbProvider({ children }: { children: ReactNode }) {
                 { id: 6, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product', consumerDescription: 'The ingredient is now ready to be used in a final product formulation.' },
             ]
         };
-        currentDb.batches.unshift(newBatch);
-        updateDb(currentDb);
+
+        updateDb({ ...db, batches: [newBatch, ...db.batches] });
         return newBatch;
     };
     
     const addProduct = (productName: string, batchIds: string[], brandName: string, photo: string) => {
-        const currentDb = getDb();
-        const lastIdNum = currentDb.products.reduce((max, p) => {
-            const num = parseInt(p.productId.split('-')[1]);
+        if (!db) throw new Error("Database not initialized");
+
+        const lastIdNum = db.products.reduce((max, p) => {
+            const num = parseInt(p.productId.split('-')[1], 10);
             return num > max ? num : max;
         }, 1000);
         const newProductId = `PROD-${lastIdNum + 1}`;
@@ -133,107 +111,129 @@ export function DbProvider({ children }: { children: ReactNode }) {
                 { id: 104, title: 'Consumer Authenticity Scan', status: 'locked', icon: 'scan', allowedRole: 'consumer', cta: 'View Product Story', consumerDescription: `You have scanned a verified, authentic product. Thank you for choosing FloraChain.` }
             ]
         };
-        currentDb.products.unshift(newProduct);
-        updateDb(currentDb);
+
+        updateDb({ ...db, products: [newProduct, ...db.products] });
         return newProduct;
     };
     
     const updateTimelineEvent = (id: string, eventId: number, data: Partial<TimelineEvent>, isProduct: boolean) => {
-        const currentDb = getDb();
+        if (!db) throw new Error("Database not initialized");
+
+        const newDb = { ...db };
         if (isProduct) {
-            const productIndex = currentDb.products.findIndex(p => p.productId.toUpperCase() === id.toUpperCase());
+            const productIndex = newDb.products.findIndex(p => p.productId.toUpperCase() === id.toUpperCase());
             if (productIndex === -1) throw new Error("Product not found");
-            const eventIndex = currentDb.products[productIndex].timeline.findIndex(e => e.id === eventId);
+            
+            const newTimeline = [...newDb.products[productIndex].timeline];
+            const eventIndex = newTimeline.findIndex(e => e.id === eventId);
             if (eventIndex === -1) throw new Error("Event not found");
 
-            currentDb.products[productIndex].timeline[eventIndex] = { ...currentDb.products[productIndex].timeline[eventIndex], ...data, status: 'complete' };
-            const nextEvent = currentDb.products[productIndex].timeline[eventIndex + 1];
+            newTimeline[eventIndex] = { ...newTimeline[eventIndex], ...data, status: 'complete' };
+            const nextEvent = newTimeline[eventIndex + 1];
             if (nextEvent?.status === 'locked') {
                 nextEvent.status = 'pending';
             }
+            newDb.products[productIndex] = { ...newDb.products[productIndex], timeline: newTimeline };
         } else {
-            const batchIndex = currentDb.batches.findIndex(b => b.batchId.toUpperCase() === id.toUpperCase());
+            const batchIndex = newDb.batches.findIndex(b => b.batchId.toUpperCase() === id.toUpperCase());
             if (batchIndex === -1) throw new Error("Batch not found");
-            const eventIndex = currentDb.batches[batchIndex].timeline.findIndex(e => e.id === eventId);
+
+            const newTimeline = [...newDb.batches[batchIndex].timeline];
+            const eventIndex = newTimeline.findIndex(e => e.id === eventId);
             if (eventIndex === -1) throw new Error("Event not found");
             
-            currentDb.batches[batchIndex].timeline[eventIndex] = { ...currentDb.batches[batchIndex].timeline[eventIndex], ...data, status: 'complete' };
-            
-            const nextEvent = currentDb.batches[batchIndex].timeline[eventIndex + 1];
-             if (nextEvent?.status === 'locked') {
+            newTimeline[eventIndex] = { ...newTimeline[eventIndex], ...data, status: 'complete' };
+            const nextEvent = newTimeline[eventIndex + 1];
+            if (nextEvent?.status === 'locked') {
                 nextEvent.status = 'pending';
             }
+            newDb.batches[batchIndex] = { ...newDb.batches[batchIndex], timeline: newTimeline };
         }
-        updateDb(currentDb);
+        updateDb(newDb);
     };
 
     const removeBatchFromProduct = (productId: string, batchId: string) => {
-        const currentDb = getDb();
-        const productIndex = currentDb.products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
+        if (!db) throw new Error("Database not initialized");
+        
+        const newDb = { ...db };
+        const productIndex = newDb.products.findIndex(p => p.productId.toUpperCase() === productId.toUpperCase());
         if (productIndex === -1) throw new Error("Product not found");
 
-        currentDb.products[productIndex].componentBatches = currentDb.products[productIndex].componentBatches.filter(b => b !== batchId);
-        updateDb(currentDb);
+        const newProduct = { ...newDb.products[productIndex] };
+        newProduct.componentBatches = newProduct.componentBatches.filter(b => b !== batchId);
+        newDb.products[productIndex] = newProduct;
+
+        updateDb(newDb);
     };
 
     const addUser = (email: string, role: string) => {
-        const currentDb = getDb();
-        if (currentDb.users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
+        if (!db) throw new Error("Database not initialized");
+
+        if (db.users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
             throw new Error("A user with this email already exists.");
         }
-        const lastId = currentDb.users.reduce((max, u) => u.id > max ? u.id : max, 0);
+        const lastId = db.users.reduce((max, u) => u.id > max ? u.id : max, 0);
         const newUser: User = { id: lastId + 1, email, role };
-        currentDb.users.push(newUser);
-        updateDb(currentDb);
+        updateDb({ ...db, users: [...db.users, newUser] });
     };
 
     const updateUser = (userId: number, newRole: string) => {
-        const currentDb = getDb();
-        const userIndex = currentDb.users.findIndex(u => u.id === userId);
-        if (userIndex === -1) throw new Error("User not found.");
-        currentDb.users[userIndex].role = newRole;
-        updateDb(currentDb);
+        if (!db) throw new Error("Database not initialized");
+
+        const newUsers = db.users.map(u => u.id === userId ? { ...u, role: newRole } : u);
+        if (newUsers.length === db.users.length) {
+            updateDb({ ...db, users: newUsers });
+        } else {
+            throw new Error("User not found.");
+        }
     };
 
     const deleteUser = (userId: number) => {
-        const currentDb = getDb();
-        const initialLength = currentDb.users.length;
-        currentDb.users = currentDb.users.filter(u => u.id !== userId);
-        if (currentDb.users.length === initialLength) throw new Error("User not found.");
-        updateDb(currentDb);
+        if (!db) throw new Error("Database not initialized");
+
+        const newUsers = db.users.filter(u => u.id !== userId);
+        if (newUsers.length === db.users.length) throw new Error("User not found.");
+        updateDb({ ...db, users: newUsers });
     };
     
     const addFarmerApplication = (data: Omit<FarmerApplicationValues, 'agreement'>) => {
-        const currentDb = getDb();
-        const lastId = currentDb.farmerApplications.reduce((max, app) => app.id > max ? app.id : max, 0);
+        if (!db) throw new Error("Database not initialized");
+
+        const lastId = db.farmerApplications.reduce((max, app) => app.id > max ? app.id : max, 0);
         const newApplication: FarmerApplication = {
             id: lastId + 1,
             status: 'pending',
             submittedAt: new Date().toISOString(),
             details: {
                 ...data,
-                // In a real app, you'd upload these files and store URLs. Here, we just store names.
                 kycDocument: (data.kycDocument as any)?.[0]?.name || 'N/A',
                 farmOwnershipDocument: (data.farmOwnershipDocument as any)?.[0]?.name || 'N/A',
             },
         };
-        currentDb.farmerApplications.push(newApplication);
-        updateDb(currentDb);
+        updateDb({ ...db, farmerApplications: [...db.farmerApplications, newApplication] });
     };
 
     const updateFarmerApplicationStatus = (applicationId: number, status: ApplicationStatus) => {
-        const currentDb = getDb();
-        const appIndex = currentDb.farmerApplications.findIndex(app => app.id === applicationId);
+        if (!db) throw new Error("Database not initialized");
+        
+        let newDb = { ...db };
+        const appIndex = newDb.farmerApplications.findIndex(app => app.id === applicationId);
         if (appIndex === -1) throw new Error("Application not found.");
         
-        const application = currentDb.farmerApplications[appIndex];
-        application.status = status;
-
+        const newApplications = [...newDb.farmerApplications];
+        const application = { ...newApplications[appIndex], status };
+        newApplications[appIndex] = application;
+        
+        let newUsers = newDb.users;
         if (status === 'approved') {
-            addUser(application.details.email, 'farmer');
+            if (!newDb.users.find(u => u.email.toLowerCase() === application.details.email.toLowerCase())) {
+                const lastId = newDb.users.reduce((max, u) => u.id > max ? u.id : max, 0);
+                const newUser: User = { id: lastId + 1, email: application.details.email, role: 'farmer' };
+                newUsers = [...newDb.users, newUser];
+            }
         }
         
-        updateDb(currentDb);
+        updateDb({ ...newDb, farmerApplications: newApplications, users: newUsers });
     };
 
     const value = {
@@ -241,7 +241,6 @@ export function DbProvider({ children }: { children: ReactNode }) {
         loading,
         getBatchById,
         getProductById,
-        verifyId,
         addBatch,
         addProduct,
         updateTimelineEvent,
@@ -251,7 +250,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
         deleteUser,
         addFarmerApplication,
         updateFarmerApplicationStatus,
-        reloadDb,
+        reloadDb: initializeDb, // Reloading just re-initializes from the static JSON
     };
 
     return <DbContext.Provider value={value}>{children}</DbContext.Provider>;
