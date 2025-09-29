@@ -32,6 +32,13 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 
 type DiagnosisState = DiagnosePlantHealthOutput | null;
 
+// Simulate approved harvest zones (latitude, longitude, radius in degrees)
+const APPROVED_ZONES = [
+    { name: "Coimbatore", lat: 11.01, lon: 76.95, radius: 1 },
+    { name: "Pratapgarh", lat: 25.9, lon: 81.97, radius: 1 },
+    { name: "Kangra", lat: 32.1, lon: 76.27, radius: 1 },
+];
+
 export function CreateBatchForm() {
   const [loading, setLoading] = useState(false);
   const [loadingLocation, setLoadingLocation] = useState(false);
@@ -155,6 +162,19 @@ export function CreateBatchForm() {
     }
   };
 
+  // Simulate smart contract validation for geo-fencing
+  const validateLocation = (locationString: string): boolean => {
+      const match = locationString.match(/Lat: ([-]?\d+\.\d+), Lon: ([-]?\d+\.\d+)/);
+      if (!match) return false;
+      const lat = parseFloat(match[1]);
+      const lon = parseFloat(match[2]);
+
+      return APPROVED_ZONES.some(zone => {
+          const distance = Math.sqrt(Math.pow(lat - zone.lat, 2) + Math.pow(lon - zone.lon, 2));
+          return distance <= zone.radius;
+      });
+  };
+
   async function onSubmit(values: CreateBatchValues) {
     if (!photo) {
       toast({
@@ -187,6 +207,16 @@ export function CreateBatchForm() {
         description: c.toast.locationRequiredDescription,
       });
       return;
+    }
+    
+    // Simulate smart contract check for geo-fencing
+    if (!validateLocation(values.location)) {
+        toast({
+            variant: 'destructive',
+            title: "Compliance Error",
+            description: "Harvest location is outside of an approved geo-fenced zone. Batch cannot be created.",
+        });
+        return;
     }
 
     setLoading(true);
@@ -477,7 +507,7 @@ export function CreateBatchForm() {
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) =>
-                            !threeDaysAgo || date > new Date() || date < threeDaysAgo
+                            date > new Date()
                           }
                           initialFocus
                         />
