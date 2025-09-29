@@ -1,4 +1,5 @@
 
+
 "use client";
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -223,6 +224,7 @@ function ProvenancePageContent() {
                       role={role} 
                       batchId={isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}
                       isProduct={isProduct}
+                      componentBatches={(data as AssembledProduct).componentBatches}
                     />
                 </section>
             </div>
@@ -295,6 +297,7 @@ function ProvenancePageContent() {
                   role={role} 
                   batchId={isProduct ? (data as AssembledProduct).productId : (data as BatchData).batchId}
                   isProduct={isProduct}
+                  componentBatches={(data as AssembledProduct).componentBatches}
                 />
             </section>
         </div>

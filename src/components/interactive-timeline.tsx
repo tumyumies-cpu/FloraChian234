@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useEffect } from 'react';
@@ -25,6 +26,7 @@ interface InteractiveTimelineProps {
   role: UserRole | string;
   batchId: string;
   isProduct?: boolean;
+  componentBatches?: string[];
 }
 
 const statusConfig = {
@@ -60,7 +62,7 @@ const visibilityRules: Record<string, string[]> = {
 };
 
 
-export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = false }: InteractiveTimelineProps) {
+export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = false, componentBatches = [] }: InteractiveTimelineProps) {
   const [events, setEvents] = useState(initialEvents);
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -233,6 +235,19 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
     }
   };
 
+  const getDocumentIdForEvent = (event: TimelineEvent) => {
+    // For a product timeline, manufacturing events and beyond belong to the product itself.
+    if (isProduct && event.id >= 99) {
+      return batchId; // Use the product ID
+    }
+    // For events related to harvesting, processing, etc., link to the first component batch.
+    if (isProduct && componentBatches.length > 0) {
+      return componentBatches[0];
+    }
+    // For a simple batch timeline, just use its own ID.
+    return batchId;
+  };
+
 
   return (
     <div className="relative pl-6 after:absolute after:inset-y-0 after:left-[1.625rem] after:w-px after:bg-border -ml-2">
@@ -290,7 +305,7 @@ export function InteractiveTimeline({ initialEvents, role, batchId, isProduct = 
                      {showDescription && (
                         <CardFooter>
                            <Button asChild variant="secondary" size="sm">
-                                <Link href={`/document/${batchId}?stage=${event.id}`} target="_blank">
+                                <Link href={`/document/${getDocumentIdForEvent(event)}?stage=${event.id}`} target="_blank">
                                     <FileText className="mr-2 h-4 w-4" />
                                     {role === 'consumer' ? 'View Certificate' : 'Download Report'}
                                 </Link>
