@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useParams, useSearchParams, notFound } from 'next/navigation';
 import Image from 'next/image';
 import QRCode from 'qrcode';
