@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CreateBatchSchema, type CreateBatchValues } from "@/lib/schemas";
 import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles, Languages, Leaf, AlertTriangle, CheckCircle, Info, BadgeDollarSign } from "lucide-react";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraCapture } from "@/components/camera-capture";
@@ -553,3 +553,5 @@ export function CreateBatchForm() {
     </div>
   );
 }
+
+    

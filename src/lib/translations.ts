@@ -404,7 +404,7 @@ export const content = {
       form: {
         productName: { label: 'उत्पाद का नाम', placeholder: 'उदा., जैविक तुलसी' },
         farmName: { label: 'खेत का नाम', placeholder: 'उदा., वर्डेंट वैली फार्म' },
-        location: { label: 'खेत का स्थान', placeholder: 'स्थान प्राप्त करने के लिए बटन पर क्लिक करें' },
+        location: { label: 'खेत का स्थान', placeholder: 'स्थान प्राप्त करने के لیے بٹن پر کلک کریں' },
         harvestDate: { label: 'कटाई की तारीख', placeholder: 'एक तारीख चुनें' },
         notes: { label: 'प्रारंभिक नोट्स और विवरण', placeholder: 'कटाई की स्थिति, बैच की गुणवत्ता, या किसी अन्य प्रासंगिक विवरण का वर्णन करें।' },
         submitButton: 'बैच बनाएं और क्यूआर कोड प्राप्त करें',
@@ -924,3 +924,5 @@ export const content = {
 
 export type Translations = typeof content.en;
 export type Language = keyof typeof content;
+
+    
