@@ -18,7 +18,6 @@ function VerifyContent() {
 
   const [scannedId, setScannedId] = useState<string | null>(null);
 
-  // If we are in the app layout but not a consumer, we need to be authenticated.
   useEffect(() => {
     if (!authLoading && role !== 'consumer' && !authInfo) {
       router.push('/login');
@@ -58,12 +57,14 @@ function VerifyContent() {
 }
 
 export default function VerifyPage() {
-  return (
-    <Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-      <Skeleton className="h-96 w-full" />
-      <Skeleton className="h-64 w-full" />
-    </div>}>
-      <VerifyContent />
-    </Suspense>
-  );
+    return (
+        <Suspense fallback={
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <Skeleton className="h-96 w-full" />
+                <Skeleton className="h-64 w-full" />
+            </div>
+        }>
+            <VerifyContent />
+        </Suspense>
+    );
 }
