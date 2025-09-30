@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Leaf, ShieldCheck, Globe, Users, Twitter, Facebook, Instagram, Linkedin, Sprout, Factory, Truck, Scan, BarChart, DollarSign, Award, MapPin, Fingerprint, QrCode, Gem, BrainCircuit, Shield, SunSnow } from 'lucide-react';
+import { ArrowRight, Leaf, Users, Twitter, Facebook, Instagram, Linkedin, Award, Gem, Shield, BrainCircuit, SunSnow, DollarSign, MapPin, Fingerprint, QrCode } from 'lucide-react';
 import { useLanguage, content } from '@/context/language-context';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,51 +19,51 @@ export default function HomePage() {
 
   const techPillars = [
     {
-      title: 'Geo-Tagging & Smart Contracts',
-      description: 'Harvest events are geo-tagged at the source. Smart contracts automatically verify the location is within an approved zone, ensuring origin authenticity.',
+      title: c.coreTech.p1.title,
+      description: c.coreTech.p1.description,
       icon: MapPin,
     },
     {
-      title: 'Immutable Ledger',
-      description: 'Every step, from harvest to processing to lab testing, is recorded on a permissioned blockchain, creating a tamper-proof, end-to-end provenance record.',
+      title: c.coreTech.p2.title,
+      description: c.coreTech.p2.description,
       icon: Fingerprint,
     },
     {
-      title: 'Consumer Smart Labels',
-      description: 'A unique QR code on each product links consumers to an interactive dashboard showing the full journey, including maps, certificates, and farmer profiles.',
+      title: c.coreTech.p3.title,
+      description: c.coreTech.p3.description,
       icon: QrCode,
     },
   ];
 
   const keyInnovations = [
     {
-        title: 'Biodiversity Credit Marketplace',
-        description: 'Tokenized green credits are awarded for verified sustainable and regenerative harvesting practices, creating a new revenue stream for ethical farmers.',
+        title: c.innovations.p1.title,
+        description: c.innovations.p1.description,
         icon: Award
     },
     {
-        title: 'Impact NFTs for Consumers',
-        description: 'Each purchase can mint a unique Impact NFT, visually representing the product\'s journey, the farmer\'s story, and the positive environmental impact.',
+        title: c.innovations.p2.title,
+        description: c.innovations.p2.description,
         icon: Gem
     },
     {
-        title: 'Zero-Knowledge Compliance Proofs',
-        description: 'Verify authenticity and regulatory compliance on the blockchain without ever exposing sensitive farmer or proprietary company data, ensuring privacy.',
+        title: c.innovations.p3.title,
+        description: c.innovations.p3.description,
         icon: Shield
     },
     {
-        title: 'Digital Twin & Predictive Simulation',
-        description: 'A real-time virtual model of the supply chain predicts disruptions, simulates demand spikes, and optimizes inventory, reducing waste.',
+        title: c.innovations.p4.title,
+        description: c.innovations.p4.description,
         icon: BrainCircuit
     },
     {
-        title: 'Climate-Adaptive Smart Contracts',
-        description: 'Contracts automatically adjust harvest schedules and farmer payments based on live, localized weather data, building resilience against climate change.',
+        title: c.innovations.p5.title,
+        description: c.innovations.p5.description,
         icon: SunSnow
     },
     {
-        title: 'Dynamic Incentives',
-        description: 'Reward farmers in real-time for meeting quality benchmarks, water conservation, and other sustainable goals, driving positive behavior.',
+        title: c.innovations.p6.title,
+        description: c.innovations.p6.description,
         icon: DollarSign
     }
   ];
@@ -80,13 +80,13 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <div className="hidden md:flex gap-1">
                 <Button asChild variant="ghost">
-                    <Link href="#innovations">Innovations</Link>
+                    <Link href="#innovations">{c.nav.innovations}</Link>
                 </Button>
                 <Button asChild variant="ghost">
-                    <Link href="#how-it-works">How It Works</Link>
+                    <Link href="#how-it-works">{c.nav.howItWorks}</Link>
                 </Button>
                 <Button asChild variant="ghost">
-                    <Link href="#shop">Shop</Link>
+                    <Link href="#shop">{c.nav.shop}</Link>
                 </Button>
             </div>
             <LanguageSwitcher variant="ghost" />
@@ -110,7 +110,7 @@ export default function HomePage() {
                 <div className="mt-10 flex flex-col sm:flex-row gap-4">
                     <Button asChild size="lg">
                         <Link href="#shop">
-                        Shop Now
+                        {c.hero.shopButton}
                         <ArrowRight className="ml-2 h-5 w-5" />
                         </Link>
                     </Button>
@@ -139,11 +139,11 @@ export default function HomePage() {
       </section>
       
        {/* Key Innovations Section */}
-      <section id="innovations" className="w-full py-16 lg:py-24 bg-card">
+      <section id="innovations" className="w-full py-16 lg:py-24 bg-background">
         <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">Key Innovations</h2>
-                <p className="mt-4 text-lg text-muted-foreground">Discover the next-generation technology that makes FloraChain unique and sets a new standard for trust and sustainability in the supply chain.</p>
+                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.innovations.title}</h2>
+                <p className="mt-4 text-lg text-muted-foreground">{c.innovations.description}</p>
             </div>
             <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {keyInnovations.map((pillar, index) => (
@@ -165,11 +165,11 @@ export default function HomePage() {
 
 
        {/* How FloraChain Works (for Judges) */}
-       <section id="how-it-works" className="w-full py-16 lg:py-24 bg-background text-foreground">
+       <section id="how-it-works" className="w-full py-16 lg:py-24 bg-card text-foreground">
         <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">Our Core Technology</h2>
-                <p className="mt-4 text-lg text-muted-foreground">Our platform is built on three core technological pillars that provide an immutable, end-to-end provenance ledger.</p>
+                <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.coreTech.title}</h2>
+                <p className="mt-4 text-lg text-muted-foreground">{c.coreTech.description}</p>
             </div>
           <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
             {techPillars.map((pillar, index) => (
@@ -193,8 +193,8 @@ export default function HomePage() {
       <section id="shop" className="w-full py-16 lg:py-24 bg-background">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">Shop Our Verifiably Sourced Products</h2>
-            <p className="mt-4 text-lg text-muted-foreground">Each product is linked to its complete provenance record. Experience true transparency.</p>
+            <h2 className="text-3xl font-headline font-bold tracking-tight sm:text-4xl">{c.shopSection.title}</h2>
+            <p className="mt-4 text-lg text-muted-foreground">{c.shopSection.description}</p>
           </div>
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredProducts.map((product) => (
@@ -216,7 +216,7 @@ export default function HomePage() {
                     <p className="text-2xl font-bold text-primary mb-4">₹2499</p>
                     <div className="mt-auto">
                         <Button className="w-full" asChild>
-                         <Link href={`/provenance/PROD-1001?role=consumer`}>Shop Now</Link>
+                         <Link href={`/provenance/PROD-1001?role=consumer`}>{c.hero.shopButton}</Link>
                         </Button>
                     </div>
                   </CardContent>
@@ -261,7 +261,7 @@ export default function HomePage() {
               <div>
                 <h4 className="font-headline font-semibold">{c.footer.navigate.title}</h4>
                 <ul className="mt-4 space-y-2 text-sm">
-                  <li><Link href="#innovations" className="text-muted-foreground hover:text-primary">Innovations</Link></li>
+                  <li><Link href="#innovations" className="text-muted-foreground hover:text-primary">{c.nav.innovations}</Link></li>
                   <li><Link href="/verify?role=consumer" className="text-muted-foreground hover:text-primary">{c.footer.navigate.track}</Link></li>
                   <li><Link href="/login" className="text-muted-foreground hover:text-primary">{c.footer.navigate.signIn}</Link></li>
                 </ul>
@@ -298,7 +298,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
-
-    
