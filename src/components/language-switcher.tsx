@@ -44,7 +44,7 @@ export function LanguageSwitcher({ variant = 'select' }: LanguageSwitcherProps) 
 
   return (
     <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'hi' | 'te' | 'ta')}>
-      <SelectTrigger className="mt-2">
+      <SelectTrigger>
         <div className="flex items-center gap-2">
           <Languages className="h-4 w-4" />
           <SelectValue placeholder="Select language" />

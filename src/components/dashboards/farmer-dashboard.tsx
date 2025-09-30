@@ -6,6 +6,7 @@ import { CardContent, CardDescription, CardHeader, CardTitle } from '@/component
 import { PlusCircle, ArrowRight, History } from 'lucide-react';
 import Link from 'next/link';
 import { useLanguage } from '@/context/language-context';
+import { LanguageSwitcher } from '../language-switcher';
 
 export function FarmerDashboard() {
   const { language, content } = useLanguage();
@@ -15,13 +16,18 @@ export function FarmerDashboard() {
     <div className="p-6 grid md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <CardHeader className="p-0">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <PlusCircle className="h-6 w-6" />
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <PlusCircle className="h-6 w-6" />
+                </div>
+                <div>
+                <CardTitle className="font-headline">{c.create.title}</CardTitle>
+                <CardDescription>{c.create.description}</CardDescription>
+                </div>
             </div>
-            <div>
-              <CardTitle className="font-headline">{c.create.title}</CardTitle>
-              <CardDescription>{c.create.description}</CardDescription>
+            <div className="w-32">
+             <LanguageSwitcher />
             </div>
           </div>
         </CardHeader>
