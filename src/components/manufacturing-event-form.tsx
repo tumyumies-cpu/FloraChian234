@@ -39,13 +39,14 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
         heavyMetals: "Passed - Pb, As, Hg, Cd below detectable limits",
         microbialSafety: "Passed - E. coli, Salmonella not detected",
       },
-      finalBatchId: "", // Set dynamically
+      finalBatchId: "", // Set dynamically in useEffect
       expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString().split('T')[0],
       gmpCompliance: "All processes compliant with Good Manufacturing Practices.",
     },
   });
   
   useEffect(() => {
+    // This logic must run on the client to avoid hydration errors
     if (typeof window !== 'undefined') {
         if (!initialData && !form.getValues('finalBatchId')) {
             form.setValue('finalBatchId', `FP-${Math.floor(10000 + Math.random() * 90000)}`);
@@ -202,5 +203,3 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
     </Form>
   );
 }
-
-    

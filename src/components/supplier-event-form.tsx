@@ -32,13 +32,14 @@ export function SupplierEventForm({ onSubmit, onCancel, loading, initialData }: 
       supplierId: "TR-SF-007",
       location: "Oakland, CA Distribution Center",
       quantity: "500 kg",
-      lotNumber: "", // Set dynamically
+      lotNumber: "", // Set dynamically in useEffect
       inspectionReport: "Passed visual and sensory evaluation. COA pending.",
       certifications: "USDA Organic, Non-GMO Project Verified",
     },
   });
 
   useEffect(() => {
+    // This logic must run on the client to avoid hydration errors
     if (typeof window !== 'undefined') {
         if (!initialData && !form.getValues('lotNumber')) {
             form.setValue('lotNumber', `LOT-${Math.floor(1000 + Math.random() * 9000)}`);
@@ -133,5 +134,3 @@ export function SupplierEventForm({ onSubmit, onCancel, loading, initialData }: 
     </Form>
   );
 }
-
-    

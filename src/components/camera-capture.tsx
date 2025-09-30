@@ -21,26 +21,26 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
 
   useEffect(() => {
     const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      // This check must be inside useEffect to ensure it runs only on the client
+      if (typeof window !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+          setHasCameraPermission(true);
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch (error) {
+          console.error("Error accessing camera:", error);
+          setHasCameraPermission(false);
+          toast({
+            variant: "destructive",
+            title: "Camera Access Denied",
+            description: "Please enable camera permissions in your browser settings to use this feature.",
+          });
+        }
+      } else {
         console.error("Camera API not available in this browser.");
         setHasCameraPermission(false);
-        return;
-      }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        setHasCameraPermission(true);
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error("Error accessing camera:", error);
-        setHasCameraPermission(false);
-        toast({
-          variant: "destructive",
-          title: "Camera Access Denied",
-          description: "Please enable camera permissions in your browser settings to use this feature.",
-        });
       }
     };
     getCameraPermission();
@@ -96,7 +96,7 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
     <div className="space-y-4">
       <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
         {capturedImage ? (
-          <Image src={capturedImage} alt="Captured harvest" fill objectFit="cover" />
+          <Image src={capturedImage} alt="Captured harvest" fill style={{ objectFit: "cover" }} />
         ) : (
           <video ref={videoRef} className="h-full w-full object-cover" autoPlay playsInline muted />
         )}
@@ -142,5 +142,3 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
     </div>
   );
 }
-
-    

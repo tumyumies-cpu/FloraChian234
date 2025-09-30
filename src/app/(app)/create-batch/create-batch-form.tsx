@@ -46,8 +46,8 @@ export function CreateBatchForm() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [diagnosis, setDiagnosis] = useState<DiagnosisState>(null);
   const [diagnosisLoading, setDiagnosisLoading] = useState(false);
-  const [threeDaysAgo, setThreeDaysAgo] = useState<Date | null>(null);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+  const [defaultHarvestDate, setDefaultHarvestDate] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,8 +57,8 @@ export function CreateBatchForm() {
 
 
   useEffect(() => {
-    // This will only run on the client, after initial hydration
-    setThreeDaysAgo(subDays(new Date(), 2));
+    // This will only run on the client, after initial hydration, preventing build errors
+    setDefaultHarvestDate(new Date());
   }, []);
 
   useEffect(() => {
@@ -510,6 +510,7 @@ export function CreateBatchForm() {
                             date > new Date()
                           }
                           initialFocus
+                          defaultMonth={defaultHarvestDate}
                         />
                       </PopoverContent>
                     </Popover>
