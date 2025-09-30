@@ -5,7 +5,7 @@ import { AssembleProductContent } from "./assemble-product-content";
 
 export default function AssembleProductPage() {
   return (
-    <Suspense fallback={<Skeleton className="h-[40rem] w-full" />}>
+    <Suspense fallback={<Skeleton className="h-[40rem] w-full" />} >
       <AssembleProductContent />
     </Suspense>
   );
