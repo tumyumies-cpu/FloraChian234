@@ -6,6 +6,7 @@ import { QrScanner } from "@/components/qr-scanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScanLine } from "lucide-react";
 import { useAuth } from '@/context/auth-context';
+import { Skeleton } from "@/components/ui/skeleton";
 
 function VerifyContent() {
   const searchParams = useSearchParams();
@@ -58,7 +59,10 @@ function VerifyContent() {
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<div>Loading form...</div>}>
+    <Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+      <Skeleton className="h-96 w-full" />
+      <Skeleton className="h-64 w-full" />
+    </div>}>
       <VerifyContent />
     </Suspense>
   );

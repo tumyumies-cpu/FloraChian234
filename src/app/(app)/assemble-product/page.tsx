@@ -23,14 +23,20 @@ function AssembleProductContent() {
 
 export default function AssembleProductPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-headline font-bold tracking-tight">Assemble a New Product</h1>
-        <p className="text-muted-foreground">Select ingredient batches to combine into a final product.</p>
-      </div>
-      <Suspense fallback={<div>Loading form...</div>}>
-        <AssembleProductContent />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div>Loading form...</div>}>
+        <AssembleProductContentWrapper />
+    </Suspense>
   );
+}
+
+function AssembleProductContentWrapper() {
+    return (
+        <div className="space-y-8">
+            <div>
+                <h1 className="text-3xl font-headline font-bold tracking-tight">Assemble a New Product</h1>
+                <p className="text-muted-foreground">Select ingredient batches to combine into a final product.</p>
+            </div>
+            <AssembleProductContent />
+        </div>
+    );
 }

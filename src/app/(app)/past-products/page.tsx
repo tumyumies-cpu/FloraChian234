@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useSearchParams } from "next/navigation";
 import { useDbContext } from "@/context/db-context";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function PastProductsPage() {
+function PastProductsContent() {
   const searchParams = useSearchParams();
   const role = searchParams.get('role') || 'retailer';
   const { db } = useDbContext();
@@ -50,5 +52,13 @@ export default function PastProductsPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PastProductsPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+      <PastProductsContent />
+    </Suspense>
   );
 }

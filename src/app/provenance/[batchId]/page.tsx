@@ -321,12 +321,20 @@ function ProvenancePageContent() {
   );
 }
 
-export default function ProvenancePage() {
+// This new component ensures the DbProvider is inside the Suspense boundary
+function ProvenancePageWithProvider() {
     return (
         <DbProvider>
-            <Suspense fallback={<ProvenancePageSkeleton />}>
-                <ProvenancePageContent />
-            </Suspense>
+            <ProvenancePageContent />
         </DbProvider>
+    );
+}
+
+
+export default function ProvenancePage() {
+    return (
+        <Suspense fallback={<ProvenancePageSkeleton />}>
+            <ProvenancePageWithProvider />
+        </Suspense>
     );
 }

@@ -4,8 +4,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import { useDbContext } from "@/context/db-context";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function PastBatchesPage() {
+function PastBatchesContent() {
   const searchParams = useSearchParams();
   const role = searchParams.get('role') || 'farmer';
   const { db } = useDbContext();
@@ -46,5 +48,13 @@ export default function PastBatchesPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function PastBatchesPage() {
+  return (
+    <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+      <PastBatchesContent />
+    </Suspense>
   );
 }

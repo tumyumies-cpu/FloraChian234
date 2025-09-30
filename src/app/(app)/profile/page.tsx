@@ -18,7 +18,8 @@ function getRoleLabel(role: string | null) {
 
 function ProfileContent() {
   const { authInfo } = useAuth();
-  const role = authInfo?.role;
+  const searchParams = useSearchParams();
+  const role = authInfo?.role ?? searchParams.get('role');
   const roleLabel = getRoleLabel(role || null);
 
   return (

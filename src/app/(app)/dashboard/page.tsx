@@ -12,7 +12,7 @@ import { DistributorDashboard } from '@/components/dashboards/distributor-dashbo
 import { AdminDashboard } from '@/components/dashboards/admin-dashboard';
 import { ProcessorDashboard } from '@/components/dashboards/processor-dashboard';
 import { useDbContext } from '@/context/db-context';
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
 function DashboardSkeleton() {
   return (
