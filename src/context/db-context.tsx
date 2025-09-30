@@ -20,17 +20,24 @@ interface DbContextType {
     deleteUser: (userId: number) => void;
     addFarmerApplication: (data: FarmerApplicationValues) => void;
     updateFarmerApplicationStatus: (applicationId: number, status: ApplicationStatus) => void;
-    reloadDb: () => void; // Kept for potential future use, but not essential with in-memory model
+    reloadDb: () => void;
 }
 
 const DbContext = createContext<DbContextType | undefined>(undefined);
 
+// This will hold the database state in memory for the lifetime of the client session.
+// It resets on a full page reload.
+let inMemoryDb: Database | null = null;
+
 export function DbProvider({ children }: { children: ReactNode }) {
-    const [db, setDb] = useState<Database | null>(null);
+    const [db, setDb] = useState<Database | null>(inMemoryDb);
     const [loading, setLoading] = useState(true);
 
     const initializeDb = useCallback(() => {
-        setDb(getInitialDb());
+        if (!inMemoryDb) {
+            inMemoryDb = getInitialDb();
+        }
+        setDb(inMemoryDb);
         setLoading(false);
     }, []);
 
@@ -39,10 +46,11 @@ export function DbProvider({ children }: { children: ReactNode }) {
     }, [initializeDb]);
 
     const updateDb = (newDbState: Database) => {
-        // This now just updates the React state
+        // Update both the in-memory reference and the React state
+        inMemoryDb = newDbState;
         setDb(newDbState);
     };
-
+    
     const getBatchById = useCallback((id: string) => {
         if (!db) return null;
         return db.batches.find(b => b.batchId.toUpperCase() === id.toUpperCase()) || null;
@@ -80,8 +88,8 @@ export function DbProvider({ children }: { children: ReactNode }) {
                 { id: 6, title: 'Ready for Formulation', status: 'locked', icon: 'combine', allowedRole: 'brand', cta: 'Select for Product', consumerDescription: 'The ingredient is now ready to be used in a final product formulation.' },
             ]
         };
-
-        updateDb({ ...db, batches: [newBatch, ...db.batches] });
+        const newDb = { ...db, batches: [newBatch, ...db.batches] };
+        updateDb(newDb);
         return newBatch;
     };
     
@@ -112,7 +120,8 @@ export function DbProvider({ children }: { children: ReactNode }) {
             ]
         };
 
-        updateDb({ ...db, products: [newProduct, ...db.products] });
+        const newDb = { ...db, products: [newProduct, ...db.products] };
+        updateDb(newDb);
         return newProduct;
     };
     
@@ -250,7 +259,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
         deleteUser,
         addFarmerApplication,
         updateFarmerApplicationStatus,
-        reloadDb: initializeDb, // Reloading just re-initializes from the static JSON
+        reloadDb: initializeDb,
     };
 
     return <DbContext.Provider value={value}>{children}</DbContext.Provider>;

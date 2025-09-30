@@ -1,12 +1,12 @@
 
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import type { UserRole } from '@/lib/data';
 
 interface AuthInfo {
-  email: string | null;
-  role: UserRole | null;
+  email: string;
+  role: UserRole | string;
 }
 
 interface AuthContextType {
@@ -17,46 +17,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Keep the state in memory for the duration of the session
+let inMemoryAuth: AuthInfo | null = null;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [authInfo, setAuthInfoState] = useState<AuthInfo | null>(null);
+  const [authInfo, setAuthInfoState] = useState<AuthInfo | null>(inMemoryAuth);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // This effect runs once on mount to check for persisted auth info
-    // It helps maintain the session across page refreshes.
-    let isMounted = true;
-    try {
-      const storedAuthInfo = localStorage.getItem('authInfo');
-      if (isMounted && storedAuthInfo) {
-        setAuthInfoState(JSON.parse(storedAuthInfo));
-      }
-    } catch (error) {
-      console.warn("Could not access localStorage. Auth persistence will be disabled.");
-    } finally {
-      if (isMounted) {
-        setLoading(false); 
-      }
-    }
-    return () => { isMounted = false; };
+    // On initial load, we set the state from our in-memory variable.
+    // This is synchronous and avoids any client/server mismatch.
+    setAuthInfoState(inMemoryAuth);
+    setLoading(false);
   }, []);
 
-  const setAuthInfo = (newAuthInfo: AuthInfo | null) => {
-    setAuthInfoState(newAuthInfo);
-    try {
-      if (newAuthInfo) {
-        localStorage.setItem('authInfo', JSON.stringify(newAuthInfo));
-      } else {
-        localStorage.removeItem('authInfo');
-      }
-    } catch (error) {
-       console.warn("Could not access localStorage. Auth persistence will be disabled.");
-    }
-  };
+  const setAuthInfo = useCallback((newAuthInfo: AuthInfo | null) => {
+    inMemoryAuth = newAuthInfo; // Update the in-memory state
+    setAuthInfoState(newAuthInfo); // Update the React state
+  }, []);
 
-  // We now render children immediately, and the loading state is used by consumers
-  // to decide whether to show a loader or content. This prevents unmounting issues.
+  const value = { authInfo, setAuthInfo, loading };
+
   return (
-    <AuthContext.Provider value={{ authInfo, setAuthInfo, loading }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

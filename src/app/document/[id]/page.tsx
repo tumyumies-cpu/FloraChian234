@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, Suspense } from 'react';
-import { useParams, useSearchParams, notFound, useRouter } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import QRCode from 'qrcode';
 import type { BatchData, AssembledProduct, TimelineEvent } from '@/lib/data';
@@ -13,6 +13,39 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Leaf, Printer, AlertTriangle } from 'lucide-react';
 import { useDbContext, DbProvider } from '@/context/db-context';
+
+function ReportSkeleton() {
+    return (
+        <div className="p-8 max-w-3xl mx-auto">
+             <header className="flex justify-between items-center mb-8 print:hidden">
+                 <div className="flex items-center gap-2 text-primary">
+                    <Leaf className="h-7 w-7 text-slate-800" />
+                    <span className="font-headline text-xl font-semibold text-slate-800">FloraChain Report</span>
+                </div>
+            </header>
+            <main className="p-8 border border-slate-200 rounded-lg">
+                <Skeleton className="h-8 w-48 mb-4" />
+                <Skeleton className="h-6 w-full mb-2" />
+                <Skeleton className="h-4 w-32 mb-6" />
+                <Skeleton className="h-96 w-full" />
+            </main>
+        </div>
+    );
+}
+
+function NotFoundReport() {
+     return (
+        <div className="flex min-h-screen flex-col items-center justify-center bg-background text-center p-4">
+            <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
+            <h1 className="text-2xl font-bold font-headline">Report Not Found</h1>
+            <p className="text-muted-foreground mt-2">
+                The document you are looking for does not exist or is invalid. Please check the ID and try again.
+            </p>
+            <Button onClick={() => window.history.back()} className="mt-6">Go Back</Button>
+        </div>
+    );
+}
+
 
 function PrintableReport() {
     const params = useParams();
@@ -28,82 +61,52 @@ function PrintableReport() {
     const [isDataFound, setIsDataFound] = useState<boolean | null>(null);
 
     useEffect(() => {
-        if (dbLoading) {
-            return; // Wait for the DB to be loaded
+        if (dbLoading || !id || !stageId || !db) {
+            return; 
         }
         
-        if (id && stageId && db) {
-            const isProduct = id.startsWith('PROD-');
-            const fetchedData = isProduct ? db.products.find(p => p.productId.toUpperCase() === id.toUpperCase()) : db.batches.find(b => b.batchId.toUpperCase() === id.toUpperCase());
+        const isProduct = id.startsWith('PROD-');
+        const sourceData = isProduct ? db.products : db.batches;
+        const fetchedData = sourceData.find(item => ('productId' in item ? item.productId : item.batchId).toUpperCase() === id.toUpperCase());
 
-            if (fetchedData) {
-                const timeline = isProduct ? (fetchedData as AssembledProduct).timeline : (fetchedData as BatchData).timeline;
-                const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
-
-                if (stageEvent) {
-                    setData(fetchedData as BatchData | AssembledProduct);
-                    setStage(stageEvent);
-                    QRCode.toDataURL(id, { width: 150, margin: 2 }).then(setQrCodeDataUrl);
-                    setIsDataFound(true);
-                } else {
-                    setIsDataFound(false); // Stage not found
-                }
+        if (fetchedData) {
+            const timeline = fetchedData.timeline;
+            const stageEvent = timeline.find(e => e.id === parseInt(stageId, 10));
+            if (stageEvent) {
+                setData(fetchedData as BatchData | AssembledProduct);
+                setStage(stageEvent);
+                QRCode.toDataURL(id, { width: 150, margin: 2 }).then(setQrCodeDataUrl);
+                setIsDataFound(true);
             } else {
-                setIsDataFound(false); // ID not found
+                setIsDataFound(false); // Stage not found
             }
         } else {
-            setIsDataFound(false); // Missing params or db
+            setIsDataFound(false); // ID not found
         }
     }, [id, stageId, db, dbLoading]);
     
     useEffect(() => {
-        // Only trigger print if data has been successfully found and rendered.
-        if (isDataFound && typeof window !== 'undefined') {
+        if (isDataFound) {
             const printTimeout = setTimeout(() => window.print(), 500);
             return () => clearTimeout(printTimeout);
         }
     }, [isDataFound]);
     
     if (dbLoading || isDataFound === null) {
-        return (
-            <div className="p-8 max-w-3xl mx-auto">
-                 <header className="flex justify-between items-center mb-8 print:hidden">
-                     <div className="flex items-center gap-2 text-primary">
-                        <Leaf className="h-7 w-7 text-slate-800" />
-                        <span className="font-headline text-xl font-semibold text-slate-800">FloraChain Report</span>
-                    </div>
-                </header>
-                <main className="p-8 border border-slate-200 rounded-lg">
-                    <Skeleton className="h-8 w-48 mb-4" />
-                    <Skeleton className="h-6 w-full mb-2" />
-                    <Skeleton className="h-4 w-32 mb-6" />
-                    <Skeleton className="h-96 w-full" />
-                </main>
-            </div>
-        );
+        return <ReportSkeleton />;
     }
     
     if (isDataFound === false) {
-        return (
-            <div className="flex min-h-screen flex-col items-center justify-center bg-background text-center p-4">
-                <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
-                <h1 className="text-2xl font-bold font-headline">Report Not Found</h1>
-                <p className="text-muted-foreground mt-2">
-                    The document you are looking for does not exist or is invalid. Please check the ID and try again.
-                </p>
-                <Button onClick={() => window.history.back()} className="mt-6">Go Back</Button>
-            </div>
-        );
+        return <NotFoundReport />;
     }
 
     if (!data || !stage) {
-        return null; // Should be handled by the states above, but as a safeguard.
+        return null; // Should be handled by the states above
     }
 
     const StageIcon = iconMap[stage.icon];
     const isProduct = id.startsWith('PROD-');
     const productName = 'productId' in data ? data.productName : (data as BatchData).productName;
-
 
     return (
         <div className="bg-white text-black min-h-screen">
@@ -184,7 +187,7 @@ function PrintableReport() {
 export default function DocumentPage() {
   return (
     <DbProvider>
-      <Suspense fallback={<div>Loading Report...</div>}>
+      <Suspense fallback={<ReportSkeleton />}>
         <PrintableReport />
       </Suspense>
     </DbProvider>

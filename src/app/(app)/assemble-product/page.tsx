@@ -17,6 +17,7 @@ function AssembleProductContent() {
     );
   }
   
+  // The form now gets the initial batches directly.
   return <AssembleProductForm batches={db.batches} />;
 }
 

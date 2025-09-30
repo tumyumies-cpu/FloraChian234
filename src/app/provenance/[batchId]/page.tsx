@@ -10,40 +10,12 @@ import { ArrowLeft, ShieldCheck, Award, User, CheckCircle, Leaf, FileText, Globe
 import { InteractiveTimeline } from '@/components/interactive-timeline';
 import type { BatchData, AssembledProduct, UserRole } from '@/lib/data';
 import { ComponentBatchSummary } from '@/components/component-batch-summary';
-import { useSearchParams, useParams, notFound } from 'next/navigation';
+import { useSearchParams, useParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDbContext, DbProvider } from '@/context/db-context';
 
-function ProvenancePageContent() {
-  const params = useParams();
-  const searchParams = useSearchParams();
-  const { db, loading: dbLoading } = useDbContext();
-
-  const batchId = params.batchId as string;
-  const role = (searchParams.get('role') || 'consumer') as UserRole | string;
-  const fromProduct = searchParams.get('fromProduct');
-
-  const [data, setData] = useState<BatchData | AssembledProduct | null>(null);
-
-  useEffect(() => {
-    if (dbLoading || !db) return;
-
-    let foundData: BatchData | AssembledProduct | null = null;
-    if (batchId.startsWith('PROD-')) {
-        foundData = db.products.find(p => p.productId.toUpperCase() === batchId.toUpperCase()) || null;
-    } else {
-        foundData = db.batches.find(b => b.batchId.toUpperCase() === batchId.toUpperCase()) || null;
-    }
-    
-    if (!foundData) {
-      notFound();
-    } else {
-      setData(foundData);
-    }
-  }, [batchId, db, dbLoading]);
-
-  if (dbLoading || !data) {
+function ProvenancePageSkeleton() {
     return (
       <div className="container mx-auto max-w-5xl py-8 sm:py-12 space-y-8">
         <Skeleton className="h-8 w-24" />
@@ -71,7 +43,56 @@ function ProvenancePageContent() {
          </div>
       </div>
     );
+}
+
+function NotFoundContent() {
+    return (
+        <div className="container mx-auto text-center py-20">
+            <h1 className="text-2xl font-bold">Not Found</h1>
+            <p className="text-muted-foreground">The batch or product you are looking for does not exist.</p>
+             <Button asChild className="mt-4">
+                <Link href="/">Return to Home</Link>
+            </Button>
+        </div>
+    )
+}
+
+function ProvenancePageContent() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const { db, loading: dbLoading } = useDbContext();
+
+  const batchId = params.batchId as string;
+  const role = (searchParams.get('role') || 'consumer') as UserRole | string;
+  const fromProduct = searchParams.get('fromProduct');
+
+  const [data, setData] = useState<BatchData | AssembledProduct | null>(null);
+  const [isDataFound, setIsDataFound] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (dbLoading || !db || !batchId) return;
+
+    const isProduct = batchId.startsWith('PROD-');
+    const sourceData = isProduct ? db.products : db.batches;
+    const foundData = sourceData.find(item => ('productId' in item ? item.productId : item.batchId).toUpperCase() === batchId.toUpperCase());
+    
+    if (foundData) {
+      setData(foundData as BatchData | AssembledProduct);
+      setIsDataFound(true);
+    } else {
+      setIsDataFound(false);
+    }
+  }, [batchId, db, dbLoading]);
+
+  if (dbLoading || isDataFound === null) {
+    return <ProvenancePageSkeleton />;
   }
+  
+  if (isDataFound === false) {
+      return <NotFoundContent />;
+  }
+
+  if (!data) return null; // Should not happen if logic is correct
 
   const isProduct = batchId.startsWith('PROD-');
   const storyGeneratorProps = {
@@ -305,7 +326,7 @@ function ProvenancePageContent() {
 export default function ProvenancePage() {
     return (
         <DbProvider>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<ProvenancePageSkeleton />}>
                 <ProvenancePageContent />
             </Suspense>
         </DbProvider>
