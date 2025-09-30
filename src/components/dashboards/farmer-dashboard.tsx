@@ -1,9 +1,16 @@
+
+'use client';
+
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, ArrowRight, History } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/language-context';
 
 export function FarmerDashboard() {
+  const { language, content } = useLanguage();
+  const c = content[language].farmerDashboard;
+
   return (
     <div className="p-6 grid md:grid-cols-2 gap-6">
       <div className="space-y-4">
@@ -13,18 +20,18 @@ export function FarmerDashboard() {
               <PlusCircle className="h-6 w-6" />
             </div>
             <div>
-              <CardTitle className="font-headline">Create New Batch</CardTitle>
-              <CardDescription>Start a new provenance record for a harvest.</CardDescription>
+              <CardTitle className="font-headline">{c.create.title}</CardTitle>
+              <CardDescription>{c.create.description}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <p className="mb-4 text-sm text-muted-foreground">
-            Begin tracking a new batch by entering its initial details like farm, location, and harvest date. A unique QR code will be generated to follow its journey.
+            {c.create.longDescription}
           </p>
           <Button asChild>
             <Link href="/create-batch?role=farmer">
-              Start Tracking <ArrowRight className="ml-2 h-4 w-4" />
+              {c.create.button} <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </CardContent>
@@ -37,18 +44,18 @@ export function FarmerDashboard() {
               <History className="h-6 w-6" />
             </div>
             <div>
-              <CardTitle className="font-headline">View Past Batches</CardTitle>
-              <CardDescription>Review and manage your previous harvests.</CardDescription>
+              <CardTitle className="font-headline">{c.view.title}</CardTitle>
+              <CardDescription>{c.view.description}</CardDescription>
             </div>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <p className="mb-4 text-sm text-muted-foreground">
-            Access the complete history of all the batches you've created, view their current status, and see their full provenance journey.
+            {c.view.longDescription}
           </p>
           <Button asChild variant="secondary">
             <Link href="/past-batches?role=farmer">
-              View History <ArrowRight className="ml-2 h-4 w-4" />
+              {c.view.button} <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </CardContent>

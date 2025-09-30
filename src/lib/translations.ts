@@ -215,6 +215,20 @@ export const content = {
       pastProducts: 'Past Products',
       verify: 'Verify/Update',
     },
+    farmerDashboard: {
+        create: {
+            title: 'Create New Batch',
+            description: 'Start a new provenance record for a harvest.',
+            longDescription: 'Begin tracking a new batch by entering its initial details like farm, location, and harvest date. A unique QR code will be generated to follow its journey.',
+            button: 'Start Tracking',
+        },
+        view: {
+            title: 'View Past Batches',
+            description: 'Review and manage your previous harvests.',
+            longDescription: 'Access the complete history of all the batches you\'ve created, view their current status, and see their full provenance journey.',
+            button: 'View History',
+        },
+    },
   },
   hi: {
     home: {
@@ -430,6 +444,20 @@ export const content = {
       assembleProduct: 'उत्पाद इकट्ठा करें',
       pastProducts: 'पिछले उत्पाद',
       verify: 'सत्यापित/अपडेट करें',
+    },
+    farmerDashboard: {
+        create: {
+            title: 'नया बैच बनाएं',
+            description: 'एक फसल के लिए एक नया प्रोవెనेंस रिकॉर्ड शुरू करें।',
+            longDescription: 'एक नया बैच ट्रैक करना शुरू करें, जैसे कि खेत, स्थान और कटाई की तारीख जैसे प्रारंभिक विवरण दर्ज करके। इसकी यात्रा का पालन करने के लिए एक अद्वितीय QR कोड उत्पन्न किया जाएगा।',
+            button: 'ट्रैकिंग शुरू करें',
+        },
+        view: {
+            title: 'पिछले बैच देखें',
+            description: 'अपनी पिछली फसलों की समीक्षा करें और प्रबंधित करें।',
+            longDescription: 'आपके द्वारा बनाए गए सभी बैचों का पूरा इतिहास एक्सेस करें, उनकी वर्तमान स्थिति देखें, और उनकी पूरी प्रोవెనेंस यात्रा देखें।',
+            button: 'इतिहास देखें',
+        },
     },
   },
   te: {
@@ -647,6 +675,20 @@ export const content = {
       pastProducts: 'గత ఉత్పత్తులు',
       verify: 'ధృవీకరించు/నవీకరించు',
     },
+    farmerDashboard: {
+        create: {
+            title: 'కొత్త బ్యాచ్‌ను సృష్టించండి',
+            description: 'పంట కోసం కొత్త ప్రొవెనెన్స్ రికార్డును ప్రారంభించండి.',
+            longDescription: 'పొలం, స్థానం మరియు పంట తేదీ వంటి ప్రారంభ వివరాలను నమోదు చేయడం ద్వారా కొత్త బ్యాచ్‌ను ట్రాక్ చేయడం ప్రారంభించండి. దాని ప్రయాణాన్ని అనుసరించడానికి ఒక ప్రత్యేకమైన QR కోడ్ உருவாக்கబడుతుంది.',
+            button: 'ట్రాకింగ్ ప్రారంభించండి',
+        },
+        view: {
+            title: 'గత బ్యాచ్‌లను వీక్షించండి',
+            description: 'మీ గత పంటలను సమీక్షించండి మరియు నిర్వహించండి.',
+            longDescription: 'మీరు సృష్టించిన అన్ని బ్యాచ్‌ల పూర్తి చరిత్రను యాక్సెస్ చేయండి, వాటి ప్రస్తుత స్థితిని వీక్షించండి మరియు వాటి పూర్తి ప్రొవెనెన్స్ ప్రయాణాన్ని చూడండి.',
+            button: 'చరిత్రను వీక్షించండి',
+        },
+    },
   },
   ta: {
     home: {
@@ -862,6 +904,20 @@ export const content = {
       assembleProduct: 'தயாரிப்பை ஒன்றுகூட்டு',
       pastProducts: 'கடந்த தயாரிப்புகள்',
       verify: 'சரிபார்/புதுப்பி',
+    },
+    farmerDashboard: {
+        create: {
+            title: 'புதிய தொகுதியை உருவாக்கவும்',
+            description: 'ஒரு அறுவடைக்கான புதிய பிறப்புரிமைப் பதிவைத் தொடங்கவும்.',
+            longDescription: 'பண்ணை, இருப்பிடம் மற்றும் அறுவடை தேதி போன்ற அதன் ஆரம்ப விவரங்களை உள்ளிட்டு ஒரு புதிய தொகுதியைக் கண்காணிக்கத் தொடங்குங்கள். அதன் பயணத்தைப் பின்பற்ற ஒரு தனித்துவமான QR குறியீடு உருவாக்கப்படும்.',
+            button: 'கண்காணிப்பைத் தொடங்கு',
+        },
+        view: {
+            title: 'கடந்த தொகுதிகளைக் காண்க',
+            description: 'உங்கள் முந்தைய அறுவடைகளை மதிப்பாய்வு செய்து நிர்வகிக்கவும்.',
+            longDescription: 'நீங்கள் உருவாக்கிய அனைத்து தொகுதிகளின் முழுமையான வரலாற்றை அணுகவும், அவற்றின் தற்போதைய நிலையைக் காணவும், அவற்றின் முழுமையான பிறப்புரிமைப் பயணத்தைப் பார்க்கவும்.',
+            button: 'வரலாற்றைக் காண்க',
+        },
     },
   },
 };
