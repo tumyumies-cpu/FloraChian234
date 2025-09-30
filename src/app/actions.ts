@@ -1,5 +1,4 @@
 
-'use client';
 
 // IMPORTANT: This file now contains client-side data management functions
 // that interact with the DbContext, which uses localStorage.

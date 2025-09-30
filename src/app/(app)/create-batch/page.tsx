@@ -1,21 +1,28 @@
+
 'use client';
 import { CreateBatchForm } from "./create-batch-form";
 import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/context/language-context";
 
 function CreateBatchContent() {
-  return <CreateBatchForm />;
+  const { content, language } = useLanguage();
+  const c = content[language].createBatch;
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-headline font-bold tracking-tight">{c.step3.title}</h1>
+        <p className="text-muted-foreground">{c.step3.description}</p>
+      </div>
+      <CreateBatchForm />
+    </div>
+  );
 }
 
 export default function CreateBatchPage() {
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-headline font-bold tracking-tight">Create a New Batch</h1>
-        <p className="text-muted-foreground">Capture a photo and enter the details below to start tracking a new harvest.</p>
-      </div>
-      <Suspense fallback={<div>Loading form...</div>}>
+     <Suspense fallback={<Skeleton className="h-[60rem] w-full" />}>
         <CreateBatchContent />
       </Suspense>
-    </div>
   );
 }

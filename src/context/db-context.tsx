@@ -245,6 +245,10 @@ export function DbProvider({ children }: { children: ReactNode }) {
         updateDb({ ...newDb, farmerApplications: newApplications, users: newUsers });
     };
 
+    const reloadDb = () => {
+        initializeDb();
+    };
+
     const value = {
         db,
         loading,
@@ -259,7 +263,7 @@ export function DbProvider({ children }: { children: ReactNode }) {
         deleteUser,
         addFarmerApplication,
         updateFarmerApplicationStatus,
-        reloadDb: initializeDb,
+        reloadDb,
     };
 
     return <DbContext.Provider value={value}>{children}</DbContext.Provider>;
