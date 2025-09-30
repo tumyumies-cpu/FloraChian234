@@ -47,52 +47,8 @@ const DiagnosePlantHealthOutputSchema = z.object({
 export type DiagnosePlantHealthOutput = z.infer<typeof DiagnosePlantHealthOutputSchema>;
 
 export async function diagnosePlantHealth(input: DiagnosePlantHealthInput): Promise<DiagnosePlantHealthOutput> {
-  // Return a hardcoded "fake" analysis to ensure the app works for judging.
-  // This bypasses the need for a live API call which has been causing issues.
-  
-  // To re-enable the live AI, comment out the line below
-  return getFakeAnalysis(input.language);
-  
-  // and uncomment this line:
-  // return diagnosePlantHealthFlow(input);
+  return diagnosePlantHealthFlow(input);
 }
-
-
-function getFakeAnalysis(language?: string): DiagnosePlantHealthOutput {
-    // This function returns a detailed, realistic-looking analysis.
-    // In a real application, this data would come from the AI model.
-    return {
-        isPlant: true,
-        identification: {
-            commonName: 'Organic Basil',
-            latinName: 'Ocimum basilicum',
-            description: 'A vibrant and healthy specimen of Organic Basil, showing excellent foliage and color.',
-        },
-        healthAssessment: {
-            healthStatus: 'Healthy',
-            healthScore: 98,
-            diagnosis: 'The plant appears to be in excellent health. The leaves are a uniform, vibrant green with no visible signs of chlorosis, necrosis, or pest damage. The stem structure is strong and shows no signs of wilting or disease.',
-            potentialCauses: [],
-            recommendations: [
-                'Continue current watering and nutrient schedule.',
-                'Ensure good air circulation to prevent fungal growth.',
-                'Monitor for common pests like aphids, although none are currently present.',
-            ],
-        },
-        farmingGuide: {
-            suggestedFertilizers: [
-                'A balanced N-P-K (10-10-10) liquid fertilizer every 4-6 weeks during the growing season.',
-                'Organic compost or worm castings can be added to the soil to improve nutrient content.',
-            ],
-            careGuide: 'Basil thrives in well-drained soil with at least 6-8 hours of direct sunlight per day. Water consistently, but avoid overwatering, allowing the soil to dry slightly between waterings. Regular harvesting of the top leaves encourages bushier growth.',
-        },
-        marketValue: {
-            estimatedPrice: '₹300 - ₹350 per kg',
-            priceRationale: 'The excellent visual quality, vibrant color, and lack of blemishes suggest this basil will command a premium price in the market for fresh herbs.',
-        },
-    };
-}
-
 
 const prompt = ai.definePrompt({
   name: 'diagnosePlantHealthPrompt',
