@@ -203,7 +203,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                 <FormItem>
                                     <div className="mb-4">
                                         <FormLabel>Select Ingredient Batches</FormLabel>
-                                        <div className="text-sm text-muted-foreground">Choose one or more batches that have been acquired by a supplier to combine into this product.</div>
+                                        <p className="text-sm text-muted-foreground">Choose one or more batches that have been acquired by a supplier to combine into this product.</p>
                                     </div>
                                     <div className="space-y-4">
                                         <AdvancedFilterControls
@@ -298,5 +298,3 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
     </Card>
   );
 }
-
-    

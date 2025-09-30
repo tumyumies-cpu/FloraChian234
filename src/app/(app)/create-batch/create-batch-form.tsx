@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { CreateBatchSchema, type CreateBatchValues } from "@/lib/schemas";
 import { CalendarIcon, LoaderCircle, QrCode, MapPin, Sparkles, Languages, Leaf, AlertTriangle, CheckCircle, Info, BadgeDollarSign } from "lucide-react";
-import { format, subDays } from "date-fns";
+import { format } from "date-fns";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CameraCapture } from "@/components/camera-capture";
@@ -83,6 +83,12 @@ export function CreateBatchForm() {
       processingDetails: "Hand-picked at dawn, immediately cooled.",
     },
   });
+  
+  useEffect(() => {
+    // This runs only on the client, so `new Date()` is safe
+    form.setValue('harvestDate', new Date());
+  }, [form]);
+
 
   const handlePhotoCapture = useCallback(async (dataUrl: string) => {
     setPhoto(dataUrl);
@@ -131,7 +137,7 @@ export function CreateBatchForm() {
              form.setValue("location", preciseLocation, { shouldValidate: true });
              toast({
                 title: c.toast.locationCapturedTitle,
-                description: `${c.toast.locationCapturedDescription}: ${preciseLocation}`,
+                description: `${c.toast.locationCapturedDescription}: ${result.location}`,
              });
           } else {
              toast({

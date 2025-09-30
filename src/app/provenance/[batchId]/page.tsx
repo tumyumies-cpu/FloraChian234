@@ -325,7 +325,9 @@ function ProvenancePageContent() {
 function ProvenancePageWithProvider() {
     return (
         <DbProvider>
+          <Suspense fallback={<ProvenancePageSkeleton />}>
             <ProvenancePageContent />
+          </Suspense>
         </DbProvider>
     );
 }
@@ -333,8 +335,6 @@ function ProvenancePageWithProvider() {
 
 export default function ProvenancePage() {
     return (
-        <Suspense fallback={<ProvenancePageSkeleton />}>
-            <ProvenancePageWithProvider />
-        </Suspense>
+      <ProvenancePageWithProvider />
     );
 }
