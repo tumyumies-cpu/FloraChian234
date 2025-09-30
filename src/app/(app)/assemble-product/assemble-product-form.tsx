@@ -231,7 +231,7 @@ export function AssembleProductForm({ batches }: AssembleProductFormProps) {
                                                             render={({ field }) => {
                                                                 const isChecked = field.value?.includes(batch.batchId);
                                                                 return (
-                                                                    <TableRow key={batch.batchId} data-state={isChecked}>
+                                                                    <TableRow key={batch.batchId} data-state={isChecked ? 'selected' : undefined}>
                                                                         <TableCell className="p-2">
                                                                              <FormControl>
                                                                                 <Checkbox
