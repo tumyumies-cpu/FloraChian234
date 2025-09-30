@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
@@ -95,7 +96,7 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
     <div className="space-y-4">
       <div className="relative aspect-video w-full overflow-hidden rounded-lg border bg-muted">
         {capturedImage ? (
-          <Image src={capturedImage} alt="Captured harvest" layout="fill" objectFit="cover" />
+          <Image src={capturedImage} alt="Captured harvest" fill objectFit="cover" />
         ) : (
           <video ref={videoRef} className="h-full w-full object-cover" autoPlay playsInline muted />
         )}
@@ -141,3 +142,5 @@ export function CameraCapture({ onCapture }: CameraCaptureProps) {
     </div>
   );
 }
+
+    

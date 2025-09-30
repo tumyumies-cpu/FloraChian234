@@ -46,9 +46,10 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
   });
   
   useEffect(() => {
-    // Generate client-side only to prevent hydration errors
-    if (!initialData && !form.getValues('finalBatchId')) {
-        form.setValue('finalBatchId', `FP-${Math.floor(10000 + Math.random() * 90000)}`);
+    if (typeof window !== 'undefined') {
+        if (!initialData && !form.getValues('finalBatchId')) {
+            form.setValue('finalBatchId', `FP-${Math.floor(10000 + Math.random() * 90000)}`);
+        }
     }
   }, [form, initialData]);
 
@@ -201,3 +202,5 @@ export function ManufacturingEventForm({ onSubmit, onCancel, loading, initialDat
     </Form>
   );
 }
+
+    
