@@ -1,4 +1,3 @@
-
 "use client";
 import { AssembleProductForm } from "./assemble-product-form";
 import { Suspense } from "react";

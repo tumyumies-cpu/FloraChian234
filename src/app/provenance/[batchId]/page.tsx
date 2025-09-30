@@ -1,4 +1,3 @@
-
 "use client";
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -136,7 +135,6 @@ function ProvenancePageContent() {
                 fill
                 className="object-cover"
                 data-ai-hint={imageHint}
-                priority
             />
             <div className="absolute inset-0 bg-black/50" />
             <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-12">

@@ -1,4 +1,3 @@
-
 'use client';
 import { CreateBatchForm } from "./create-batch-form";
 import { Suspense } from "react";
