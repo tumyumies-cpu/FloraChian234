@@ -113,12 +113,10 @@ export async function getGeocodedLocation(latitude: number, longitude: number): 
     }
     const data = await response.json();
     
-    if (data.address) {
-      const { city, state, country } = data.address;
-      const locationParts = [city, state, country].filter(Boolean); // Filter out any undefined/null parts
-      return { success: true, location: locationParts.join(', ') };
+    if (data && data.display_name) {
+      return { success: true, location: data.display_name };
     } else {
-      return { success: false, message: "Could not determine location from coordinates." };
+      return { success: false, message: "Could not determine address from coordinates." };
     }
   } catch (error) {
     console.error("Geocoding error:", error);

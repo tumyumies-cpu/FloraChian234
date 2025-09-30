@@ -45,7 +45,7 @@ export function CreateBatchForm() {
   const [newBatchId, setNewBatchId] = useState<string | null>(null);
   const [photo, setPhoto] = useState<string | null>(null);
   const [diagnosis, setDiagnosis] = useState<DiagnosisState>(null);
-  const [diagnosisLoading, setDiagnosisLoading] useState(false);
+  const [diagnosisLoading, setDiagnosisLoading] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
   const { toast } = useToast();
   const router = useRouter();
@@ -125,7 +125,7 @@ export function CreateBatchForm() {
              form.setValue("location", preciseLocation, { shouldValidate: true });
              toast({
                 title: c.toast.locationCapturedTitle,
-                description: `${c.toast.locationCapturedDescription}: ${preciseLocation}`,
+                description: `${c.toast.locationCapturedDescription}: ${result.location}`,
              });
           } else {
              toast({
@@ -274,9 +274,9 @@ export function CreateBatchForm() {
               data-ai-hint="qr code"
             />
           </div>
-          <div className="text-muted-foreground text-sm mt-4">
+          <p className="text-muted-foreground text-sm mt-4">
             {c.qr.description}
-          </div>
+          </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" onClick={handleViewProvenance}>
               {c.qr.viewJourneyButton}
@@ -542,9 +542,9 @@ export function CreateBatchForm() {
                 </Button>
               </div>
                {isBatchCreationDisabled && diagnosis && (
-                <div className="text-sm text-destructive text-center">
+                <p className="text-sm text-destructive text-center">
                     {c.form.submitError}
-                </div>
+                </p>
               )}
             </form>
           </Form>
@@ -553,5 +553,3 @@ export function CreateBatchForm() {
     </div>
   );
 }
-
-    
