@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/context/auth-context';
 
 function getRoleLabel(role: string | null) {
   if (!role) return "User";
@@ -16,9 +17,9 @@ function getRoleLabel(role: string | null) {
 }
 
 function ProfileContent() {
-  const searchParams = useSearchParams();
-  const role = (searchParams.get('role') || 'consumer') as UserRole;
-  const roleLabel = getRoleLabel(role);
+  const { authInfo } = useAuth();
+  const role = authInfo?.role;
+  const roleLabel = getRoleLabel(role || null);
 
   return (
     <div className="space-y-8">
@@ -40,7 +41,7 @@ function ProfileContent() {
                 </Avatar>
               </div>
               <h2 className="mt-4 text-2xl font-headline font-semibold">{roleLabel}</h2>
-              <p className="text-muted-foreground">{role}@florachain.com</p>
+              <p className="text-muted-foreground">{authInfo?.email}</p>
             </CardContent>
           </Card>
         </div>
@@ -65,7 +66,7 @@ function ProfileContent() {
                     <AtSign className="h-6 w-6 text-primary mt-1" />
                     <div>
                         <p className="text-sm font-semibold text-muted-foreground">EMAIL</p>
-                        <p className="font-medium">{role}@florachain.com</p>
+                        <p className="font-medium">{authInfo?.email}</p>
                     </div>
                 </div>
                  <Separator />

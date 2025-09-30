@@ -47,6 +47,7 @@ export function CreateBatchForm() {
   const [diagnosis, setDiagnosis] = useState<DiagnosisState>(null);
   const [diagnosisLoading, setDiagnosisLoading] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
+  const [defaultHarvestDate, setDefaultHarvestDate] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -54,6 +55,11 @@ export function CreateBatchForm() {
   const { language, setLanguage, content } = useLanguage();
   const c = content[language].createBatch;
 
+
+  useEffect(() => {
+    // This will only run on the client, after initial hydration, preventing build errors
+    setDefaultHarvestDate(new Date());
+  }, []);
 
   useEffect(() => {
     if (newBatchId) {
@@ -77,6 +83,12 @@ export function CreateBatchForm() {
       processingDetails: "Hand-picked at dawn, immediately cooled.",
     },
   });
+  
+  useEffect(() => {
+    // This runs only on the client, so `new Date()` is safe
+    form.setValue('harvestDate', new Date());
+  }, [form]);
+
 
   const handlePhotoCapture = useCallback(async (dataUrl: string) => {
     setPhoto(dataUrl);
@@ -504,6 +516,7 @@ export function CreateBatchForm() {
                             date > new Date()
                           }
                           initialFocus
+                          defaultMonth={defaultHarvestDate}
                         />
                       </PopoverContent>
                     </Popover>
@@ -553,5 +566,3 @@ export function CreateBatchForm() {
     </div>
   );
 }
-
-    
